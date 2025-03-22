@@ -1,15 +1,25 @@
-# What is OS161?
+# OS161: An Educational Operating System
 
-OS161 is a lightweight educational operating system designed for teaching operating system concepts. Developed by Harvard University, it runs on a MIPS-based simulator called sys161. The system includes basic kernel functionality such as threading, interrupts, traps, and a minimal file system. However, many features, such as system calls, virtual memory, and advanced process management, need to be implemented by students as part of their coursework.
+OS161 is a lightweight educational operating system developed at Harvard University to help students dive into the inner workings of operating systems. It runs on a MIPS-based simulator called System161, which provides a simplified yet realistic environment for OS development and experimentation.
 
-### OS161 Development Environment
+## Why OS161?
 
-OS161 requires Ubuntu 20.04 for proper execution. To simplify the setup process, you can use a preconfigured Docker container that includes all necessary dependencies. This container includes all necessary dependencies for OS161 development.
+OS161 is designed to hit that sweet spot between simplicity and realism, making it a great playground for learning OS fundamentals. It comes with the basics—threading, interrupts, traps, and a minimal file system—but the real challenge (and fun) comes from implementing missing features like system calls, virtual memory, and process management yourself. It’s hands-on learning at its best, pushing you to tackle real-world OS development problems.
 
-### Using the OS161 Docker Container
+**Fun fact**: Mark Zuckerberg worked on OS161 assignments during his last semester at Harvard, while also busy launching Facebook.
 
-A Docker container has been prepared to facilitate the development of OS161. You can find it at the following repository:
+## System161: The Simulator
 
+System161 is the virtual machine built specifically for OS161. It simulates a 32-bit MIPS-based system and supports up to 32 processors, making it a solid testing ground for OS development. Some key features include:
+
+- Remote debugging with GDB
+- Built-in kernel profiling and statistical monitoring
+- Event tracing down to individual machine instructions
+- The ability to network multiple instances using a hub program
+
+## OS161 Development Environment
+
+Setting up OS161 is easiest on Ubuntu 20.04. To save time and headaches, there’s a preconfigured Docker container that includes all the necessary dependencies, so you can jump straight into coding without worrying about installation issues.
 ➡️ [polito-os161-docker](https://github.com/marcopalena/polito-os161-docker)
 
 ## Navigating the OS161 File Structure
@@ -29,7 +39,7 @@ Install the extension Live Server in Visual Studio Code and open the file `src/m
 
 1. Navigate to the configuration file:
    ```sh
-   cd $HOME/os161/src/kern/conf/conf.kern
+   cd kern/conf/conf.kern
    ```
 2 Add the following line to the configuration file:
    ```
@@ -59,7 +69,7 @@ Install the extension Live Server in Visual Studio Code and open the file `src/m
 
 1. Navigate to the configuration directory:
    ```sh
-   cd $HOME/os161/src/kern/conf
+   cd kern/conf
    ```
 2. Create a new kernel configuration:
    ```sh
@@ -67,13 +77,13 @@ Install the extension Live Server in Visual Studio Code and open the file `src/m
    ```
 3. Compile the kernel:
    ```sh
-   cd $HOME/os161/src/kern/compile/MYKERNEL
+   cd kern/compile/MYKERNEL
    bmake depend
    bmake
    bmake install
    ```
 
-### Running OS161
+### Running OS161 (Docker Container Folder Structure)
 
 1. Open a terminal in the root directory:
    ```sh
@@ -88,7 +98,7 @@ Install the extension Live Server in Visual Studio Code and open the file `src/m
    sys161 kernel-MYKERNEL
    ```
 
-## Debugging OS161
+## Debugging OS161 (Docker Container Folder Structure)
 
 OS161 can be debugged using multiple tools. The recommended approach involves using two terminals:
 
@@ -141,7 +151,6 @@ System calls must be implemented in:
   ```
   /kern/include/kern/syscall.h
   ```
-  Note: `SYS__exit` has a double underscore.
 
 ## Reference Files
 - **System call handling:** `/kern/arch/mips/syscall/syscall.c`
