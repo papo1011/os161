@@ -284,6 +284,13 @@ vaddr_t alloc_kpages(unsigned npages) {
 	return PADDR_TO_KVADDR(pa);
 }
 
+/*
+ * Frees a kernel memory block given its starting virtual address.
+ * If the allocator is active, it converts the virtual address (KSEG0) to a
+ * physical address, computes the index of the first page (paddr / PAGE_SIZE),
+ * retrieves the block size from allocSize[index], and calls freeppages() to
+ * release that range of pages.
+ */
 void free_kpages(vaddr_t addr) {
 	if (isTableActive()) {
 		paddr_t paddr = addr - MIPS_KSEG0;
