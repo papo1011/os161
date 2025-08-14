@@ -254,6 +254,17 @@ static paddr_t getppages(unsigned long npages) {
 	return addr;
 }
 
+/*
+ * Releases a block of physical memory by marking its pages
+ * as free in the freeRamFrames[] bitmap (1 = free).
+ *
+ * It takes the starting physical address and the number of pages to free.
+ * If the allocator is active, it computes the index of the first page,
+ * acquires freemem_lock to ensure exclusive access, sets the bits for
+ * all pages in the block to 1, and then releases the lock.
+ *
+ * This makes the pages available for future allocations.
+ */
 static int freeppages(paddr_t addr, unsigned long npages) {
 	long i, first, np = (long)npages;
 
