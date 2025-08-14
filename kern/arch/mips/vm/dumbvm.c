@@ -90,6 +90,16 @@ static int isTableActive() {
 	return active;
 }
 
+/*
+ * During system bootstrap (before user processes start), the physical memory
+ * allocator is initialized as follows:
+ *  1. Determine total RAM size via ram_getsize() and divide by page size
+ *     to compute nRamFrames (total number of frames).
+ *  2. Allocate and zero-initialize:
+ *       - freeRamFrames[] bitmap (0 = all pages initially marked as occupied)
+ *       - allocSize[] array (set all entries to 0)
+ *  3. Set allocTableActive = 1 inside a spinlock.
+ */
 void vm_bootstrap(void) {
 	int i;
 	nRamFrames = ((int)ram_getsize()) / PAGE_SIZE;
