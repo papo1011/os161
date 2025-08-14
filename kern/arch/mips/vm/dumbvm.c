@@ -104,10 +104,9 @@ void vm_bootstrap(void) {
 		return;
 	}
 	for (i = 0; i < nRamFrames; i++) {
-		freeRamFrames[i] = (unsigned char)1;
+		freeRamFrames[i] = (unsigned char)0;
 		allocSize[i] = 0;
 	}
-	kprintf("dumbvm: %d free frames\n", nRamFrames);
 	spinlock_acquire(&freemem_lock);
 	allocTableActive = 1;
 	spinlock_release(&freemem_lock);
@@ -368,7 +367,8 @@ void as_activate(void) {
 	splx(spl);
 }
 
-void as_deactivate(void) { /* nothing */ }
+void as_deactivate(void) { /* nothing */
+}
 
 int as_define_region(struct addrspace *as, vaddr_t vaddr, size_t sz,
 					 int readable, int writeable, int executable) {
@@ -500,7 +500,8 @@ int as_copy(struct addrspace *old, struct addrspace **ret) {
 
 /* original dumbvm */
 
-void vm_bootstrap(void) { /* Do nothing. */ }
+void vm_bootstrap(void) { /* Do nothing. */
+}
 
 /*
  * Check if we're in a context that can sleep. While most of the
@@ -690,7 +691,8 @@ void as_activate(void) {
 	splx(spl);
 }
 
-void as_deactivate(void) { /* nothing */ }
+void as_deactivate(void) { /* nothing */
+}
 
 int as_define_region(struct addrspace *as, vaddr_t vaddr, size_t sz,
 					 int readable, int writeable, int executable) {
