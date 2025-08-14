@@ -44,16 +44,14 @@
  *     bitmap_destroy - destroy bitmap.
  */
 
-
-struct bitmap;  /* Opaque. */
+struct bitmap; /* Opaque. */
 
 struct bitmap *bitmap_create(unsigned nbits);
-void          *bitmap_getdata(struct bitmap *);
-int            bitmap_alloc(struct bitmap *, unsigned *index);
-void           bitmap_mark(struct bitmap *, unsigned index);
-void           bitmap_unmark(struct bitmap *, unsigned index);
-int            bitmap_isset(struct bitmap *, unsigned index);
-void           bitmap_destroy(struct bitmap *);
-
+void *bitmap_getdata(struct bitmap *);
+int bitmap_alloc(struct bitmap *, unsigned *index);
+void bitmap_mark(struct bitmap *, unsigned index);
+void bitmap_unmark(struct bitmap *, unsigned index);
+int bitmap_isset(struct bitmap *, unsigned index);
+void bitmap_destroy(struct bitmap *);
 
 #endif /* _BITMAP_H_ */

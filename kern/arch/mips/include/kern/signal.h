@@ -27,7 +27,6 @@
  * SUCH DAMAGE.
  */
 
-
 #ifndef _KERN_MIPS_SIGNAL_H_
 #define _KERN_MIPS_SIGNAL_H_
 

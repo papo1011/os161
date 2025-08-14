@@ -30,9 +30,8 @@
 #ifndef _LAMEBUS_EMU_H_
 #define _LAMEBUS_EMU_H_
 
-
-#define EMU_MAXIO       16384
-#define EMU_ROOTHANDLE  0
+#define EMU_MAXIO 16384
+#define EMU_ROOTHANDLE 0
 
 /*
  * The per-device data used by the emufs device driver.
@@ -57,6 +56,5 @@ struct emu_softc {
 
 /* Functions called by lower-level drivers */
 void emu_irq(/*struct emu_softc*/ void *);
-
 
 #endif /* _LAMEBUS_EMU_H_ */

@@ -28,6 +28,5 @@
  * SUCH DAMAGE.
  */
 
-
 const char *name_get(unsigned name);
 unsigned name_find(const char *namestr);

@@ -42,14 +42,13 @@
  * (kernel) or <sys/stat.h> (userland).
  */
 
-#define _S_IFMT   070000	/* mask for type of file */
-#define _S_IFREG  010000	/* ordinary regular file */
-#define _S_IFDIR  020000	/* directory */
-#define _S_IFLNK  030000	/* symbolic link */
-#define _S_IFIFO  040000	/* pipe or named pipe */
-#define _S_IFSOCK 050000	/* socket */
-#define _S_IFCHR  060000	/* character device */
-#define _S_IFBLK  070000	/* block device */
-
+#define _S_IFMT 070000	 /* mask for type of file */
+#define _S_IFREG 010000	 /* ordinary regular file */
+#define _S_IFDIR 020000	 /* directory */
+#define _S_IFLNK 030000	 /* symbolic link */
+#define _S_IFIFO 040000	 /* pipe or named pipe */
+#define _S_IFSOCK 050000 /* socket */
+#define _S_IFCHR 060000	 /* character device */
+#define _S_IFBLK 070000	 /* block device */
 
 #endif /* _KERN_STATTYPES_H_ */

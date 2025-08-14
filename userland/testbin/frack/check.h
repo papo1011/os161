@@ -28,24 +28,22 @@
  * SUCH DAMAGE.
  */
 
-
 int check_createfile(unsigned name);
 int check_openfile(unsigned name);
 void check_closefile(int handle, unsigned name);
 void check_write(int handle, unsigned name, unsigned code, unsigned seq,
-		 off_t pos, off_t len);
+				 off_t pos, off_t len);
 void check_truncate(int handle, unsigned name, off_t len);
 void check_mkdir(unsigned name);
 void check_rmdir(unsigned name);
 void check_unlink(unsigned name);
 void check_link(unsigned from, unsigned to);
 void check_rename(unsigned from, unsigned to);
-void check_renamexd(unsigned fromdir, unsigned from,
-		    unsigned todir, unsigned to);
+void check_renamexd(unsigned fromdir, unsigned from, unsigned todir,
+					unsigned to);
 void check_chdir(unsigned name);
 void check_chdirup(void);
 void check_sync(void);
-
 
 void check_setup(void);
 void checkfs(void);

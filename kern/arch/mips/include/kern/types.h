@@ -38,21 +38,20 @@
  * See kern/types.h for an explanation of the underscores.
  */
 
-
 /* Sized integer types, with convenient short names */
-typedef char      __i8;                 /* 8-bit signed integer */
-typedef short     __i16;                /* 16-bit signed integer */
-typedef int       __i32;                /* 32-bit signed integer */
-typedef long long __i64;                /* 64-bit signed integer */
+typedef char __i8;		 /* 8-bit signed integer */
+typedef short __i16;	 /* 16-bit signed integer */
+typedef int __i32;		 /* 32-bit signed integer */
+typedef long long __i64; /* 64-bit signed integer */
 
-typedef unsigned char      __u8;        /* 8-bit unsigned integer */
-typedef unsigned short     __u16;       /* 16-bit unsigned integer */
-typedef unsigned int       __u32;       /* 32-bit unsigned integer */
-typedef unsigned long long __u64;       /* 64-bit unsigned integer */
+typedef unsigned char __u8;		  /* 8-bit unsigned integer */
+typedef unsigned short __u16;	  /* 16-bit unsigned integer */
+typedef unsigned int __u32;		  /* 32-bit unsigned integer */
+typedef unsigned long long __u64; /* 64-bit unsigned integer */
 
 /* Further standard C types */
-typedef long __intptr_t;                /* Signed pointer-sized integer */
-typedef unsigned long __uintptr_t;      /* Unsigned pointer-sized integer */
+typedef long __intptr_t;		   /* Signed pointer-sized integer */
+typedef unsigned long __uintptr_t; /* Unsigned pointer-sized integer */
 
 /*
  * Since we're a 32-bit platform, size_t, ssize_t, and ptrdiff_t can
@@ -62,17 +61,16 @@ typedef unsigned long __uintptr_t;      /* Unsigned pointer-sized integer */
  * errors involving size_t, try changing this.
  */
 #if 1
-typedef unsigned __size_t;              /* Size of a memory region */
-typedef int __ssize_t;                  /* Signed type of same size */
-typedef int __ptrdiff_t;                /* Difference of two pointers */
+typedef unsigned __size_t; /* Size of a memory region */
+typedef int __ssize_t;	   /* Signed type of same size */
+typedef int __ptrdiff_t;   /* Difference of two pointers */
 #else
-typedef unsigned long __size_t;         /* Size of a memory region */
-typedef long __ssize_t;                 /* Signed type of same size */
-typedef long __ptrdiff_t;               /* Difference of two pointers */
+typedef unsigned long __size_t; /* Size of a memory region */
+typedef long __ssize_t;			/* Signed type of same size */
+typedef long __ptrdiff_t;		/* Difference of two pointers */
 #endif
 
 /* Number of bits per byte. */
-#define __CHAR_BIT  8
-
+#define __CHAR_BIT 8
 
 #endif /* _KERN_MIPS_TYPES_H_ */

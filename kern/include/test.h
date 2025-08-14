@@ -35,7 +35,6 @@
  * functions.
  */
 
-
 /*
  * Test code.
  */
@@ -103,6 +102,5 @@ void menu(char *argstr);
 
 /* The main function, called from start.S. */
 void kmain(char *bootstring);
-
 
 #endif /* _TEST_H_ */

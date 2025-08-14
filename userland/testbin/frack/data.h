@@ -30,12 +30,12 @@
 
 void *data_map(unsigned code, unsigned seq, off_t len);
 void *data_mapreadbuf(off_t len);
-int data_matches(const char *namestr, off_t regionoffset,
-		 unsigned code, unsigned seq, off_t zerostart, off_t len,
-		 off_t checkstart, off_t checklen);
-void data_check(const char *namestr, off_t regionoffset,
-		unsigned code, unsigned seq, off_t zerostart, off_t len,
-		off_t checkstart, off_t checklen);
+int data_matches(const char *namestr, off_t regionoffset, unsigned code,
+				 unsigned seq, off_t zerostart, off_t len, off_t checkstart,
+				 off_t checklen);
+void data_check(const char *namestr, off_t regionoffset, unsigned code,
+				unsigned seq, off_t zerostart, off_t len, off_t checkstart,
+				off_t checklen);
 
 #define DATA_MAXSIZE 65536
 #define POISON_VAL 0xa9

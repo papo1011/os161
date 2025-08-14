@@ -34,8 +34,8 @@
 
 struct lser_softc {
 	/* Initialized by config function */
-	struct spinlock ls_lock;    /* protects ls_wbusy and device regs */
-	volatile bool ls_wbusy;     /* true if write in progress */
+	struct spinlock ls_lock; /* protects ls_wbusy and device regs */
+	volatile bool ls_wbusy;	 /* true if write in progress */
 
 	/* Initialized by lower-level attachment function */
 	void *ls_busdata;

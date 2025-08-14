@@ -30,7 +30,6 @@
 #ifndef _MIPS_THREAD_H_
 #define _MIPS_THREAD_H_
 
-
 /*
  * Machine-dependent thread bits.
  */
@@ -40,9 +39,8 @@
 typedef void (*badfaultfunc_t)(void);
 
 struct thread_machdep {
-	badfaultfunc_t tm_badfaultfunc;	/* fault hook used by copyin/out */
-	jmp_buf tm_copyjmp;		/* longjmp area used by copyin/out */
+	badfaultfunc_t tm_badfaultfunc; /* fault hook used by copyin/out */
+	jmp_buf tm_copyjmp;				/* longjmp area used by copyin/out */
 };
-
 
 #endif /* _MIPS_THREAD_H_ */

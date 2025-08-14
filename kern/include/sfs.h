@@ -30,11 +30,9 @@
 #ifndef _SFS_H_
 #define _SFS_H_
 
-
 /*
  * Header for SFS, the Simple File System.
  */
-
 
 /*
  * Get abstract structure definitions
@@ -52,29 +50,28 @@
  * In-memory inode
  */
 struct sfs_vnode {
-	struct vnode sv_absvn;          /* abstract vnode structure */
-	struct sfs_dinode sv_i;		/* copy of on-disk inode */
-	uint32_t sv_ino;                /* inode number */
-	bool sv_dirty;                  /* true if sv_i modified */
+	struct vnode sv_absvn;	/* abstract vnode structure */
+	struct sfs_dinode sv_i; /* copy of on-disk inode */
+	uint32_t sv_ino;		/* inode number */
+	bool sv_dirty;			/* true if sv_i modified */
 };
 
 /*
  * In-memory info for a whole fs volume
  */
 struct sfs_fs {
-	struct fs sfs_absfs;            /* abstract filesystem structure */
-	struct sfs_superblock sfs_sb;	/* copy of on-disk superblock */
-	bool sfs_superdirty;            /* true if superblock modified */
-	struct device *sfs_device;      /* device mounted on */
-	struct vnodearray *sfs_vnodes;  /* vnodes loaded into memory */
-	struct bitmap *sfs_freemap;     /* blocks in use are marked 1 */
-	bool sfs_freemapdirty;          /* true if freemap modified */
+	struct fs sfs_absfs;		   /* abstract filesystem structure */
+	struct sfs_superblock sfs_sb;  /* copy of on-disk superblock */
+	bool sfs_superdirty;		   /* true if superblock modified */
+	struct device *sfs_device;	   /* device mounted on */
+	struct vnodearray *sfs_vnodes; /* vnodes loaded into memory */
+	struct bitmap *sfs_freemap;	   /* blocks in use are marked 1 */
+	bool sfs_freemapdirty;		   /* true if freemap modified */
 };
 
 /*
  * Function for mounting a sfs (calls vfs_mount)
  */
 int sfs_mount(const char *device);
-
 
 #endif /* _SFS_H_ */

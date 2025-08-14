@@ -27,7 +27,6 @@
  * SUCH DAMAGE.
  */
 
-
 #ifndef HOSTCOMPAT_ERR_H
 #define HOSTCOMPAT_ERR_H
 

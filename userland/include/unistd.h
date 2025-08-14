@@ -46,7 +46,6 @@
 #include <kern/unistd.h>
 #include <kern/wait.h>
 
-
 /*
  * Prototypes for OS/161 system calls.
  *
@@ -97,7 +96,6 @@
  * the text of the various assignments for an authoritative list.
  */
 
-
 /*
  * NOTE NOTE NOTE NOTE NOTE
  *
@@ -106,7 +104,6 @@
  * due to error handling concerns, the in-kernel versions of these
  * functions will usually have slightly different signatures.
  */
-
 
 /* Required. */
 __DEAD void _exit(int code);
@@ -156,7 +153,7 @@ ssize_t __getcwd(char *buf, size_t buflen);
  */
 
 int execvp(const char *prog, char *const *args); /* calls execv */
-char *getcwd(char *buf, size_t buflen);		/* calls __getcwd */
-time_t time(time_t *seconds);			/* calls __time */
+char *getcwd(char *buf, size_t buflen);			 /* calls __getcwd */
+time_t time(time_t *seconds);					 /* calls __time */
 
 #endif /* _UNISTD_H_ */

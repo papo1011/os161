@@ -67,15 +67,14 @@ void sfs_writeindirect(uint32_t blocknum, uint32_t *entries);
 
 /* directory - ND should be the number of directory entries D points to */
 void sfs_readdir(struct sfs_dinode *sfi, struct sfs_direntry *d, unsigned nd);
-void sfs_writedir(const struct sfs_dinode *sfi,
-		  struct sfs_direntry *d, unsigned nd);
+void sfs_writedir(const struct sfs_dinode *sfi, struct sfs_direntry *d,
+				  unsigned nd);
 
 /* Try to add an entry to a directory. */
-int sfsdir_tryadd(struct sfs_direntry *d, int nd,
-		  const char *name, uint32_t ino);
+int sfsdir_tryadd(struct sfs_direntry *d, int nd, const char *name,
+				  uint32_t ino);
 
 /* Sort a directory by creating a permutation vector. */
 void sfsdir_sort(struct sfs_direntry *d, unsigned nd, int *vector);
-
 
 #endif /* SFS_H */

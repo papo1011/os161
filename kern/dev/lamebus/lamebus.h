@@ -39,39 +39,38 @@
  * Machine-independent definitions.
  */
 
-
 /* Vendors */
-#define LB_VENDOR_CS161      1
+#define LB_VENDOR_CS161 1
 
 /* CS161 devices */
-#define LBCS161_UPBUSCTL     1
-#define LBCS161_TIMER        2
-#define LBCS161_DISK         3
-#define LBCS161_SERIAL       4
-#define LBCS161_SCREEN       5
-#define LBCS161_NET          6
-#define LBCS161_EMUFS        7
-#define LBCS161_TRACE        8
-#define LBCS161_RANDOM       9
-#define LBCS161_MPBUSCTL     10
+#define LBCS161_UPBUSCTL 1
+#define LBCS161_TIMER 2
+#define LBCS161_DISK 3
+#define LBCS161_SERIAL 4
+#define LBCS161_SCREEN 5
+#define LBCS161_NET 6
+#define LBCS161_EMUFS 7
+#define LBCS161_TRACE 8
+#define LBCS161_RANDOM 9
+#define LBCS161_MPBUSCTL 10
 
 /* LAMEbus controller always goes in slot 31 */
-#define LB_CONTROLLER_SLOT   31
+#define LB_CONTROLLER_SLOT 31
 
 /* Number of slots */
-#define LB_NSLOTS            32
+#define LB_NSLOTS 32
 
 /* LAMEbus controller per-slot config space */
-#define LB_CONFIG_SIZE       1024
+#define LB_CONFIG_SIZE 1024
 
 /* LAMEbus controller per-cpu control space */
-#define LB_CTLCPU_SIZE       1024
+#define LB_CTLCPU_SIZE 1024
 
 /* LAMEbus controller slot offset to per-cpu control space */
-#define LB_CTLCPU_OFFSET     32768
+#define LB_CTLCPU_OFFSET 32768
 
 /* LAMEbus mapping size per slot */
-#define LB_SLOT_SIZE         65536
+#define LB_SLOT_SIZE 65536
 
 /* Pointer to kind of function called on interrupt */
 typedef void (*lb_irqfunc)(void *devdata);
@@ -83,12 +82,12 @@ struct lamebus_softc {
 	struct spinlock ls_lock;
 
 	/* Accessed from interrupts; synchronized with ls_lock */
-	uint32_t     ls_slotsinuse;
-	void        *ls_devdata[LB_NSLOTS];
-	lb_irqfunc   ls_irqfuncs[LB_NSLOTS];
+	uint32_t ls_slotsinuse;
+	void *ls_devdata[LB_NSLOTS];
+	lb_irqfunc ls_irqfuncs[LB_NSLOTS];
 
 	/* Read-only once set early in boot */
-	unsigned     ls_uniprocessor;
+	unsigned ls_uniprocessor;
 };
 
 /*
@@ -113,9 +112,8 @@ void lamebus_start_cpus(struct lamebus_softc *lamebus);
  *
  * Returns a slot number (0-31) or -1 if no such device is found.
  */
-int lamebus_probe(struct lamebus_softc *,
-		  uint32_t vendorid, uint32_t deviceid,
-		  uint32_t lowver, uint32_t *version_ret);
+int lamebus_probe(struct lamebus_softc *, uint32_t vendorid, uint32_t deviceid,
+				  uint32_t lowver, uint32_t *version_ret);
 
 /*
  * Mark a slot in-use (that is, has a device driver attached to it),
@@ -128,9 +126,8 @@ void lamebus_unmark(struct lamebus_softc *, int slot);
 /*
  * Attach to an interrupt.
  */
-void lamebus_attach_interrupt(struct lamebus_softc *, int slot,
-			      void *devdata,
-			      void (*irqfunc)(void *devdata));
+void lamebus_attach_interrupt(struct lamebus_softc *, int slot, void *devdata,
+							  void (*irqfunc)(void *devdata));
 /*
  * Detach from interrupt.
  */
@@ -168,15 +165,13 @@ void lamebus_clear_ipi(struct lamebus_softc *, struct cpu *targetcpu);
  * (Machine dependent.)
  */
 uint32_t lamebus_read_register(struct lamebus_softc *, int slot,
-			       uint32_t offset);
-void lamebus_write_register(struct lamebus_softc *, int slot,
-			    uint32_t offset, uint32_t val);
+							   uint32_t offset);
+void lamebus_write_register(struct lamebus_softc *, int slot, uint32_t offset,
+							uint32_t val);
 
 /*
  * Map a buffer that starts at offset OFFSET within slot SLOT.
  */
-void *lamebus_map_area(struct lamebus_softc *, int slot,
-		       uint32_t offset);
-
+void *lamebus_map_area(struct lamebus_softc *, int slot, uint32_t offset);
 
 #endif /* _LAMEBUS_H_ */

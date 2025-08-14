@@ -37,11 +37,11 @@
  * the ultimate exit code of sfsck.
  */
 
-#define EXIT_USAGE    4
-#define EXIT_FATAL    3
-#define EXIT_UNRECOV  2
-#define EXIT_RECOV    1
-#define EXIT_CLEAN    0
+#define EXIT_USAGE 4
+#define EXIT_FATAL 3
+#define EXIT_UNRECOV 2
+#define EXIT_RECOV 1
+#define EXIT_CLEAN 0
 
 void setbadness(int code);
 

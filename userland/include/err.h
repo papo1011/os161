@@ -30,8 +30,8 @@
 #ifndef _ERR_H_
 #define _ERR_H_
 
-#include <sys/cdefs.h>   /* for __DEAD */
-#include <kern/types.h>  /* for __va_list */
+#include <sys/cdefs.h>	/* for __DEAD */
+#include <kern/types.h> /* for __va_list */
 
 /*
  * 4.4BSD error-printing functions.

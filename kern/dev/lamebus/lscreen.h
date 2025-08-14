@@ -35,23 +35,23 @@
  */
 struct lscreen_softc {
 	/* Initialized by config function */
-	struct spinlock ls_lock;      // protects data and device regs
+	struct spinlock ls_lock;	  // protects data and device regs
 	unsigned ls_width, ls_height; // screen size
-	unsigned ls_cx, ls_cy;        // cursor position
-	char *ls_screen;              // memory-mapped screen buffer
+	unsigned ls_cx, ls_cy;		  // cursor position
+	char *ls_screen;			  // memory-mapped screen buffer
 
 	/* Initialized by lower-level attachment function */
-	void *ls_busdata;		// bus we're on
-	uint32_t ls_buspos;		// position on that bus
+	void *ls_busdata;	// bus we're on
+	uint32_t ls_buspos; // position on that bus
 
 	/* Initialized by higher-level attachment function */
-	void *ls_devdata;			// data and functions for
-	void (*ls_start)(void *devdata);	// upper device (perhaps
+	void *ls_devdata;						 // data and functions for
+	void (*ls_start)(void *devdata);		 // upper device (perhaps
 	void (*ls_input)(void *devdata, int ch); // console)
 };
 
 /* Functions called by lower-level drivers */
-void lscreen_irq(/*struct lser_softc*/ void *sc);  // interrupt handler
+void lscreen_irq(/*struct lser_softc*/ void *sc); // interrupt handler
 
 /* Functions called by higher-level drivers */
 void lscreen_write(/*struct lser_softc*/ void *sc, int ch); // output function

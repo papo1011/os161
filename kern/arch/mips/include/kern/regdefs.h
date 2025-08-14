@@ -36,39 +36,37 @@
 #ifndef _KERN_MIPS_REGDEFS_H_
 #define _KERN_MIPS_REGDEFS_H_
 
-
-#define z0  $0     /* always zero register */
-#define AT  $1     /* assembler temp register */
-#define v0  $2     /* value 0 */
-#define v1  $3     /* value 1 */
-#define a0  $4     /* argument 0 */
-#define a1  $5     /* argument 1 */
-#define a2  $6     /* argument 2 */
-#define a3  $7     /* argument 3 */
-#define t0  $8     /* temporary (caller-save) 0 */
-#define t1  $9     /* temporary (caller-save) 1 */
-#define t2  $10    /* temporary (caller-save) 2 */
-#define t3  $11    /* temporary (caller-save) 3 */
-#define t4  $12    /* temporary (caller-save) 4 */
-#define t5  $13    /* temporary (caller-save) 5 */
-#define t6  $14    /* temporary (caller-save) 6 */
-#define t7  $15    /* temporary (caller-save) 7 */
-#define s0  $16    /* saved (callee-save) 0 */
-#define s1  $17    /* saved (callee-save) 1 */
-#define s2  $18    /* saved (callee-save) 2 */
-#define s3  $19    /* saved (callee-save) 3 */
-#define s4  $20    /* saved (callee-save) 4 */
-#define s5  $21    /* saved (callee-save) 5 */
-#define s6  $22    /* saved (callee-save) 6 */
-#define s7  $23    /* saved (callee-save) 7 */
-#define t8  $24    /* temporary (caller-save) 8 */
-#define t9  $25    /* temporary (caller-save) 9 */
-#define k0  $26    /* kernel temporary 0 */
-#define k1  $27    /* kernel temporary 1 */
-#define gp  $28    /* global pointer */
-#define sp  $29    /* stack pointer */
-#define s8  $30    /* saved (callee-save) 8 = frame pointer */
-#define ra  $31    /* return address */
-
+#define z0 $0  /* always zero register */
+#define AT $1  /* assembler temp register */
+#define v0 $2  /* value 0 */
+#define v1 $3  /* value 1 */
+#define a0 $4  /* argument 0 */
+#define a1 $5  /* argument 1 */
+#define a2 $6  /* argument 2 */
+#define a3 $7  /* argument 3 */
+#define t0 $8  /* temporary (caller-save) 0 */
+#define t1 $9  /* temporary (caller-save) 1 */
+#define t2 $10 /* temporary (caller-save) 2 */
+#define t3 $11 /* temporary (caller-save) 3 */
+#define t4 $12 /* temporary (caller-save) 4 */
+#define t5 $13 /* temporary (caller-save) 5 */
+#define t6 $14 /* temporary (caller-save) 6 */
+#define t7 $15 /* temporary (caller-save) 7 */
+#define s0 $16 /* saved (callee-save) 0 */
+#define s1 $17 /* saved (callee-save) 1 */
+#define s2 $18 /* saved (callee-save) 2 */
+#define s3 $19 /* saved (callee-save) 3 */
+#define s4 $20 /* saved (callee-save) 4 */
+#define s5 $21 /* saved (callee-save) 5 */
+#define s6 $22 /* saved (callee-save) 6 */
+#define s7 $23 /* saved (callee-save) 7 */
+#define t8 $24 /* temporary (caller-save) 8 */
+#define t9 $25 /* temporary (caller-save) 9 */
+#define k0 $26 /* kernel temporary 0 */
+#define k1 $27 /* kernel temporary 1 */
+#define gp $28 /* global pointer */
+#define sp $29 /* stack pointer */
+#define s8 $30 /* saved (callee-save) 8 = frame pointer */
+#define ra $31 /* return address */
 
 #endif /* _KERN_MIPS_REGDEFS_H_ */

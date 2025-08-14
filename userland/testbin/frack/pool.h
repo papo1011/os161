@@ -36,22 +36,20 @@ struct poolctl {
 	const char *file;
 };
 
-#define DIVROUNDUP(a, b) 	(((a) + (b) - 1) / (b))
-#define ROUNDUP(a, b) 		(DIVROUNDUP(a, b) * (b))
+#define DIVROUNDUP(a, b) (((a) + (b)-1) / (b))
+#define ROUNDUP(a, b) (DIVROUNDUP(a, b) * (b))
 
-#define DECLPOOL(T, MAX) \
-	static struct T pool_space_##T[ROUNDUP(MAX, 32)];	\
-	static uint32_t pool_inuse_##T[DIVROUNDUP(MAX, 32)];	\
-	static struct poolctl pool_##T = {			\
-		.inuse = pool_inuse_##T,			\
-		.max = ROUNDUP(MAX, 32),			\
-		.itemtype = "struct " #T,			\
-		.maxname = #MAX,				\
-		.file = __FILE__				\
-	}
+#define DECLPOOL(T, MAX)                                                       \
+	static struct T pool_space_##T[ROUNDUP(MAX, 32)];                          \
+	static uint32_t pool_inuse_##T[DIVROUNDUP(MAX, 32)];                       \
+	static struct poolctl pool_##T = {.inuse = pool_inuse_##T,                 \
+									  .max = ROUNDUP(MAX, 32),                 \
+									  .itemtype = "struct " #T,                \
+									  .maxname = #MAX,                         \
+									  .file = __FILE__}
 
 #define POOLALLOC(T) (&pool_space_##T[poolalloc(&pool_##T)])
-#define POOLFREE(T, x) (poolfree(&pool_##T, (x) - pool_space_##T))
+#define POOLFREE(T, x) (poolfree(&pool_##T, (x)-pool_space_##T))
 
 unsigned poolalloc(struct poolctl *pool);
 void poolfree(struct poolctl *pool, unsigned ix);

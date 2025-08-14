@@ -46,7 +46,7 @@
  * conveniently use the byteswapping functions for network byte order.
  */
 #include <netinet/in.h> // for arpa/inet.h
-#include <arpa/inet.h>  // for ntohl
+#include <arpa/inet.h>	// for ntohl
 #include "hostcompat.h"
 #define SWAP64(x) ntohll(x)
 #define SWAP32(x) ntohl(x)

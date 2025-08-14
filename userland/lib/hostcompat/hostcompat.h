@@ -27,7 +27,6 @@
  * SUCH DAMAGE.
  */
 
-
 #include <sys/types.h>
 #include <stdint.h>
 

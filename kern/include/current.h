@@ -89,5 +89,4 @@
 
 #define curproc (curthread->t_proc)
 
-
 #endif /* _CURRENT_H_ */

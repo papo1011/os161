@@ -83,5 +83,4 @@ typedef __socklen_t socklen_t;
 
 #define CHAR_BIT __CHAR_BIT
 
-
 #endif /* _SYS_TYPES_H_ */

@@ -34,10 +34,8 @@
  * Abstract system bus interface.
  */
 
-
-struct cpu;       /* from <cpu.h> */
+struct cpu;		  /* from <cpu.h> */
 struct trapframe; /* from <machine/trapframe.h> */
-
 
 /* Initialize the system bus and probe and attach hardware devices. */
 void mainbus_bootstrap(void);
@@ -68,6 +66,5 @@ void mainbus_halt(void);
 void mainbus_poweroff(void);
 void mainbus_reboot(void);
 void mainbus_panic(void);
-
 
 #endif /* _MAINBUS_H_ */

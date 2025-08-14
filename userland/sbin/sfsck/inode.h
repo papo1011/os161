@@ -61,5 +61,4 @@ void inode_addlink(uint32_t ino);
  */
 void inode_adjust_filelinks(void);
 
-
 #endif /* INODE_H */

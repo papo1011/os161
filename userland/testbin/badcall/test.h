@@ -28,7 +28,7 @@
  */
 
 #define TESTFILE "badcallfile"
-#define TESTDIR  "badcalldir"
+#define TESTDIR "badcalldir"
 #define TESTLINK "badcalllink"
 
 #if defined(__clang__) || defined(__GNUC__)
@@ -106,7 +106,7 @@ void test_ioctl(void);
 void test_lseek(void);
 void test_fsync(void);
 void test_ftruncate(void);
-void test_fstat(void);		/* in bad_stat.c */
+void test_fstat(void); /* in bad_stat.c */
 void test_remove(void);
 void test_rename(void);
 void test_link(void);
@@ -121,4 +121,4 @@ void test_pipe(void);
 void test_time(void);
 void test_getcwd(void);
 void test_stat(void);
-void test_lstat(void);		/* in bad_stat.c */
+void test_lstat(void); /* in bad_stat.c */

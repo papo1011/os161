@@ -45,23 +45,21 @@ struct cpu;
 /* get machine-dependent defs */
 #include <machine/thread.h>
 
-
 /* Size of kernel stacks; must be power of 2 */
 #define STACK_SIZE 4096
 
 /* Mask for extracting the stack base address of a kernel stack pointer */
-#define STACK_MASK  (~(vaddr_t)(STACK_SIZE-1))
+#define STACK_MASK (~(vaddr_t)(STACK_SIZE - 1))
 
 /* Macro to test if two addresses are on the same kernel stack */
-#define SAME_STACK(p1, p2)     (((p1) & STACK_MASK) == ((p2) & STACK_MASK))
-
+#define SAME_STACK(p1, p2) (((p1)&STACK_MASK) == ((p2)&STACK_MASK))
 
 /* States a thread can be in. */
 typedef enum {
-	S_RUN,		/* running */
-	S_READY,	/* ready to run */
-	S_SLEEP,	/* sleeping */
-	S_ZOMBIE,	/* zombie; exited but not yet deleted */
+	S_RUN,	  /* running */
+	S_READY,  /* ready to run */
+	S_SLEEP,  /* sleeping */
+	S_ZOMBIE, /* zombie; exited but not yet deleted */
 } threadstate_t;
 
 /* Thread structure. */
@@ -70,20 +68,20 @@ struct thread {
 	 * These go up front so they're easy to get to even if the
 	 * debugger is messed up.
 	 */
-	char *t_name;			/* Name of this thread */
-	const char *t_wchan_name;	/* Name of wait channel, if sleeping */
-	threadstate_t t_state;		/* State this thread is in */
+	char *t_name;			  /* Name of this thread */
+	const char *t_wchan_name; /* Name of wait channel, if sleeping */
+	threadstate_t t_state;	  /* State this thread is in */
 
 	/*
 	 * Thread subsystem internal fields.
 	 */
-	struct thread_machdep t_machdep; /* Any machine-dependent goo */
+	struct thread_machdep t_machdep;  /* Any machine-dependent goo */
 	struct threadlistnode t_listnode; /* Link for run/sleep/zombie lists */
-	void *t_stack;			/* Kernel-level stack */
-	struct switchframe *t_context;	/* Saved register context (on stack) */
-	struct cpu *t_cpu;		/* CPU thread runs on */
-	struct proc *t_proc;		/* Process thread belongs to */
-	HANGMAN_ACTOR(t_hangman);	/* Deadlock detector hook */
+	void *t_stack;					  /* Kernel-level stack */
+	struct switchframe *t_context;	  /* Saved register context (on stack) */
+	struct cpu *t_cpu;				  /* CPU thread runs on */
+	struct proc *t_proc;			  /* Process thread belongs to */
+	HANGMAN_ACTOR(t_hangman);		  /* Deadlock detector hook */
 
 	/*
 	 * Interrupt state fields.
@@ -98,9 +96,9 @@ struct thread {
 	 * Exercise for the student: why is this material per-thread
 	 * rather than per-cpu or global?
 	 */
-	bool t_in_interrupt;		/* Are we in an interrupt? */
-	int t_curspl;			/* Current spl*() state */
-	int t_iplhigh_count;		/* # of times IPL has been raised */
+	bool t_in_interrupt; /* Are we in an interrupt? */
+	int t_curspl;		 /* Current spl*() state */
+	int t_iplhigh_count; /* # of times IPL has been raised */
 
 	/*
 	 * Public fields
@@ -142,8 +140,8 @@ void thread_shutdown(void);
  * disappear at any time without notice.
  */
 int thread_fork(const char *name, struct proc *proc,
-                void (*func)(void *, unsigned long),
-                void *data1, unsigned long data2);
+				void (*func)(void *, unsigned long), void *data1,
+				unsigned long data2);
 
 /*
  * Cause the current thread to exit.
@@ -168,6 +166,5 @@ void schedule(void);
  * timer interrupt.
  */
 void thread_consider_migration(void);
-
 
 #endif /* _THREAD_H_ */

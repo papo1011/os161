@@ -30,8 +30,8 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include <sys/types.h>	/* for size_t */
-#include <stdint.h>	/* for uint32_t */
+#include <sys/types.h> /* for size_t */
+#include <stdint.h>	   /* for uint32_t */
 
 /* non-failing wrapper around malloc */
 void *domalloc(size_t len);

@@ -34,27 +34,26 @@
  * Socket-related definitions, for <sys/socket.h>.
  */
 
-
 /*
  * Important
  */
 
 /* Socket types that we (might) support. */
-#define SOCK_STREAM	1	/* stream */
-#define SOCK_DGRAM	2	/* packet */
-#define SOCK_RAW	3	/* raw packet */
+#define SOCK_STREAM 1 /* stream */
+#define SOCK_DGRAM 2  /* packet */
+#define SOCK_RAW 3	  /* raw packet */
 
 /* Address families that we (might) support. */
-#define AF_UNSPEC	0
-#define AF_UNIX		1
-#define AF_INET		2
-#define AF_INET6	3
+#define AF_UNSPEC 0
+#define AF_UNIX 1
+#define AF_INET 2
+#define AF_INET6 3
 
 /* Protocol families. Pointless layer of indirection in the standard API. */
-#define PF_UNSPEC	AF_UNSPEC
-#define PF_UNIX		AF_UNIX
-#define PF_INET		AF_INET
-#define PF_INET6	AF_INET6
+#define PF_UNSPEC AF_UNSPEC
+#define PF_UNIX AF_UNIX
+#define PF_INET AF_INET
+#define PF_INET6 AF_INET6
 
 /*
  * Socket address structures. Socket addresses are polymorphic, and
@@ -71,21 +70,20 @@
  */
 
 struct sockaddr {
-   __u8	sa_len;
-   __u8 sa_family;
+	__u8 sa_len;
+	__u8 sa_family;
 };
 
-#define _SS_SIZE	128
+#define _SS_SIZE 128
 struct sockaddr_storage {
-   __u8 ss_len;
-   __u8 ss_family;
-   __u8 __ss_pad1;
-   __u8 __ss_pad2;
-   __u32 __ss_pad3;
-   __u64 __ss_pad4;
-   char __ss_pad5[_SS_SIZE - sizeof(__u64) - sizeof(__u32) - 4*sizeof(__u8)];
+	__u8 ss_len;
+	__u8 ss_family;
+	__u8 __ss_pad1;
+	__u8 __ss_pad2;
+	__u32 __ss_pad3;
+	__u64 __ss_pad4;
+	char __ss_pad5[_SS_SIZE - sizeof(__u64) - sizeof(__u32) - 4 * sizeof(__u8)];
 };
-
 
 /*
  * Not very important.
@@ -96,21 +94,20 @@ struct sockaddr_storage {
  */
 
 struct msghdr {
-	void *msg_name;		/* really sockaddr; address, or null */
-	socklen_t msg_namelen;	/* size of msg_name object, or 0 */
-	struct iovec *msg_iov;	/* I/O buffers */
-	int msg_iovlen;		/* number of iovecs */
-	void *msg_control;	/* auxiliary data area, or null */
+	void *msg_name;			  /* really sockaddr; address, or null */
+	socklen_t msg_namelen;	  /* size of msg_name object, or 0 */
+	struct iovec *msg_iov;	  /* I/O buffers */
+	int msg_iovlen;			  /* number of iovecs */
+	void *msg_control;		  /* auxiliary data area, or null */
 	socklen_t msg_controllen; /* size of msg_control area */
-	int msg_flags;		/* flags */
+	int msg_flags;			  /* flags */
 };
 
 struct cmsghdr {
-	socklen_t cmsg_len;	/* length of control data, including header */
-	int cmsg_level;		/* protocol layer item originates from */
-	int cmsg_type;		/* protocol-specific message type */
-	/* char cmsg_data[];*/	/* data follows the header */
+	socklen_t cmsg_len;	   /* length of control data, including header */
+	int cmsg_level;		   /* protocol layer item originates from */
+	int cmsg_type;		   /* protocol-specific message type */
+	/* char cmsg_data[];*/ /* data follows the header */
 };
-
 
 #endif /* _KERN_SOCKET_H_ */

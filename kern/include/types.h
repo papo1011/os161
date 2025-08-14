@@ -75,7 +75,6 @@
  *       this principle produces a workable result.
  */
 
-
 /* Get types visible to userland, both MI and MD. */
 #include <kern/types.h>
 
@@ -87,7 +86,9 @@
  * with other pointers.
  */
 
-struct __userptr { char _dummy; };
+struct __userptr {
+	char _dummy;
+};
 typedef struct __userptr *userptr_t;
 typedef const struct __userptr *const_userptr_t;
 
@@ -149,7 +150,7 @@ typedef __socklen_t socklen_t;
  * Boolean.
  */
 typedef _Bool bool;
-#define true  1
+#define true 1
 #define false 0
 
 #endif /* _TYPES_H_ */

@@ -39,9 +39,8 @@
  * really not recommended.
  */
 
-#define SEEK_SET      0      /* Seek relative to beginning of file */
-#define SEEK_CUR      1      /* Seek relative to current position in file */
-#define SEEK_END      2      /* Seek relative to end of file */
-
+#define SEEK_SET 0 /* Seek relative to beginning of file */
+#define SEEK_CUR 1 /* Seek relative to current position in file */
+#define SEEK_END 2 /* Seek relative to end of file */
 
 #endif /* _KERN_SEEK_H_ */

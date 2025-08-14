@@ -68,10 +68,10 @@
  * one or more of the following formats.
  */
 union uu {
-	long long          ll;		/* as a (signed) long long */
-	unsigned long long ull;		/* as an unsigned long long */
-	int                si[2];	/* as two (signed) ints */
-	unsigned int       ui[2];	/* as two unsigned ints */
+	long long ll;			/* as a (signed) long long */
+	unsigned long long ull; /* as an unsigned long long */
+	int si[2];				/* as two (signed) ints */
+	unsigned int ui[2];		/* as two unsigned ints */
 };
 
 /*
@@ -87,15 +87,14 @@ union uu {
 #define L 1
 #endif
 
-
 /*
  * Total number of bits in a long long and in the pieces that make it up.
  * These are used for shifting, and also below for halfword extraction
  * and assembly.
  */
-#define	LONGLONG_BITS	(sizeof(long long) * CHAR_BIT)
-#define	INT_BITS	(sizeof(int) * CHAR_BIT)
-#define	HALF_BITS	(sizeof(int) * CHAR_BIT / 2)
+#define LONGLONG_BITS (sizeof(long long) * CHAR_BIT)
+#define INT_BITS (sizeof(int) * CHAR_BIT)
+#define HALF_BITS (sizeof(int) * CHAR_BIT / 2)
 
 /*
  * Extract high and low shortwords from longword, and move low shortword of
@@ -107,38 +106,38 @@ union uu {
  * and lower halves, and to reassemble a product as a long long, shifted
  * left (sizeof(int)*CHAR_BIT/2).
  */
-#define	HHALF(x)	((unsigned int)(x) >> HALF_BITS)
-#define	LHALF(x)	((unsigned int)(x) & (((int)1 << HALF_BITS) - 1))
-#define	LHUP(x)		((unsigned int)(x) << HALF_BITS)
+#define HHALF(x) ((unsigned int)(x) >> HALF_BITS)
+#define LHALF(x) ((unsigned int)(x) & (((int)1 << HALF_BITS) - 1))
+#define LHUP(x) ((unsigned int)(x) << HALF_BITS)
 
-long long          __adddi3      (         long long,          long long);
-long long          __anddi3      (         long long,          long long);
-long long          __ashldi3     (         long long, unsigned int);
-long long          __ashrdi3     (         long long, unsigned int);
-int                __cmpdi2      (         long long,          long long);
-long long          __divdi3      (         long long,          long long);
-long long          __iordi3      (         long long,          long long);
-long long          __lshldi3     (         long long, unsigned int);
-long long          __lshrdi3     (         long long, unsigned int);
-long long          __moddi3      (         long long,          long long);
-long long          __muldi3      (         long long,          long long);
-long long          __negdi2      (         long long);
-long long          __one_cmpldi2 (         long long);
-long long          __subdi3      (         long long,          long long);
-int                __ucmpdi2     (unsigned long long, unsigned long long);
-unsigned long long __udivdi3     (unsigned long long, unsigned long long);
-unsigned long long __umoddi3     (unsigned long long, unsigned long long);
-long long          __xordi3      (         long long,          long long);
+long long __adddi3(long long, long long);
+long long __anddi3(long long, long long);
+long long __ashldi3(long long, unsigned int);
+long long __ashrdi3(long long, unsigned int);
+int __cmpdi2(long long, long long);
+long long __divdi3(long long, long long);
+long long __iordi3(long long, long long);
+long long __lshldi3(long long, unsigned int);
+long long __lshrdi3(long long, unsigned int);
+long long __moddi3(long long, long long);
+long long __muldi3(long long, long long);
+long long __negdi2(long long);
+long long __one_cmpldi2(long long);
+long long __subdi3(long long, long long);
+int __ucmpdi2(unsigned long long, unsigned long long);
+unsigned long long __udivdi3(unsigned long long, unsigned long long);
+unsigned long long __umoddi3(unsigned long long, unsigned long long);
+long long __xordi3(long long, long long);
 
 #ifndef _KERNEL
-long long          __fixdfdi     (double);
-long long          __fixsfdi     (float);
-unsigned long long __fixunsdfdi  (double);
-unsigned long long __fixunssfdi  (float);
-double             __floatdidf   (long long);
-float              __floatdisf   (long long);
-double             __floatunsdidf(unsigned long long);
+long long __fixdfdi(double);
+long long __fixsfdi(float);
+unsigned long long __fixunsdfdi(double);
+unsigned long long __fixunssfdi(float);
+double __floatdidf(long long);
+float __floatdisf(long long);
+double __floatunsdidf(unsigned long long);
 #endif
 
-unsigned long long __qdivrem     (unsigned long long, unsigned long long,
-				  unsigned long long *);
+unsigned long long __qdivrem(unsigned long long, unsigned long long,
+							 unsigned long long *);

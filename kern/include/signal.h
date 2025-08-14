@@ -35,5 +35,4 @@
 #include <kern/machine/signal.h>
 #include <kern/signal.h>
 
-
 #endif /* _SIGNAL_H_ */

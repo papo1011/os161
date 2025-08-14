@@ -46,9 +46,7 @@
  * (for libc internal use only)
  */
 int __vprintf(void (*sendfunc)(void *clientdata, const char *, size_t len),
-	      void *clientdata,
-	      const char *fmt,
-	      __va_list ap);
+			  void *clientdata, const char *fmt, __va_list ap);
 
 /* Printf calls for user programs */
 int printf(const char *fmt, ...);

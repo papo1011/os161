@@ -30,7 +30,6 @@
 #ifndef _MIPS_CURRENT_H_
 #define _MIPS_CURRENT_H_
 
-
 /*
  * Macro for current thread, or current cpu.
  *
@@ -60,7 +59,7 @@
  */
 
 #ifdef __GNUC__
-register struct thread *curthread __asm("$23");	/* s7 register */
+register struct thread *curthread __asm("$23"); /* s7 register */
 #else
 #error "Don't know how to declare curthread in this compiler"
 #endif

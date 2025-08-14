@@ -44,28 +44,28 @@ struct stat {
 	off_t st_size;		/* file size in bytes */
 	mode_t st_mode;		/* file type and protection mode */
 	nlink_t st_nlink;	/* number of hard links */
-	blkcnt_t st_blocks;	/* number of blocks file is using */
+	blkcnt_t st_blocks; /* number of blocks file is using */
 
- 	/* Identity */
-	dev_t st_dev;           /* device object lives on */
-	ino_t st_ino;           /* inode number (serial number) of object */
-	dev_t st_rdev;          /* device object is (if a device) */
+	/* Identity */
+	dev_t st_dev;  /* device object lives on */
+	ino_t st_ino;  /* inode number (serial number) of object */
+	dev_t st_rdev; /* device object is (if a device) */
 
 	/* Timestamps */
-	time_t st_atime;        /* last access time: seconds */
-	time_t st_ctime;        /* inode change time: seconds */
-	time_t st_mtime;        /* modification time: seconds */
-	__u32 st_atimensec;     /* last access time: nanoseconds */
-	__u32 st_ctimensec;     /* inode change time: nanoseconds */
-	__u32 st_mtimensec;     /* modification time: nanoseconds */
+	time_t st_atime;	/* last access time: seconds */
+	time_t st_ctime;	/* inode change time: seconds */
+	time_t st_mtime;	/* modification time: seconds */
+	__u32 st_atimensec; /* last access time: nanoseconds */
+	__u32 st_ctimensec; /* inode change time: nanoseconds */
+	__u32 st_mtimensec; /* modification time: nanoseconds */
 
 	/* Permissions (also st_mode) */
-	uid_t st_uid;           /* owner */
-	gid_t st_gid;           /* group */
+	uid_t st_uid; /* owner */
+	gid_t st_gid; /* group */
 
 	/* Other */
-	__u32 st_gen;           /* file generation number (root only) */
-	blksize_t st_blksize;   /* recommended I/O block size */
+	__u32 st_gen;		  /* file generation number (root only) */
+	blksize_t st_blksize; /* recommended I/O block size */
 };
 
 #endif /* _KERN_STAT_H_ */

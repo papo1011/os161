@@ -40,5 +40,4 @@
 int setjmp(jmp_buf jb);
 void longjmp(jmp_buf jb, int retval);
 
-
 #endif /* _SETJMP_H_ */

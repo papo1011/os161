@@ -37,14 +37,13 @@
 #include <kern/stattypes.h>
 
 /* Provide non-underscore names. */
-#define S_IFMT   _S_IFMT
-#define S_IFREG  _S_IFREG
-#define S_IFDIR  _S_IFDIR
-#define S_IFLNK  _S_IFLNK
-#define S_IFIFO  _S_IFIFO
+#define S_IFMT _S_IFMT
+#define S_IFREG _S_IFREG
+#define S_IFDIR _S_IFDIR
+#define S_IFLNK _S_IFLNK
+#define S_IFIFO _S_IFIFO
 #define S_IFSOCK _S_IFSOCK
-#define S_IFCHR  _S_IFCHR
-#define S_IFBLK  _S_IFBLK
-
+#define S_IFCHR _S_IFCHR
+#define S_IFBLK _S_IFBLK
 
 #endif /* _STAT_H */

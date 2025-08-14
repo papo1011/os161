@@ -39,76 +39,76 @@
  * lib/misc.c; for userland it's lib/libc/strerror.c.
  */
 const char *const sys_errlist[] = {
-	"Operation succeeded",        /* 0 */
-	"Function not implemented",   /* ENOSYS */
-	"(undefined error 2)",        /* unused */
-	"Out of memory",              /* ENOMEM */
-	"Operation would block",      /* EAGAIN (also EWOULDBLOCK) */
-	"Interrupted system call",    /* EINTR */
-	"Bad memory reference",       /* EFAULT */
-	"String too long",            /* ENAMETOOLONG */
-	"Invalid argument",           /* EINVAL */
-	"Operation not permitted",    /* EPERM */
-	"Permission denied",          /* EACCES */
-	"Too many processes",         /* EMPROC (EPROCLIM in Unix) */
-	"Too many processes in system",/* ENPROC */
-	"File is not executable",     /* ENOEXEC */
-	"Argument list too long",     /* E2BIG */
-	"No such process",            /* ESRCH */
-	"No child processes",         /* ECHILD */
-	"Not a directory",            /* ENOTDIR */
-	"Is a directory",             /* EISDIR */
-	"No such file or directory",  /* ENOENT */
-	"Too many levels of symbolic links",/* ELOOP */
-	"Directory not empty",        /* ENOTEMPTY */
-	"File or object exists",      /* EEXIST */
-	"Too many hard links",        /* EMLINK */
-	"Cross-device link",          /* EXDEV */
-	"No such device",             /* ENODEV */
-	"Device not available",       /* ENXIO */
-	"Device or resource busy",    /* EBUSY */
-	"Too many open files",        /* EMFILE */
-	"Too many open files in system",/* ENFILE */
-	"Bad file number",            /* EBADF */
-	"Invalid or inappropriate ioctl",/* EIOCTL (ENOTTY in Unix) */
-	"Input/output error",         /* EIO */
-	"Illegal seek",               /* ESPIPE */
-	"Broken pipe",                /* EPIPE */
-	"Read-only file system",      /* EROFS */
-	"No space left on device",    /* ENOSPC */
-	"Disc quota exceeded",        /* EDQUOT */
-	"File too large",             /* EFBIG */
-	"Invalid file type or format",/* EFTYPE */
-	"Argument out of range",      /* EDOM */
-	"Result out of range",        /* ERANGE */
-	"Invalid multibyte character sequence",/* EILSEQ */
-	"Not a socket",               /* ENOTSOCK */
-	"Is a socket",                /* EISSOCK (EOPNOTSUPP in Unix) */
-	"Socket is already connected",/* EISCONN */
-	"Socket is not connected",    /* ENOTCONN */
-	"Socket has been shut down",  /* ESHUTDOWN */
-	"Protocol family not supported",/* EPFNOSUPPORT */
-	"Socket type not supported",  /* ESOCKTNOSUPPORT */
-	"Protocol not supported",     /* EPROTONOSUPPORT */
-	"Protocol wrong type for socket",/* EPROTOTYPE */
-	"Address family not supported by protocol family",/* EAFNOSUPPORT */
-	"Protocol option not available",/* ENOPROTOOPT */
-	"Address already in use",     /* EADDRINUSE */
-	"Cannot assign requested address",/* EADDRNOTAVAIL */
-	"Network is down",            /* ENETDOWN */
-	"Network is unreachable",     /* ENETUNREACH */
-	"Host is down",               /* EHOSTDOWN */
-	"Host is unreachable",        /* EHOSTUNREACH */
-	"Connection refused",         /* ECONNREFUSED */
-	"Connection timed out",       /* ETIMEDOUT */
-	"Connection reset by peer",   /* ECONNRESET */
-	"Message too large",          /* EMSGSIZE */
-	"Threads operation not supported",/* ENOTSUP */
+	"Operation succeeded",					/* 0 */
+	"Function not implemented",				/* ENOSYS */
+	"(undefined error 2)",					/* unused */
+	"Out of memory",						/* ENOMEM */
+	"Operation would block",				/* EAGAIN (also EWOULDBLOCK) */
+	"Interrupted system call",				/* EINTR */
+	"Bad memory reference",					/* EFAULT */
+	"String too long",						/* ENAMETOOLONG */
+	"Invalid argument",						/* EINVAL */
+	"Operation not permitted",				/* EPERM */
+	"Permission denied",					/* EACCES */
+	"Too many processes",					/* EMPROC (EPROCLIM in Unix) */
+	"Too many processes in system",			/* ENPROC */
+	"File is not executable",				/* ENOEXEC */
+	"Argument list too long",				/* E2BIG */
+	"No such process",						/* ESRCH */
+	"No child processes",					/* ECHILD */
+	"Not a directory",						/* ENOTDIR */
+	"Is a directory",						/* EISDIR */
+	"No such file or directory",			/* ENOENT */
+	"Too many levels of symbolic links",	/* ELOOP */
+	"Directory not empty",					/* ENOTEMPTY */
+	"File or object exists",				/* EEXIST */
+	"Too many hard links",					/* EMLINK */
+	"Cross-device link",					/* EXDEV */
+	"No such device",						/* ENODEV */
+	"Device not available",					/* ENXIO */
+	"Device or resource busy",				/* EBUSY */
+	"Too many open files",					/* EMFILE */
+	"Too many open files in system",		/* ENFILE */
+	"Bad file number",						/* EBADF */
+	"Invalid or inappropriate ioctl",		/* EIOCTL (ENOTTY in Unix) */
+	"Input/output error",					/* EIO */
+	"Illegal seek",							/* ESPIPE */
+	"Broken pipe",							/* EPIPE */
+	"Read-only file system",				/* EROFS */
+	"No space left on device",				/* ENOSPC */
+	"Disc quota exceeded",					/* EDQUOT */
+	"File too large",						/* EFBIG */
+	"Invalid file type or format",			/* EFTYPE */
+	"Argument out of range",				/* EDOM */
+	"Result out of range",					/* ERANGE */
+	"Invalid multibyte character sequence", /* EILSEQ */
+	"Not a socket",							/* ENOTSOCK */
+	"Is a socket",							/* EISSOCK (EOPNOTSUPP in Unix) */
+	"Socket is already connected",			/* EISCONN */
+	"Socket is not connected",				/* ENOTCONN */
+	"Socket has been shut down",			/* ESHUTDOWN */
+	"Protocol family not supported",		/* EPFNOSUPPORT */
+	"Socket type not supported",			/* ESOCKTNOSUPPORT */
+	"Protocol not supported",				/* EPROTONOSUPPORT */
+	"Protocol wrong type for socket",		/* EPROTOTYPE */
+	"Address family not supported by protocol family", /* EAFNOSUPPORT */
+	"Protocol option not available",				   /* ENOPROTOOPT */
+	"Address already in use",						   /* EADDRINUSE */
+	"Cannot assign requested address",				   /* EADDRNOTAVAIL */
+	"Network is down",								   /* ENETDOWN */
+	"Network is unreachable",						   /* ENETUNREACH */
+	"Host is down",									   /* EHOSTDOWN */
+	"Host is unreachable",							   /* EHOSTUNREACH */
+	"Connection refused",							   /* ECONNREFUSED */
+	"Connection timed out",							   /* ETIMEDOUT */
+	"Connection reset by peer",						   /* ECONNRESET */
+	"Message too large",							   /* EMSGSIZE */
+	"Threads operation not supported",				   /* ENOTSUP */
 };
 
 /*
  * Number of entries in sys_errlist.
  */
-const int sys_nerr = sizeof(sys_errlist)/sizeof(const char *);
+const int sys_nerr = sizeof(sys_errlist) / sizeof(const char *);
 
 #endif /* _KERN_ERRMSG_H_ */

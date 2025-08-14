@@ -37,20 +37,20 @@ struct timespec;
  */
 struct ltimer_softc {
 	/* Initialized by config function */
-	int lt_hardclock;        /* true if we should call hardclock() */
-	int lt_timerclock;        /* true if we should call timerclock() */
+	int lt_hardclock;  /* true if we should call hardclock() */
+	int lt_timerclock; /* true if we should call timerclock() */
 
 	/* Initialized by lower-level attach routine */
 	void *lt_bus;		/* bus we're on */
-	uint32_t lt_buspos;	/* position (slot) on that bus */
+	uint32_t lt_buspos; /* position (slot) on that bus */
 };
 
 /* Functions called by lower-level drivers */
-void ltimer_irq(/*struct ltimer_softc*/ void *lt);  // interrupt handler
+void ltimer_irq(/*struct ltimer_softc*/ void *lt); // interrupt handler
 
 /* Functions called by higher-level devices */
-void ltimer_beep(/*struct ltimer_softc*/ void *devdata);   // for beep device
+void ltimer_beep(/*struct ltimer_softc*/ void *devdata); // for beep device
 void ltimer_gettime(/*struct ltimer_softc*/ void *devdata,
-		    struct timespec *ts);     	    // for rtclock
+					struct timespec *ts); // for rtclock
 
 #endif /* _LAMEBUS_LTIMER_H_ */

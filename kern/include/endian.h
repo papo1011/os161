@@ -51,5 +51,4 @@ uint64_t htonll(uint64_t);
 void join32to64(uint32_t x1, uint32_t x2, uint64_t *y2);
 void split64to32(uint64_t x, uint32_t *y1, uint32_t *y2);
 
-
 #endif /* _ENDIAN_H_ */

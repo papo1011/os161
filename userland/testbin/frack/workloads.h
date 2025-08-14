@@ -28,7 +28,6 @@
  * SUCH DAMAGE.
  */
 
-
 /*
  * The VFS-interface operations that can write to the fs are:
  *

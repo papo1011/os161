@@ -34,19 +34,16 @@
  * Some miscellaneous C language definitions and related matters.
  */
 
-
 /*
  * Build-time assertion. Doesn't generate any code. The error message
  * on failure is less than ideal, but you can't have everything.
  */
-#define COMPILE_ASSERT(x) ((void)sizeof(struct { unsigned : ((x)?1:-1); }))
-
+#define COMPILE_ASSERT(x) ((void)sizeof(struct { unsigned : ((x) ? 1 : -1); }))
 
 /*
  * Handy macro for the number of elements in a static array.
  */
 #define ARRAYCOUNT(arr) (sizeof(arr) / sizeof((arr)[0]))
-
 
 /*
  * Tell GCC how to check printf formats. Also tell it about functions
@@ -54,15 +51,14 @@
  * about uninitialized variables.
  */
 #ifdef __GNUC__
-#define __PF(a,b) __attribute__((__format__(__printf__, a, b)))
-#define __DEAD    __attribute__((__noreturn__))
-#define __UNUSED  __attribute__((__unused__))
+#define __PF(a, b) __attribute__((__format__(__printf__, a, b)))
+#define __DEAD __attribute__((__noreturn__))
+#define __UNUSED __attribute__((__unused__))
 #else
-#define __PF(a,b)
+#define __PF(a, b)
 #define __DEAD
 #define __UNUSED
 #endif
-
 
 /*
  * Material for supporting inline functions.
@@ -136,6 +132,5 @@
 /* something else; static inline is safest */
 #define INLINE static __UNUSED inline
 #endif
-
 
 #endif /* _CDEFS_H_ */

@@ -41,23 +41,19 @@
  */
 
 MEMBAR_INLINE
-void
-membar_any_any(void)
-{
-	__asm volatile(
-		".set push;"		/* save assembler mode */
-		".set mips32;"		/* allow MIPS32 instructions */
-		"sync;"			/* do it */
-		".set pop"		/* restore assembler mode */
-		:			/* no outputs */
-		:			/* no inputs */
-		: "memory");		/* "changes" memory */
+void membar_any_any(void) {
+	__asm volatile(".set push;"	  /* save assembler mode */
+				   ".set mips32;" /* allow MIPS32 instructions */
+				   "sync;"		  /* do it */
+				   ".set pop"	  /* restore assembler mode */
+				   :			  /* no outputs */
+				   :			  /* no inputs */
+				   : "memory");	  /* "changes" memory */
 }
 
 MEMBAR_INLINE void membar_load_load(void) { membar_any_any(); }
 MEMBAR_INLINE void membar_store_store(void) { membar_any_any(); }
 MEMBAR_INLINE void membar_store_any(void) { membar_any_any(); }
 MEMBAR_INLINE void membar_any_store(void) { membar_any_any(); }
-
 
 #endif /* _MIPS_MEMBAR_H_ */

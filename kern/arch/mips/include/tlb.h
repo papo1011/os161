@@ -77,14 +77,14 @@ int tlb_probe(uint32_t entryhi, uint32_t entrylo);
  */
 
 /* Fields in the high-order word */
-#define TLBHI_VPAGE   0xfffff000
+#define TLBHI_VPAGE 0xfffff000
 /*      TLBHI_PID     0x00000fc0 */
 
 /* Fields in the low-order word */
-#define TLBLO_PPAGE   0xfffff000
+#define TLBLO_PPAGE 0xfffff000
 #define TLBLO_NOCACHE 0x00000800
-#define TLBLO_DIRTY   0x00000400
-#define TLBLO_VALID   0x00000200
+#define TLBLO_DIRTY 0x00000400
+#define TLBLO_VALID 0x00000200
 /*      TLBLO_GLOBAL  0x00000100 */
 
 /*
@@ -92,14 +92,13 @@ int tlb_probe(uint32_t entryhi, uint32_t entrylo);
  * be passed to TLBHI_INVALID; this prevents loading the same invalid
  * entry into multiple TLB slots.
  */
-#define TLBHI_INVALID(entryno) ((0x80000+(entryno))<<12)
-#define TLBLO_INVALID()        (0)
+#define TLBHI_INVALID(entryno) ((0x80000 + (entryno)) << 12)
+#define TLBLO_INVALID() (0)
 
 /*
  * Number of TLB entries in the processor.
  */
 
-#define NUM_TLB  64
-
+#define NUM_TLB 64
 
 #endif /* _MIPS_TLB_H_ */

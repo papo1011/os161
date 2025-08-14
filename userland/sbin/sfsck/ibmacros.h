@@ -80,80 +80,79 @@
 
 /* numbers */
 
-#define NUM_D   		SFS_NDIRECT
-#define NUM_I			SFS_NINDIRECT
-#define NUM_II			SFS_NDINDIRECT
-#define NUM_III			SFS_NTINDIRECT
+#define NUM_D SFS_NDIRECT
+#define NUM_I SFS_NINDIRECT
+#define NUM_II SFS_NDINDIRECT
+#define NUM_III SFS_NTINDIRECT
 
 /* blocks */
 
 #if NUM_D == 0
-#define GET_D(sfi, i)		GET0_x(sfi, sfi_direct, i)
-#define SET_D(sfi, i)		SET0_x(sfi, sfi_direct, i)
+#define GET_D(sfi, i) GET0_x(sfi, sfi_direct, i)
+#define SET_D(sfi, i) SET0_x(sfi, sfi_direct, i)
 #elif NUM_D == 1
-#define GET_D(sfi, i)		GET1_x(sfi, sfi_direct, i)
-#define SET_D(sfi, i)		SET1_x(sfi, sfi_direct, i)
+#define GET_D(sfi, i) GET1_x(sfi, sfi_direct, i)
+#define SET_D(sfi, i) SET1_x(sfi, sfi_direct, i)
 #else
-#define GET_D(sfi, i)		GETN_x(sfi, sfi_direct, i)
-#define SET_D(sfi, i)		SETN_x(sfi, sfi_direct, i)
+#define GET_D(sfi, i) GETN_x(sfi, sfi_direct, i)
+#define SET_D(sfi, i) SETN_x(sfi, sfi_direct, i)
 #endif
 
 #if NUM_I == 0
-#define GET_I(sfi, i)		GET0_x(sfi, sfi_indirect, i)
-#define SET_I(sfi, i)		SET0_x(sfi, sfi_indirect, i)
+#define GET_I(sfi, i) GET0_x(sfi, sfi_indirect, i)
+#define SET_I(sfi, i) SET0_x(sfi, sfi_indirect, i)
 #elif NUM_I == 1
-#define GET_I(sfi, i)		GET1_x(sfi, sfi_indirect, i)
-#define SET_I(sfi, i)		SET1_x(sfi, sfi_indirect, i)
+#define GET_I(sfi, i) GET1_x(sfi, sfi_indirect, i)
+#define SET_I(sfi, i) SET1_x(sfi, sfi_indirect, i)
 #else
-#define GET_I(sfi, i)		GETN_x(sfi, sfi_indirect, i)
-#define SET_I(sfi, i)		SETN_x(sfi, sfi_indirect, i)
+#define GET_I(sfi, i) GETN_x(sfi, sfi_indirect, i)
+#define SET_I(sfi, i) SETN_x(sfi, sfi_indirect, i)
 #endif
 
 #if NUM_II == 0
-#define GET_II(sfi, i)		GET0_x(sfi, sfi_dindirect, i)
-#define SET_II(sfi, i)		SET0_x(sfi, sfi_dindirect, i)
+#define GET_II(sfi, i) GET0_x(sfi, sfi_dindirect, i)
+#define SET_II(sfi, i) SET0_x(sfi, sfi_dindirect, i)
 #elif NUM_II == 1
-#define GET_II(sfi, i)		GET1_x(sfi, sfi_dindirect, i)
-#define SET_II(sfi, i)		SET1_x(sfi, sfi_dindirect, i)
+#define GET_II(sfi, i) GET1_x(sfi, sfi_dindirect, i)
+#define SET_II(sfi, i) SET1_x(sfi, sfi_dindirect, i)
 #else
-#define GET_II(sfi, i)		GETN_x(sfi, sfi_dindirect, i)
-#define SET_II(sfi, i)		SETN_x(sfi, sfi_dindirect, i)
+#define GET_II(sfi, i) GETN_x(sfi, sfi_dindirect, i)
+#define SET_II(sfi, i) SETN_x(sfi, sfi_dindirect, i)
 #endif
 
 #if NUM_III == 0
-#define GET_III(sfi, i)		GET0_x(sfi, sfi_tindirect, i)
-#define SET_III(sfi, i)		SET0_x(sfi, sfi_tindirect, i)
+#define GET_III(sfi, i) GET0_x(sfi, sfi_tindirect, i)
+#define SET_III(sfi, i) SET0_x(sfi, sfi_tindirect, i)
 #elif NUM_III == 1
-#define GET_III(sfi, i)		GET1_x(sfi, sfi_tindirect, i)
-#define SET_III(sfi, i)		SET1_x(sfi, sfi_tindirect, i)
+#define GET_III(sfi, i) GET1_x(sfi, sfi_tindirect, i)
+#define SET_III(sfi, i) SET1_x(sfi, sfi_tindirect, i)
 #else
-#define GET_III(sfi, i)		GETN_x(sfi, sfi_tindirect, i)
-#define SET_III(sfi, i)		SETN_x(sfi, sfi_tindirect, i)
+#define GET_III(sfi, i) GETN_x(sfi, sfi_tindirect, i)
+#define SET_III(sfi, i) SETN_x(sfi, sfi_tindirect, i)
 #endif
 
 /* the generic forms of the block macros */
 
-#define GET0_x(sfi, field, i)	((void)(i), (void)(sfi), 0)
-#define GET1_x(sfi, field, i)	((void)(i), (sfi)->field)
-#define GETN_x(sfi, field, i)	((sfi)->field[(i)])
+#define GET0_x(sfi, field, i) ((void)(i), (void)(sfi), 0)
+#define GET1_x(sfi, field, i) ((void)(i), (sfi)->field)
+#define GETN_x(sfi, field, i) ((sfi)->field[(i)])
 
-#define SET0_x(sfi, field, i)	(*((void)(i), (void)(sfi), (uint32_t *)NULL))
-#define SET1_x(sfi, field, i)	(*((void)(i), &(sfi)->field))
-#define SETN_x(sfi, field, i)	((sfi)->field[(i)])
+#define SET0_x(sfi, field, i) (*((void)(i), (void)(sfi), (uint32_t *)NULL))
+#define SET1_x(sfi, field, i) (*((void)(i), &(sfi)->field))
+#define SETN_x(sfi, field, i) ((sfi)->field[(i)])
 
 /* region sizes */
 
-#define RANGE_D		1
-#define RANGE_I		(RANGE_D * SFS_DBPERIDB)
-#define RANGE_II	(RANGE_I * SFS_DBPERIDB)
-#define RANGE_III	(RANGE_II * SFS_DBPERIDB)
+#define RANGE_D 1
+#define RANGE_I (RANGE_D * SFS_DBPERIDB)
+#define RANGE_II (RANGE_I * SFS_DBPERIDB)
+#define RANGE_III (RANGE_II * SFS_DBPERIDB)
 
 /* max blocks */
 
-#define INOMAX_D 	NUM_D
-#define INOMAX_I 	(INOMAX_D + SFS_DBPERIDB * NUM_I)
-#define INOMAX_II	(INOMAX_I + SFS_DBPERIDB * NUM_II)
-#define INOMAX_III	(INOMAX_II + SFS_DBPERIDB * NUM_III)
-
+#define INOMAX_D NUM_D
+#define INOMAX_I (INOMAX_D + SFS_DBPERIDB * NUM_I)
+#define INOMAX_II (INOMAX_I + SFS_DBPERIDB * NUM_II)
+#define INOMAX_III (INOMAX_II + SFS_DBPERIDB * NUM_III)
 
 #endif /* IBMACROS_H */

@@ -27,7 +27,6 @@
  * SUCH DAMAGE.
  */
 
-
 #ifdef __osf__
 /* Digital Unix (aka Compaq Tru64) */
 #define HAS_NO_SIZED_TYPES

@@ -34,37 +34,34 @@
  * Time-related definitions, for <sys/time.h> and others.
  */
 
-
 /*
  * Time with fractional seconds. Important. Unfortunately, to be
  * compatible, we need both timeval and timespec.
  */
 
 struct timeval {
-        __time_t tv_sec;        /* seconds */
-        __i32 tv_usec;          /* microseconds */
+	__time_t tv_sec; /* seconds */
+	__i32 tv_usec;	 /* microseconds */
 };
 
 struct timespec {
-        __time_t tv_sec;        /* seconds */
-        __i32 tv_nsec;          /* nanoseconds */
+	__time_t tv_sec; /* seconds */
+	__i32 tv_nsec;	 /* nanoseconds */
 };
-
 
 /*
  * Bits for interval timers. Obscure and not really that important.
  */
 
 /* codes for the various timers */
-#define ITIMER_REAL	0	/* Real (wall-clock) time. */
-#define ITIMER_VIRTUAL	1	/* Virtual (when process is executing) time. */
-#define ITIMER_PROF	2	/* For execution profiling. */
+#define ITIMER_REAL 0	 /* Real (wall-clock) time. */
+#define ITIMER_VIRTUAL 1 /* Virtual (when process is executing) time. */
+#define ITIMER_PROF 2	 /* For execution profiling. */
 
 /* structure for setitimer/getitimer */
 struct itimerval {
-        struct timeval it_interval;	/* Time to reload after expiry. */
+	struct timeval it_interval; /* Time to reload after expiry. */
 	struct timeval it_value;	/* Time to count. */
 };
-
 
 #endif /* _KERN_TIME_H_ */

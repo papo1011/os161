@@ -61,5 +61,4 @@ const char *strerror(int errcode);
  */
 void bzero(void *, size_t);
 
-
 #endif /* _STRING_H_ */

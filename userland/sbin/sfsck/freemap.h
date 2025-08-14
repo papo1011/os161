@@ -40,12 +40,12 @@
 
 typedef enum {
 	B_SUPERBLOCK,	/* Block that is the superblock */
-	B_FREEMAPBLOCK,	/* Block used by free-block bitmap */
-	B_INODE,	/* Block that is an inode */
-	B_IBLOCK,	/* Indirect (or doubly-indirect etc.) block */
-	B_DIRDATA,	/* Data block of a directory */
-	B_DATA,		/* Data block */
-	B_PASTEND,	/* Block off the end of the fs */
+	B_FREEMAPBLOCK, /* Block used by free-block bitmap */
+	B_INODE,		/* Block that is an inode */
+	B_IBLOCK,		/* Indirect (or doubly-indirect etc.) block */
+	B_DIRDATA,		/* Data block of a directory */
+	B_DATA,			/* Data block */
+	B_PASTEND,		/* Block off the end of the fs */
 } blockusage_t;
 
 /* Call this after loading the superblock but before doing any checks. */
@@ -62,6 +62,5 @@ void freemap_check(void);
 
 /* Return the number of blocks in use. Valid after freemap_check(). */
 unsigned long freemap_blocksused(void);
-
 
 #endif /* FREEMAP_H */

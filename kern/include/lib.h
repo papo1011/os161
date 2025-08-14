@@ -37,7 +37,6 @@
  * Note: setjmp and longjmp are in <setjmp.h>.
  */
 
-
 #include <cdefs.h>
 
 /*
@@ -62,33 +61,33 @@
 #if OPT_NOASSERTS
 #define KASSERT(expr) ((void)(expr))
 #else
-#define KASSERT(expr) \
+#define KASSERT(expr)                                                          \
 	((expr) ? (void)0 : badassert(#expr, __FILE__, __LINE__, __func__))
 #endif
 
 #if 1 /* no debug asserts */
 #define DEBUGASSERT(expr) ((void)(expr))
 #else
-#define DEBUGASSERT(expr) \
+#define DEBUGASSERT(expr)                                                      \
 	((expr) ? (void)0 : badassert(#expr, __FILE__, __LINE__, __func__))
 #endif
 
 /*
  * Bit flags for DEBUG()
  */
-#define DB_LOCORE      0x0001
-#define DB_SYSCALL     0x0002
-#define DB_INTERRUPT   0x0004
-#define DB_DEVICE      0x0008
-#define DB_THREADS     0x0010
-#define DB_VM          0x0020
-#define DB_EXEC        0x0040
-#define DB_VFS         0x0080
-#define DB_SEMFS       0x0100
-#define DB_SFS         0x0200
-#define DB_NET         0x0400
-#define DB_NETFS       0x0800
-#define DB_KMALLOC     0x1000
+#define DB_LOCORE 0x0001
+#define DB_SYSCALL 0x0002
+#define DB_INTERRUPT 0x0004
+#define DB_DEVICE 0x0008
+#define DB_THREADS 0x0010
+#define DB_VM 0x0020
+#define DB_EXEC 0x0040
+#define DB_VFS 0x0080
+#define DB_SEMFS 0x0100
+#define DB_SFS 0x0200
+#define DB_NET 0x0400
+#define DB_NETFS 0x0800
+#define DB_KMALLOC 0x1000
 
 extern uint32_t dbflags;
 
@@ -154,7 +153,7 @@ void *memset(void *block, int ch, size_t len);
 void bzero(void *ptr, size_t len);
 int atoi(const char *str);
 
-int snprintf(char *buf, size_t maxlen, const char *fmt, ...) __PF(3,4);
+int snprintf(char *buf, size_t maxlen, const char *fmt, ...) __PF(3, 4);
 
 const char *strerror(int errcode);
 
@@ -178,10 +177,10 @@ void beep(void);
  * during boot once malloc is available and before any additional
  * threads are created.
  */
-int kprintf(const char *format, ...) __PF(1,2);
-__DEAD void panic(const char *format, ...) __PF(1,2);
-__DEAD void badassert(const char *expr, const char *file,
-		      int line, const char *func);
+int kprintf(const char *format, ...) __PF(1, 2);
+__DEAD void panic(const char *format, ...) __PF(1, 2);
+__DEAD void badassert(const char *expr, const char *file, int line,
+					  const char *func);
 
 void kgets(char *buf, size_t maxbuflen);
 
@@ -191,8 +190,7 @@ void kprintf_bootstrap(void);
  * Other miscellaneous stuff
  */
 
-#define DIVROUNDUP(a,b) (((a)+(b)-1)/(b))
-#define ROUNDUP(a,b)    (DIVROUNDUP(a,b)*(b))
-
+#define DIVROUNDUP(a, b) (((a) + (b)-1) / (b))
+#define ROUNDUP(a, b) (DIVROUNDUP(a, b) * (b))
 
 #endif /* _LIB_H_ */

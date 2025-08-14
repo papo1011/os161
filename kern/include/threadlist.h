@@ -30,8 +30,7 @@
 #ifndef _THREADLIST_H_
 #define _THREADLIST_H_
 
-
-struct thread;	/* from <thread.h> */
+struct thread; /* from <thread.h> */
 
 /*
  * AmigaOS-style linked list of threads.
@@ -84,22 +83,19 @@ struct thread *threadlist_remhead(struct threadlist *tl);
 struct thread *threadlist_remtail(struct threadlist *tl);
 
 /* Add and remove: in middle. (TL is needed to maintain ->tl_count.) */
-void threadlist_insertafter(struct threadlist *tl,
-			    struct thread *onlist, struct thread *addee);
-void threadlist_insertbefore(struct threadlist *tl,
-			     struct thread *addee, struct thread *onlist);
+void threadlist_insertafter(struct threadlist *tl, struct thread *onlist,
+							struct thread *addee);
+void threadlist_insertbefore(struct threadlist *tl, struct thread *addee,
+							 struct thread *onlist);
 void threadlist_remove(struct threadlist *tl, struct thread *t);
 
 /* Iteration; itervar should previously be declared as (struct thread *) */
-#define THREADLIST_FORALL(itervar, tl) \
-	for ((itervar) = (tl).tl_head.tln_next->tln_self; \
-	     (itervar) != NULL; \
-	     (itervar) = (itervar)->t_listnode.tln_next->tln_self)
+#define THREADLIST_FORALL(itervar, tl)                                         \
+	for ((itervar) = (tl).tl_head.tln_next->tln_self; (itervar) != NULL;       \
+		 (itervar) = (itervar)->t_listnode.tln_next->tln_self)
 
-#define THREADLIST_FORALL_REV(itervar, tl) \
-	for ((itervar) = (tl).tl_tail.tln_prev->tln_self; \
-	     (itervar) != NULL; \
-	     (itervar) = (itervar)->t_listnode.tln_prev->tln_self)
-
+#define THREADLIST_FORALL_REV(itervar, tl)                                     \
+	for ((itervar) = (tl).tl_tail.tln_prev->tln_self; (itervar) != NULL;       \
+		 (itervar) = (itervar)->t_listnode.tln_prev->tln_self)
 
 #endif /* _THREADLIST_H_ */

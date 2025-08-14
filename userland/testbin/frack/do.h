@@ -28,14 +28,13 @@
  * SUCH DAMAGE.
  */
 
-
 int do_opendir(unsigned name);
 void do_closedir(int handle, unsigned name);
 int do_createfile(unsigned name);
 int do_openfile(unsigned name, int dotrunc);
 void do_closefile(int handle, unsigned name);
-void do_write(int handle, unsigned name, unsigned code, unsigned seq,
-	      off_t pos, off_t len);
+void do_write(int handle, unsigned name, unsigned code, unsigned seq, off_t pos,
+			  off_t len);
 void do_truncate(int handle, unsigned name, off_t len);
 void do_mkdir(unsigned name);
 void do_rmdir(unsigned name);

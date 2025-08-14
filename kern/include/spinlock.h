@@ -57,18 +57,19 @@
  */
 struct spinlock {
 	volatile spinlock_data_t splk_lock; /* Memory word where we spin. */
-	struct cpu *splk_holder;	    /* CPU holding this lock. */
-	HANGMAN_LOCKABLE(splk_hangman);     /* Deadlock detector hook. */
+	struct cpu *splk_holder;			/* CPU holding this lock. */
+	HANGMAN_LOCKABLE(splk_hangman);		/* Deadlock detector hook. */
 };
 
 /*
  * Initializer for cases where a spinlock needs to be static or global.
  */
 #ifdef OPT_HANGMAN
-#define SPINLOCK_INITIALIZER	{ SPINLOCK_DATA_INITIALIZER, NULL, \
-				  HANGMAN_LOCKABLE_INITIALIZER }
+#define SPINLOCK_INITIALIZER                                                   \
+	{ SPINLOCK_DATA_INITIALIZER, NULL, HANGMAN_LOCKABLE_INITIALIZER }
 #else
-#define SPINLOCK_INITIALIZER	{ SPINLOCK_DATA_INITIALIZER, NULL }
+#define SPINLOCK_INITIALIZER                                                   \
+	{ SPINLOCK_DATA_INITIALIZER, NULL }
 #endif
 
 /*
@@ -90,6 +91,5 @@ void spinlock_acquire(struct spinlock *lk);
 void spinlock_release(struct spinlock *lk);
 
 bool spinlock_do_i_hold(struct spinlock *lk);
-
 
 #endif /* _SPINLOCK_H_ */

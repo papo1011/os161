@@ -44,7 +44,7 @@
 #define S_ISDIR(mode) ((mode & _S_IFMT) == _S_IFDIR)
 #define S_ISLNK(mode) ((mode & _S_IFMT) == _S_IFLNK)
 #define S_ISIFO(mode) ((mode & _S_IFMT) == _S_IFIFO)
-#define S_ISSOCK(mode) ((mode & _S_IFMT) ==_S_IFSOCK)
+#define S_ISSOCK(mode) ((mode & _S_IFMT) == _S_IFSOCK)
 #define S_ISCHR(mode) ((mode & _S_IFMT) == _S_IFCHR)
 #define S_ISBLK(mode) ((mode & _S_IFMT) == _S_IFBLK)
 
@@ -52,14 +52,14 @@
  * Provide non-underscore names. These are not actually standard; for
  * some reason only the test macros are.
  */
-#define S_IFMT   _S_IFMT
-#define S_IFREG  _S_IFREG
-#define S_IFDIR  _S_IFDIR
-#define S_IFLNK  _S_IFLNK
-#define S_IFIFO  _S_IFIFO
+#define S_IFMT _S_IFMT
+#define S_IFREG _S_IFREG
+#define S_IFDIR _S_IFDIR
+#define S_IFLNK _S_IFLNK
+#define S_IFIFO _S_IFIFO
 #define S_IFSOCK _S_IFSOCK
-#define S_IFCHR  _S_IFCHR
-#define S_IFBLK  _S_IFBLK
+#define S_IFCHR _S_IFCHR
+#define S_IFBLK _S_IFBLK
 
 /*
  * stat is the same as fstat, only on a file that isn't already
@@ -78,6 +78,5 @@ int lstat(const char *path, struct stat *buf);
  * (and should) ignore it. See notes in unistd.h.
  */
 int mkdir(const char *dirname, int ignore);
-
 
 #endif /* _SYS_STAT_H_ */

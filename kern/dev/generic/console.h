@@ -49,8 +49,8 @@ struct con_softc {
 	struct semaphore *cs_rsem;
 	struct semaphore *cs_wsem;
 	unsigned char cs_gotchars[CONSOLE_INPUT_BUFFER_SIZE];
-	unsigned cs_gotchars_head;	/* next slot to put a char in */
-	unsigned cs_gotchars_tail;	/* next slot to take a char out */
+	unsigned cs_gotchars_head; /* next slot to put a char in */
+	unsigned cs_gotchars_tail; /* next slot to take a char out */
 };
 
 /*

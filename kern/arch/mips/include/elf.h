@@ -34,25 +34,23 @@
  * MIPS machine-dependent definitions for the ELF binary format.
  */
 
-
 /* The ELF executable type. */
-#define EM_MACHINE  EM_MIPS
+#define EM_MACHINE EM_MIPS
 
 /* Linker relocation codes.	   SIZE   DESCRIPTION */
-#define R_MIPS_NONE	0	/* ---    nop */
-#define R_MIPS_16	1	/* u16    value */
-#define R_MIPS_32	2	/* u32    value */
-#define R_MIPS_REL32	3	/* u32    value relative to patched address */
-#define R_MIPS_26	4	/* u26    j/jal instruction address field */
-#define R_MIPS_HI16	5	/* u16    %hi(sym) as below */
-#define R_MIPS_LO16	6	/* s16    %lo(sym) as below */
-#define R_MIPS_GPREL16	7	/* s16    offset from GP register */
-#define R_MIPS_LITERAL	8	/* s16    GPREL16 for file-local symbols (?) */
-#define R_MIPS_GOT16	9	/* u16    offset into global offset table */
-#define R_MIPS_PC16	10	/* s16    PC-relative reference */
-#define R_MIPS_CALL16	11	/* u16    call through global offset table */
-#define R_MIPS_GPREL32	12	/* s32    offset from GP register */
+#define R_MIPS_NONE 0	  /* ---    nop */
+#define R_MIPS_16 1		  /* u16    value */
+#define R_MIPS_32 2		  /* u32    value */
+#define R_MIPS_REL32 3	  /* u32    value relative to patched address */
+#define R_MIPS_26 4		  /* u26    j/jal instruction address field */
+#define R_MIPS_HI16 5	  /* u16    %hi(sym) as below */
+#define R_MIPS_LO16 6	  /* s16    %lo(sym) as below */
+#define R_MIPS_GPREL16 7  /* s16    offset from GP register */
+#define R_MIPS_LITERAL 8  /* s16    GPREL16 for file-local symbols (?) */
+#define R_MIPS_GOT16 9	  /* u16    offset into global offset table */
+#define R_MIPS_PC16 10	  /* s16    PC-relative reference */
+#define R_MIPS_CALL16 11  /* u16    call through global offset table */
+#define R_MIPS_GPREL32 12 /* s32    offset from GP register */
 /* %hi/%lo are defined so %hi(sym) << 16 + %lo(sym) = sym */
-
 
 #endif /* _MIPS_ELF_H_ */

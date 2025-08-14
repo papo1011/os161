@@ -61,32 +61,31 @@
  * and also various other places as per relevant standards.
  */
 
-typedef __u32 __blkcnt_t;  /* Count of blocks */
-typedef __u32 __blksize_t; /* Size of an I/O block */
-typedef __u64 __counter_t; /* Event counter */
-typedef __u32 __daddr_t;   /* Disk block number */
-typedef __u32 __dev_t;     /* Hardware device ID */
-typedef __u32 __fsid_t;    /* Filesystem ID */
-typedef __i32 __gid_t;     /* Group ID */
-typedef __u32 __in_addr_t; /* Internet address */
-typedef __u32 __in_port_t; /* Internet port number */
-typedef __u32 __ino_t;     /* Inode number */
-typedef __u32 __mode_t;    /* File access mode */
-typedef __u16 __nlink_t;   /* Number of links (intentionally only 16 bits) */
-typedef __i64 __off_t;     /* Offset within file */
-typedef __i32 __pid_t;     /* Process ID */
-typedef __u64 __rlim_t;    /* Resource limit quantity */
-typedef __u8 __sa_family_t;/* Socket address family */
-typedef __i64 __time_t;    /* Time in seconds */
-typedef __i32 __uid_t;     /* User ID */
+typedef __u32 __blkcnt_t;	/* Count of blocks */
+typedef __u32 __blksize_t;	/* Size of an I/O block */
+typedef __u64 __counter_t;	/* Event counter */
+typedef __u32 __daddr_t;	/* Disk block number */
+typedef __u32 __dev_t;		/* Hardware device ID */
+typedef __u32 __fsid_t;		/* Filesystem ID */
+typedef __i32 __gid_t;		/* Group ID */
+typedef __u32 __in_addr_t;	/* Internet address */
+typedef __u32 __in_port_t;	/* Internet port number */
+typedef __u32 __ino_t;		/* Inode number */
+typedef __u32 __mode_t;		/* File access mode */
+typedef __u16 __nlink_t;	/* Number of links (intentionally only 16 bits) */
+typedef __i64 __off_t;		/* Offset within file */
+typedef __i32 __pid_t;		/* Process ID */
+typedef __u64 __rlim_t;		/* Resource limit quantity */
+typedef __u8 __sa_family_t; /* Socket address family */
+typedef __i64 __time_t;		/* Time in seconds */
+typedef __i32 __uid_t;		/* User ID */
 
-typedef int __nfds_t;    /* Number of file handles */
-typedef int __socklen_t;   /* Socket-related length */
+typedef int __nfds_t;	 /* Number of file handles */
+typedef int __socklen_t; /* Socket-related length */
 
 /* See note in <stdarg.h> */
 #ifdef __GNUC__
 typedef __builtin_va_list __va_list;
 #endif
-
 
 #endif /* _KERN_TYPES_H_ */

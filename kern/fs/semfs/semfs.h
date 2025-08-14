@@ -42,7 +42,7 @@
  * Constants
  */
 
-#define SEMFS_ROOTDIR	0xffffffffU		/* semnum for root dir */
+#define SEMFS_ROOTDIR 0xffffffffU /* semnum for root dir */
 
 /*
  * A user-facing semaphore.
@@ -52,11 +52,11 @@
  * XXX: or would we? review once all this is done.
  */
 struct semfs_sem {
-	struct lock *sems_lock;			/* Lock to protect count */
-	struct cv *sems_cv;			/* CV to wait */
-	unsigned sems_count;			/* Semaphore count */
-	bool sems_hasvnode;			/* The vnode exists */
-	bool sems_linked;			/* In the directory */
+	struct lock *sems_lock; /* Lock to protect count */
+	struct cv *sems_cv;		/* CV to wait */
+	unsigned sems_count;	/* Semaphore count */
+	bool sems_hasvnode;		/* The vnode exists */
+	bool sems_linked;		/* In the directory */
 };
 DECLARRAY(semfs_sem, SEMFS_INLINE);
 
@@ -64,8 +64,8 @@ DECLARRAY(semfs_sem, SEMFS_INLINE);
  * Directory entry; name and reference to a semaphore.
  */
 struct semfs_direntry {
-	char *semd_name;			/* Name */
-	unsigned semd_semnum;			/* Which semaphore */
+	char *semd_name;	  /* Name */
+	unsigned semd_semnum; /* Which semaphore */
 };
 DECLARRAY(semfs_direntry, SEMFS_INLINE);
 
@@ -77,9 +77,9 @@ DECLARRAY(semfs_direntry, SEMFS_INLINE);
  * practice. XXX: review after finishing)
  */
 struct semfs_vnode {
-	struct vnode semv_absvn;		/* Abstract vnode */
-	struct semfs *semv_semfs;		/* Back-pointer to fs */
-	unsigned semv_semnum;			/* Which semaphore */
+	struct vnode semv_absvn;  /* Abstract vnode */
+	struct semfs *semv_semfs; /* Back-pointer to fs */
+	unsigned semv_semnum;	  /* Which semaphore */
 };
 
 /*
@@ -87,13 +87,13 @@ struct semfs_vnode {
  * is only one of these.
  */
 struct semfs {
-	struct fs semfs_absfs;			/* Abstract fs object */
+	struct fs semfs_absfs; /* Abstract fs object */
 
-	struct lock *semfs_tablelock;		/* Lock for following */
-	struct vnodearray *semfs_vnodes;	/* Currently extant vnodes */
-	struct semfs_semarray *semfs_sems;	/* Semaphores */
+	struct lock *semfs_tablelock;	   /* Lock for following */
+	struct vnodearray *semfs_vnodes;   /* Currently extant vnodes */
+	struct semfs_semarray *semfs_sems; /* Semaphores */
 
-	struct lock *semfs_dirlock;		/* Lock for following */
+	struct lock *semfs_dirlock;				 /* Lock for following */
 	struct semfs_direntryarray *semfs_dents; /* The root directory */
 };
 
@@ -103,7 +103,6 @@ struct semfs {
 
 DEFARRAY(semfs_sem, SEMFS_INLINE);
 DEFARRAY(semfs_direntry, SEMFS_INLINE);
-
 
 /*
  * Functions.
@@ -118,6 +117,5 @@ void semfs_direntry_destroy(struct semfs_direntry *);
 
 /* in semfs_vnops.c */
 int semfs_getvnode(struct semfs *, unsigned, struct vnode **ret);
-
 
 #endif /* SEMFS_H */
