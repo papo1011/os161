@@ -172,6 +172,18 @@ static void dumbvm_can_sleep(void) {
 	}
 }
 
+/*
+ * Tries to allocate a contiguous block of free physical pages
+ * of the requested size. It works only if the allocator is active.
+ *
+ * It locks freemem_lock to prevent concurrent access, scans freeRamFrames[]
+ * (1 = free, 0 = occupied) for a range of free pages large enough, marks them
+ * as occupied, and records the block size in allocSize[].
+ *
+ * If found, it returns the physical address of the first page; otherwise,
+ * it releases the lock and returns 0. This provides a simple and safe way
+ * for the OS to manage physical memory.
+ */
 static paddr_t getfreeppages(unsigned long npages) {
 	paddr_t addr;
 	long i, first, found, np = (long)npages;
