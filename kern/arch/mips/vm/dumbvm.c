@@ -205,6 +205,23 @@ static paddr_t getfreeppages(unsigned long npages) {
 	return addr;
 }
 
+/*
+ * Allocates a block of physical memory of the requested size
+ * using a two-step strategy:
+ *
+ * 1. First, it calls getfreeppages() to try reusing free pages tracked in
+ *    freeRamFrames (1 = free). If a valid address is returned and the
+ *    allocator is active, it updates allocSize[] with the block size,
+ *    protecting the update with freemem_lock to avoid race conditions.
+ *
+ * 2. If getfreeppages() returns 0 (no suitable pages), it acquires
+ *    stealmem_lock and calls ram_stealmem() to get a new contiguous block
+ *    directly from the system.
+ *
+ * In short, getppages() tries to reuse managed free memory first; if that
+ * fails, it falls back to stealing new memory, updating internal structures
+ * if the custom allocator is active.
+ */
 static paddr_t getppages(unsigned long npages) {
 	paddr_t addr;
 
