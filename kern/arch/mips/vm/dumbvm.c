@@ -76,7 +76,16 @@ static struct spinlock stealmem_lock = SPINLOCK_INITIALIZER;
 
 static struct spinlock freemem_lock = SPINLOCK_INITIALIZER;
 
+/*
+ * A bitmap tracks the state of each frame (physical page of RAM):
+ *   1 = page is free
+ *   0 = page is occupied
+ *
+ * At system startup, the bitmap is fully initialized to 0 because all RAM
+ * is either used by the bootstrap phase or not yet managed.
+ */
 static unsigned char *freeRamFrames = NULL;
+
 static unsigned long *allocSize = NULL;
 static int nRamFrames = 0;
 
