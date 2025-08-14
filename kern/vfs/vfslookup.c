@@ -45,10 +45,7 @@ static struct vnode *bootfs_vnode = NULL;
 /*
  * Helper function for actually changing bootfs_vnode.
  */
-static
-void
-change_bootfs(struct vnode *newvn)
-{
+static void change_bootfs(struct vnode *newvn) {
 	struct vnode *oldvn;
 
 	oldvn = bootfs_vnode;
@@ -67,26 +64,23 @@ change_bootfs(struct vnode *newvn)
  *
  * It is also incidentally the system's first current directory.
  */
-int
-vfs_setbootfs(const char *fsname)
-{
-	char tmp[NAME_MAX+1];
+int vfs_setbootfs(const char *fsname) {
+	char tmp[NAME_MAX + 1];
 	char *s;
 	int result;
 	struct vnode *newguy;
 
 	vfs_biglock_acquire();
 
-	snprintf(tmp, sizeof(tmp)-1, "%s", fsname);
+	snprintf(tmp, sizeof(tmp) - 1, "%s", fsname);
 	s = strchr(tmp, ':');
 	if (s) {
 		/* If there's a colon, it must be at the end */
-		if (strlen(s)>0) {
+		if (strlen(s) > 0) {
 			vfs_biglock_release();
 			return EINVAL;
 		}
-	}
-	else {
+	} else {
 		strcat(tmp, ":");
 	}
 
@@ -111,25 +105,19 @@ vfs_setbootfs(const char *fsname)
 /*
  * Clear the bootfs vnode (preparatory to system shutdown).
  */
-void
-vfs_clearbootfs(void)
-{
+void vfs_clearbootfs(void) {
 	vfs_biglock_acquire();
 	change_bootfs(NULL);
 	vfs_biglock_release();
 }
-
 
 /*
  * Common code to pull the device name, if any, off the front of a
  * path and choose the vnode to begin the name lookup relative to.
  */
 
-static
-int
-getdevice(char *path, char **subpath, struct vnode **startvn)
-{
-	int slash=-1, colon=-1, i;
+static int getdevice(char *path, char **subpath, struct vnode **startvn) {
+	int slash = -1, colon = -1, i;
 	struct vnode *vn;
 	int result;
 
@@ -146,12 +134,12 @@ getdevice(char *path, char **subpath, struct vnode **startvn)
 	 * Locate the first colon or slash.
 	 */
 
-	for (i=0; path[i]; i++) {
-		if (path[i]==':') {
+	for (i = 0; path[i]; i++) {
+		if (path[i] == ':') {
 			colon = i;
 			break;
 		}
-		if (path[i]=='/') {
+		if (path[i] == '/') {
 			slash = i;
 			break;
 		}
@@ -169,14 +157,14 @@ getdevice(char *path, char **subpath, struct vnode **startvn)
 		return vfs_getcurdir(startvn);
 	}
 
-	if (colon>0) {
+	if (colon > 0) {
 		/* device:path - get root of device's filesystem */
-		path[colon]=0;
-		while (path[colon+1]=='/') {
+		path[colon] = 0;
+		while (path[colon + 1] == '/') {
 			/* device:/path - skip slash, treat as device:path */
 			colon++;
 		}
-		*subpath = &path[colon+1];
+		*subpath = &path[colon + 1];
 
 		result = vfs_getroot(path, startvn);
 		if (result) {
@@ -192,17 +180,16 @@ getdevice(char *path, char **subpath, struct vnode **startvn)
 	 * /path is a path relative to the root of the "boot filesystem".
 	 * :path is a path relative to the root of the current filesystem.
 	 */
-	KASSERT(colon==0 || slash==0);
+	KASSERT(colon == 0 || slash == 0);
 
-	if (path[0]=='/') {
-		if (bootfs_vnode==NULL) {
+	if (path[0] == '/') {
+		if (bootfs_vnode == NULL) {
 			return ENOENT;
 		}
 		VOP_INCREF(bootfs_vnode);
 		*startvn = bootfs_vnode;
-	}
-	else {
-		KASSERT(path[0]==':');
+	} else {
+		KASSERT(path[0] == ':');
 
 		result = vfs_getcurdir(&vn);
 		if (result) {
@@ -213,7 +200,7 @@ getdevice(char *path, char **subpath, struct vnode **startvn)
 		 * The current directory may not be a device, so it
 		 * must have a fs.
 		 */
-		KASSERT(vn->vn_fs!=NULL);
+		KASSERT(vn->vn_fs != NULL);
 
 		result = FSOP_GETROOT(vn->vn_fs, startvn);
 
@@ -224,12 +211,12 @@ getdevice(char *path, char **subpath, struct vnode **startvn)
 		}
 	}
 
-	while (path[1]=='/') {
+	while (path[1] == '/') {
 		/* ///... or :/... */
 		path++;
 	}
 
-	*subpath = path+1;
+	*subpath = path + 1;
 
 	return 0;
 }
@@ -239,10 +226,8 @@ getdevice(char *path, char **subpath, struct vnode **startvn)
  * (In BSD, both of these are subsumed by namei().)
  */
 
-int
-vfs_lookparent(char *path, struct vnode **retval,
-	       char *buf, size_t buflen)
-{
+int vfs_lookparent(char *path, struct vnode **retval, char *buf,
+				   size_t buflen) {
 	struct vnode *startvn;
 	int result;
 
@@ -254,15 +239,14 @@ vfs_lookparent(char *path, struct vnode **retval,
 		return result;
 	}
 
-	if (strlen(path)==0) {
+	if (strlen(path) == 0) {
 		/*
 		 * It does not make sense to use just a device name in
 		 * a context where "lookparent" is the desired
 		 * operation.
 		 */
 		result = EINVAL;
-	}
-	else {
+	} else {
 		result = VOP_LOOKPARENT(startvn, path, retval, buf, buflen);
 	}
 
@@ -272,9 +256,7 @@ vfs_lookparent(char *path, struct vnode **retval,
 	return result;
 }
 
-int
-vfs_lookup(char *path, struct vnode **retval)
-{
+int vfs_lookup(char *path, struct vnode **retval) {
 	struct vnode *startvn;
 	int result;
 
@@ -286,7 +268,7 @@ vfs_lookup(char *path, struct vnode **retval)
 		return result;
 	}
 
-	if (strlen(path)==0) {
+	if (strlen(path) == 0) {
 		*retval = startvn;
 		vfs_biglock_release();
 		return 0;

@@ -48,10 +48,9 @@
 #include <err.h>
 #include "f_hdr.h"
 
-#define SECTOR_SIZE  512
+#define SECTOR_SIZE 512
 
-
-#define BUFFER_SIZE  (2 * SECTOR_SIZE + 1)
+#define BUFFER_SIZE (2 * SECTOR_SIZE + 1)
 #define BIGFILE_SIZE (270 * BUFFER_SIZE)
 #define BIGFILE_NAME "large-f"
 
@@ -60,56 +59,46 @@
 char fbuffer[BUFFER_SIZE];
 char ibuffer[32];
 
+#define DIR_DEPTH 8
+#define DIR_NAME "/t"
+#define DIRFILE_NAME "a"
 
-#define DIR_DEPTH      8
-#define DIR_NAME       "/t"
-#define DIRFILE_NAME   "a"
+#define FNAME "f-testfile"
+#define TMULT 50
+#define FSIZE ((SECTOR_SIZE + 1) * TMULT)
 
-
-#define FNAME        "f-testfile"
-#define TMULT        50
-#define FSIZE        ((SECTOR_SIZE + 1) * TMULT)
-
-#define READCHAR     'r'
-#define WRITECHAR    'w'
+#define READCHAR 'r'
+#define WRITECHAR 'w'
 
 char cbuffer[SECTOR_SIZE + 1];
-
 
 /* ===================================================
 
  */
 
-static
-pid_t
-forkoff(void (*func)(void))
-{
+static pid_t forkoff(void (*func)(void)) {
 	pid_t pid = fork();
 	switch (pid) {
-	    case -1:
+	case -1:
 		warn("fork");
 		return -1;
-	    case 0:
+	case 0:
 		func();
 		_exit(0);
-	    default: break;
+	default:
+		break;
 	}
 	return pid;
 }
 
-static
-void
-dowait(int pid)
-{
+static void dowait(int pid) {
 	int status;
 
-	if (waitpid(pid, &status, 0)<0) {
+	if (waitpid(pid, &status, 0) < 0) {
 		warn("waitpid for %d", pid);
-	}
-	else if (WIFSIGNALED(status)) {
+	} else if (WIFSIGNALED(status)) {
 		warnx("pid %d: signal %d", pid, WTERMSIG(status));
-	}
-	else if (WEXITSTATUS(status) != 0) {
+	} else if (WEXITSTATUS(status) != 0) {
 		warnx("pid %d: exit %d", pid, WEXITSTATUS(status));
 	}
 }
@@ -118,21 +107,18 @@ dowait(int pid)
 
  */
 
-static
-void
-big_file(int size)
-{
+static void big_file(int size) {
 	int i, j, fileid;
 
 	printf("[BIGFILE] test starting :\n");
 	printf("\tCreating a file of size: %d\n", size);
 
-	fileid = open(BIGFILE_NAME, O_WRONLY|O_CREAT|O_TRUNC, 0664);
+	fileid = open(BIGFILE_NAME, O_WRONLY | O_CREAT | O_TRUNC, 0664);
 	if (fileid < 0) {
 		err(1, "[BIGFILE]: %s: open for write", BIGFILE_NAME);
 	}
 
-	for(i = 0; i < BUFFER_SIZE; i++) {
+	for (i = 0; i < BUFFER_SIZE; i++) {
 		fbuffer[i] = LETTER(i);
 	}
 
@@ -155,7 +141,7 @@ big_file(int size)
 
 	for (i = 0; i < size; i += BUFFER_SIZE) {
 		j = read(fileid, fbuffer, BUFFER_SIZE);
-		if (j<0) {
+		if (j < 0) {
 			err(1, "[BIGFILE]: read");
 		}
 		if (j != BUFFER_SIZE) {
@@ -170,11 +156,12 @@ big_file(int size)
 	/* Check to see that the data is consistent : */
 	for (j = 0; j < BUFFER_SIZE; j++) {
 		if (fbuffer[j] != LETTER(j)) {
-			errx(1, "[BIGFILE] : Failed read check : "
-			     "inconsistent data read: %d", i+j);
+			errx(1,
+				 "[BIGFILE] : Failed read check : "
+				 "inconsistent data read: %d",
+				 i + j);
 		}
 	}
-
 
 	close(fileid);
 	if (remove(BIGFILE_NAME)) {
@@ -188,17 +175,13 @@ big_file(int size)
 
  */
 
-static
-void
-concur(void)
-{
+static void concur(void) {
 	int i, fd;
 	int r1, r2, w1;
 
 	printf("Spawning 2 readers, 1 writer.\n");
 
-
-	fd = open(FNAME, O_WRONLY|O_CREAT|O_TRUNC, 0664);
+	fd = open(FNAME, O_WRONLY | O_CREAT | O_TRUNC, 0664);
 	if (fd < 0) {
 		err(1, "[CONCUR]: %s: open", FNAME);
 	}
@@ -212,7 +195,6 @@ concur(void)
 	for (i = 0; i < TMULT; i++) {
 		write(fd, cbuffer, SECTOR_SIZE + 1);
 	}
-
 
 	close(fd);
 
@@ -239,10 +221,7 @@ concur(void)
 
  */
 
-static
-void
-dir_test(int depth)
-{
+static void dir_test(int depth) {
 	int i, fd;
 	char tmp[] = DIR_NAME;
 	char fmp[] = DIRFILE_NAME;
@@ -262,8 +241,8 @@ dir_test(int depth)
 		strcat(dirname, fmp);
 		printf("\tCreating file: %s\n", dirname);
 
-		fd = open(dirname, O_WRONLY|O_CREAT|O_TRUNC, 0664);
-		if (fd<0) {
+		fd = open(dirname, O_WRONLY | O_CREAT | O_TRUNC, 0664);
+		if (fd < 0) {
 			err(1, "[DIRTEST]: %s: open", dirname);
 		}
 
@@ -278,7 +257,7 @@ dir_test(int depth)
 		printf("\tDeleting file: %s\n", dirname);
 
 		if (remove(dirname)) {
-			 err(1, "[DIRTEST]: %s: remove", dirname);
+			err(1, "[DIRTEST]: %s: remove", dirname);
 		}
 
 		dirname[strlen(dirname) - strlen(fmp)] = '\0';
@@ -299,28 +278,23 @@ dir_test(int depth)
 
  */
 
-#define   RUNBIGFILE  0x1
-#define   RUNDIRTEST  0x2
-#define   RUNCONCUR   0x4
-#define   RUNTHEMALL  (RUNBIGFILE | RUNDIRTEST | RUNCONCUR)
+#define RUNBIGFILE 0x1
+#define RUNDIRTEST 0x2
+#define RUNCONCUR 0x4
+#define RUNTHEMALL (RUNBIGFILE | RUNDIRTEST | RUNCONCUR)
 
-int
-main(int argc, char * argv[])
-{
+int main(int argc, char *argv[]) {
 	int tv = 0;
 
 	if (argc > 1) {
-		if (*argv[1]=='1') {
+		if (*argv[1] == '1') {
 			tv = RUNBIGFILE;
-		}
-		else if (*argv[1]=='2') {
+		} else if (*argv[1] == '2') {
 			tv = RUNDIRTEST;
-		}
-		else if (*argv[1]=='3') {
+		} else if (*argv[1] == '3') {
 			tv = RUNCONCUR;
 		}
-	}
-	else {
+	} else {
 		tv = RUNTHEMALL;
 	}
 
@@ -344,5 +318,3 @@ main(int argc, char * argv[])
 	}
 	return 0;
 }
-
-

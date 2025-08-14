@@ -39,11 +39,8 @@
 #include <vfs.h>
 #include <vnode.h>
 
-
 /* Does most of the work for open(). */
-int
-vfs_open(char *path, int openflags, mode_t mode, struct vnode **ret)
-{
+int vfs_open(char *path, int openflags, mode_t mode, struct vnode **ret) {
 	int how;
 	int result;
 	int canwrite;
@@ -52,21 +49,21 @@ vfs_open(char *path, int openflags, mode_t mode, struct vnode **ret)
 	how = openflags & O_ACCMODE;
 
 	switch (how) {
-	    case O_RDONLY:
-		canwrite=0;
+	case O_RDONLY:
+		canwrite = 0;
 		break;
-	    case O_WRONLY:
-	    case O_RDWR:
-		canwrite=1;
+	case O_WRONLY:
+	case O_RDWR:
+		canwrite = 1;
 		break;
-	    default:
+	default:
 		return EINVAL;
 	}
 
 	if (openflags & O_CREAT) {
-		char name[NAME_MAX+1];
+		char name[NAME_MAX + 1];
 		struct vnode *dir;
-		int excl = (openflags & O_EXCL)!=0;
+		int excl = (openflags & O_EXCL) != 0;
 
 		result = vfs_lookparent(path, &dir, name, sizeof(name));
 		if (result) {
@@ -76,8 +73,7 @@ vfs_open(char *path, int openflags, mode_t mode, struct vnode **ret)
 		result = VOP_CREAT(dir, name, excl, mode, &vn);
 
 		VOP_DECREF(dir);
-	}
-	else {
+	} else {
 		result = vfs_lookup(path, &vn);
 	}
 
@@ -94,10 +90,9 @@ vfs_open(char *path, int openflags, mode_t mode, struct vnode **ret)
 	}
 
 	if (openflags & O_TRUNC) {
-		if (canwrite==0) {
+		if (canwrite == 0) {
 			result = EINVAL;
-		}
-		else {
+		} else {
 			result = VOP_TRUNCATE(vn, 0);
 		}
 		if (result) {
@@ -112,9 +107,7 @@ vfs_open(char *path, int openflags, mode_t mode, struct vnode **ret)
 }
 
 /* Does most of the work for close(). */
-void
-vfs_close(struct vnode *vn)
-{
+void vfs_close(struct vnode *vn) {
 	/*
 	 * VOP_DECREF doesn't return an error.
 	 *
@@ -133,11 +126,9 @@ vfs_close(struct vnode *vn)
 }
 
 /* Does most of the work for remove(). */
-int
-vfs_remove(char *path)
-{
+int vfs_remove(char *path) {
 	struct vnode *dir;
-	char name[NAME_MAX+1];
+	char name[NAME_MAX + 1];
 	int result;
 
 	result = vfs_lookparent(path, &dir, name, sizeof(name));
@@ -152,13 +143,11 @@ vfs_remove(char *path)
 }
 
 /* Does most of the work for rename(). */
-int
-vfs_rename(char *oldpath, char *newpath)
-{
+int vfs_rename(char *oldpath, char *newpath) {
 	struct vnode *olddir;
-	char oldname[NAME_MAX+1];
+	char oldname[NAME_MAX + 1];
 	struct vnode *newdir;
-	char newname[NAME_MAX+1];
+	char newname[NAME_MAX + 1];
 	int result;
 
 	result = vfs_lookparent(oldpath, &olddir, oldname, sizeof(oldname));
@@ -171,8 +160,8 @@ vfs_rename(char *oldpath, char *newpath)
 		return result;
 	}
 
-	if (olddir->vn_fs==NULL || newdir->vn_fs==NULL ||
-	    olddir->vn_fs != newdir->vn_fs) {
+	if (olddir->vn_fs == NULL || newdir->vn_fs == NULL ||
+		olddir->vn_fs != newdir->vn_fs) {
 		VOP_DECREF(newdir);
 		VOP_DECREF(olddir);
 		return EXDEV;
@@ -187,12 +176,10 @@ vfs_rename(char *oldpath, char *newpath)
 }
 
 /* Does most of the work for link(). */
-int
-vfs_link(char *oldpath, char *newpath)
-{
+int vfs_link(char *oldpath, char *newpath) {
 	struct vnode *oldfile;
 	struct vnode *newdir;
-	char newname[NAME_MAX+1];
+	char newname[NAME_MAX + 1];
 	int result;
 
 	result = vfs_lookup(oldpath, &oldfile);
@@ -205,8 +192,8 @@ vfs_link(char *oldpath, char *newpath)
 		return result;
 	}
 
-	if (oldfile->vn_fs==NULL || newdir->vn_fs==NULL ||
-	    oldfile->vn_fs != newdir->vn_fs) {
+	if (oldfile->vn_fs == NULL || newdir->vn_fs == NULL ||
+		oldfile->vn_fs != newdir->vn_fs) {
 		VOP_DECREF(newdir);
 		VOP_DECREF(oldfile);
 		return EXDEV;
@@ -227,11 +214,9 @@ vfs_link(char *oldpath, char *newpath)
  * other parts of the VFS layer are missing crucial elements of
  * support for symlinks.
  */
-int
-vfs_symlink(const char *contents, char *path)
-{
+int vfs_symlink(const char *contents, char *path) {
 	struct vnode *newdir;
-	char newname[NAME_MAX+1];
+	char newname[NAME_MAX + 1];
 	int result;
 
 	result = vfs_lookparent(path, &newdir, newname, sizeof(newname));
@@ -252,9 +237,7 @@ vfs_symlink(const char *contents, char *path)
  * other parts of the VFS layer are missing crucial elements of
  * support for symlinks.
  */
-int
-vfs_readlink(char *path, struct uio *uio)
-{
+int vfs_readlink(char *path, struct uio *uio) {
 	struct vnode *vn;
 	int result;
 
@@ -273,11 +256,9 @@ vfs_readlink(char *path, struct uio *uio)
 /*
  * Does most of the work for mkdir.
  */
-int
-vfs_mkdir(char *path, mode_t mode)
-{
+int vfs_mkdir(char *path, mode_t mode) {
 	struct vnode *parent;
-	char name[NAME_MAX+1];
+	char name[NAME_MAX + 1];
 	int result;
 
 	result = vfs_lookparent(path, &parent, name, sizeof(name));
@@ -295,11 +276,9 @@ vfs_mkdir(char *path, mode_t mode)
 /*
  * Does most of the work for rmdir.
  */
-int
-vfs_rmdir(char *path)
-{
+int vfs_rmdir(char *path) {
 	struct vnode *parent;
-	char name[NAME_MAX+1];
+	char name[NAME_MAX + 1];
 	int result;
 
 	result = vfs_lookparent(path, &parent, name, sizeof(name));
@@ -313,4 +292,3 @@ vfs_rmdir(char *path)
 
 	return result;
 }
-

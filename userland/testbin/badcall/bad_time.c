@@ -43,10 +43,7 @@
 #include "config.h"
 #include "test.h"
 
-static
-void
-time_badsecs(void *ptr, const char *desc)
-{
+static void time_badsecs(void *ptr, const char *desc) {
 	int rv;
 
 	report_begin("%s", desc);
@@ -54,10 +51,7 @@ time_badsecs(void *ptr, const char *desc)
 	report_check(rv, errno, EFAULT);
 }
 
-static
-void
-time_badnsecs(void *ptr, const char *desc)
-{
+static void time_badnsecs(void *ptr, const char *desc) {
 	int rv;
 
 	report_begin("%s", desc);
@@ -65,9 +59,7 @@ time_badnsecs(void *ptr, const char *desc)
 	report_check(rv, errno, EFAULT);
 }
 
-void
-test_time(void)
-{
+void test_time(void) {
 	time_badsecs(INVAL_PTR, "__time with invalid seconds pointer");
 	time_badsecs(KERN_PTR, "__time with kernel seconds pointer");
 

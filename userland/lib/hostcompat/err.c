@@ -48,10 +48,7 @@ extern const char *hostcompat_progname;
 /*
  * Common routine for all the *err* and *warn* functions.
  */
-static
-void
-hostcompat_printerr(int use_errno, const char *fmt, va_list ap)
-{
+static void hostcompat_printerr(int use_errno, const char *fmt, va_list ap) {
 	const char *errmsg;
 
 	/*
@@ -70,8 +67,7 @@ hostcompat_printerr(int use_errno, const char *fmt, va_list ap)
 	 */
 	if (hostcompat_progname != NULL) {
 		fprintf(stderr, "%s: ", hostcompat_progname);
-	}
-	else {
+	} else {
 		fprintf(stderr, "libhostcompat: hostcompat_init not called\n");
 		fprintf(stderr, "libhostcompat-program: ");
 	}
@@ -82,8 +78,7 @@ hostcompat_printerr(int use_errno, const char *fmt, va_list ap)
 	if (use_errno) {
 		/* if we're using errno, print the error string from above. */
 		fprintf(stderr, ": %s\n", errmsg);
-	}
-	else {
+	} else {
 		/* otherwise, just a newline. */
 		fprintf(stderr, "\n");
 	}
@@ -94,31 +89,19 @@ hostcompat_printerr(int use_errno, const char *fmt, va_list ap)
  */
 
 /* warn/vwarn: use errno, don't exit */
-void
-vwarn(const char *fmt, va_list ap)
-{
-	hostcompat_printerr(1, fmt, ap);
-}
+void vwarn(const char *fmt, va_list ap) { hostcompat_printerr(1, fmt, ap); }
 
 /* warnx/vwarnx: don't use errno, don't exit */
-void
-vwarnx(const char *fmt, va_list ap)
-{
-	hostcompat_printerr(0, fmt, ap);
-}
+void vwarnx(const char *fmt, va_list ap) { hostcompat_printerr(0, fmt, ap); }
 
 /* err/verr: use errno, then exit */
-void
-verr(int exitcode, const char *fmt, va_list ap)
-{
+void verr(int exitcode, const char *fmt, va_list ap) {
 	hostcompat_printerr(1, fmt, ap);
 	exit(exitcode);
 }
 
 /* errx/verrx: don't use errno, but do then exit */
-void
-verrx(int exitcode, const char *fmt, va_list ap)
-{
+void verrx(int exitcode, const char *fmt, va_list ap) {
 	hostcompat_printerr(0, fmt, ap);
 	exit(exitcode);
 }
@@ -128,36 +111,28 @@ verrx(int exitcode, const char *fmt, va_list ap)
  * Just hand off to the va_list versions.
  */
 
-void
-warn(const char *fmt, ...)
-{
+void warn(const char *fmt, ...) {
 	va_list ap;
 	va_start(ap, fmt);
 	vwarn(fmt, ap);
 	va_end(ap);
 }
 
-void
-warnx(const char *fmt, ...)
-{
+void warnx(const char *fmt, ...) {
 	va_list ap;
 	va_start(ap, fmt);
 	vwarnx(fmt, ap);
 	va_end(ap);
 }
 
-void
-err(int exitcode, const char *fmt, ...)
-{
+void err(int exitcode, const char *fmt, ...) {
 	va_list ap;
 	va_start(ap, fmt);
 	verr(exitcode, fmt, ap);
 	va_end(ap);
 }
 
-void
-errx(int exitcode, const char *fmt, ...)
-{
+void errx(int exitcode, const char *fmt, ...) {
 	va_list ap;
 	va_start(ap, fmt);
 	verrx(exitcode, fmt, ap);

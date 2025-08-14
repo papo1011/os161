@@ -40,10 +40,8 @@
 /*
  * Initialize an abstract vnode.
  */
-int
-vnode_init(struct vnode *vn, const struct vnode_ops *ops,
-	   struct fs *fs, void *fsdata)
-{
+int vnode_init(struct vnode *vn, const struct vnode_ops *ops, struct fs *fs,
+			   void *fsdata) {
 	KASSERT(vn != NULL);
 	KASSERT(ops != NULL);
 
@@ -58,9 +56,7 @@ vnode_init(struct vnode *vn, const struct vnode_ops *ops,
 /*
  * Destroy an abstract vnode.
  */
-void
-vnode_cleanup(struct vnode *vn)
-{
+void vnode_cleanup(struct vnode *vn) {
 	KASSERT(vn->vn_refcount == 1);
 
 	spinlock_cleanup(&vn->vn_countlock);
@@ -71,14 +67,11 @@ vnode_cleanup(struct vnode *vn)
 	vn->vn_data = NULL;
 }
 
-
 /*
  * Increment refcount.
  * Called by VOP_INCREF.
  */
-void
-vnode_incref(struct vnode *vn)
-{
+void vnode_incref(struct vnode *vn) {
 	KASSERT(vn != NULL);
 
 	spinlock_acquire(&vn->vn_countlock);
@@ -91,9 +84,7 @@ vnode_incref(struct vnode *vn)
  * Called by VOP_DECREF.
  * Calls VOP_RECLAIM if the refcount hits zero.
  */
-void
-vnode_decref(struct vnode *vn)
-{
+void vnode_decref(struct vnode *vn) {
 	bool destroy;
 	int result;
 
@@ -105,8 +96,7 @@ vnode_decref(struct vnode *vn)
 	if (vn->vn_refcount > 1) {
 		vn->vn_refcount--;
 		destroy = false;
-	}
-	else {
+	} else {
 		/* Don't decrement; pass the reference to VOP_RECLAIM. */
 		destroy = true;
 	}
@@ -116,8 +106,7 @@ vnode_decref(struct vnode *vn)
 		result = VOP_RECLAIM(vn);
 		if (result != 0 && result != EBUSY) {
 			// XXX: lame.
-			kprintf("vfs: Warning: VOP_RECLAIM: %s\n",
-				strerror(result));
+			kprintf("vfs: Warning: VOP_RECLAIM: %s\n", strerror(result));
 		}
 	}
 }
@@ -126,9 +115,7 @@ vnode_decref(struct vnode *vn)
  * Check for various things being valid.
  * Called before all VOP_* calls.
  */
-void
-vnode_check(struct vnode *v, const char *opstr)
-{
+void vnode_check(struct vnode *v, const char *opstr) {
 	/* not safe, and not really needed to check constant fields */
 	/*vfs_biglock_acquire();*/
 
@@ -147,8 +134,8 @@ vnode_check(struct vnode *v, const char *opstr)
 	}
 
 	if (v->vn_ops->vop_magic != VOP_MAGIC) {
-		panic("vnode_check: vop_%s: ops with bad magic number %lx\n",
-		      opstr, v->vn_ops->vop_magic);
+		panic("vnode_check: vop_%s: ops with bad magic number %lx\n", opstr,
+			  v->vn_ops->vop_magic);
 	}
 
 	// Device vnodes have null fs pointers.
@@ -163,14 +150,12 @@ vnode_check(struct vnode *v, const char *opstr)
 
 	if (v->vn_refcount < 0) {
 		panic("vnode_check: vop_%s: negative refcount %d\n", opstr,
-		      v->vn_refcount);
-	}
-	else if (v->vn_refcount == 0) {
+			  v->vn_refcount);
+	} else if (v->vn_refcount == 0) {
 		panic("vnode_check: vop_%s: zero refcount\n", opstr);
-	}
-	else if (v->vn_refcount > 0x100000) {
-		kprintf("vnode_check: vop_%s: warning: large refcount %d\n",
-			opstr, v->vn_refcount);
+	} else if (v->vn_refcount > 0x100000) {
+		kprintf("vnode_check: vop_%s: warning: large refcount %d\n", opstr,
+				v->vn_refcount);
 	}
 
 	spinlock_release(&v->vn_countlock);

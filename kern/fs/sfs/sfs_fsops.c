@@ -44,11 +44,10 @@
 #include <sfs.h>
 #include "sfsprivate.h"
 
-
 /* Shortcuts for the size macros in kern/sfs.h */
-#define SFS_FS_NBLOCKS(sfs)        ((sfs)->sfs_sb.sb_nblocks)
-#define SFS_FS_FREEMAPBITS(sfs)    SFS_FREEMAPBITS(SFS_FS_NBLOCKS(sfs))
-#define SFS_FS_FREEMAPBLOCKS(sfs)  SFS_FREEMAPBLOCKS(SFS_FS_NBLOCKS(sfs))
+#define SFS_FS_NBLOCKS(sfs) ((sfs)->sfs_sb.sb_nblocks)
+#define SFS_FS_FREEMAPBITS(sfs) SFS_FREEMAPBITS(SFS_FS_NBLOCKS(sfs))
+#define SFS_FS_FREEMAPBLOCKS(sfs) SFS_FREEMAPBLOCKS(SFS_FS_NBLOCKS(sfs))
 
 /*
  * Routine for doing I/O (reads or writes) on the free block bitmap.
@@ -67,10 +66,7 @@
  * The sectors used by the superblock and the bitmap itself are
  * likewise marked in use by mksfs.
  */
-static
-int
-sfs_freemapio(struct sfs_fs *sfs, enum uio_rw rw)
-{
+static int sfs_freemapio(struct sfs_fs *sfs, enum uio_rw rw) {
 	uint32_t j, freemapblocks;
 	char *freemapdata;
 	int result;
@@ -82,19 +78,18 @@ sfs_freemapio(struct sfs_fs *sfs, enum uio_rw rw)
 	freemapdata = bitmap_getdata(sfs->sfs_freemap);
 
 	/* For each block in the free block bitmap... */
-	for (j=0; j<freemapblocks; j++) {
+	for (j = 0; j < freemapblocks; j++) {
 
 		/* Get a pointer to its data */
-		void *ptr = freemapdata + j*SFS_BLOCKSIZE;
+		void *ptr = freemapdata + j * SFS_BLOCKSIZE;
 
 		/* and read or write it. The freemap starts at sector 2. */
 		if (rw == UIO_READ) {
-			result = sfs_readblock(sfs, SFS_FREEMAP_START+j, ptr,
-					       SFS_BLOCKSIZE);
-		}
-		else {
-			result = sfs_writeblock(sfs, SFS_FREEMAP_START+j, ptr,
-						SFS_BLOCKSIZE);
+			result =
+				sfs_readblock(sfs, SFS_FREEMAP_START + j, ptr, SFS_BLOCKSIZE);
+		} else {
+			result =
+				sfs_writeblock(sfs, SFS_FREEMAP_START + j, ptr, SFS_BLOCKSIZE);
 		}
 
 		/* If we failed, stop. */
@@ -108,15 +103,12 @@ sfs_freemapio(struct sfs_fs *sfs, enum uio_rw rw)
 /*
  * Sync routine for the vnode table.
  */
-static
-int
-sfs_sync_vnodes(struct sfs_fs *sfs)
-{
+static int sfs_sync_vnodes(struct sfs_fs *sfs) {
 	unsigned i, num;
 
 	/* Go over the array of loaded vnodes, syncing as we go. */
 	num = vnodearray_num(sfs->sfs_vnodes);
-	for (i=0; i<num; i++) {
+	for (i = 0; i < num; i++) {
 		struct vnode *v = vnodearray_get(sfs->sfs_vnodes, i);
 		VOP_FSYNC(v);
 	}
@@ -126,10 +118,7 @@ sfs_sync_vnodes(struct sfs_fs *sfs)
 /*
  * Sync routine for the freemap.
  */
-static
-int
-sfs_sync_freemap(struct sfs_fs *sfs)
-{
+static int sfs_sync_freemap(struct sfs_fs *sfs) {
 	int result;
 
 	if (sfs->sfs_freemapdirty) {
@@ -146,15 +135,12 @@ sfs_sync_freemap(struct sfs_fs *sfs)
 /*
  * Sync routine for the superblock.
  */
-static
-int
-sfs_sync_superblock(struct sfs_fs *sfs)
-{
+static int sfs_sync_superblock(struct sfs_fs *sfs) {
 	int result;
 
 	if (sfs->sfs_superdirty) {
 		result = sfs_writeblock(sfs, SFS_SUPER_BLOCK, &sfs->sfs_sb,
-					sizeof(sfs->sfs_sb));
+								sizeof(sfs->sfs_sb));
 		if (result) {
 			return result;
 		}
@@ -167,10 +153,7 @@ sfs_sync_superblock(struct sfs_fs *sfs)
  * Sync routine. This is what gets invoked if you do FS_SYNC on the
  * sfs filesystem structure.
  */
-static
-int
-sfs_sync(struct fs *fs)
-{
+static int sfs_sync(struct fs *fs) {
 	struct sfs_fs *sfs;
 	int result;
 
@@ -238,10 +221,7 @@ sfs_sync(struct fs *fs)
  * to by their volume name followed by a colon as well as the name
  * of the device they're mounted on.
  */
-static
-const char *
-sfs_getvolname(struct fs *fs)
-{
+static const char *sfs_getvolname(struct fs *fs) {
 	struct sfs_fs *sfs = fs->fs_data;
 	const char *ret;
 
@@ -255,10 +235,7 @@ sfs_getvolname(struct fs *fs)
 /*
  * Destructor for struct sfs_fs.
  */
-static
-void
-sfs_fs_destroy(struct sfs_fs *sfs)
-{
+static void sfs_fs_destroy(struct sfs_fs *sfs) {
 	if (sfs->sfs_freemap != NULL) {
 		bitmap_destroy(sfs->sfs_freemap);
 	}
@@ -272,10 +249,7 @@ sfs_fs_destroy(struct sfs_fs *sfs)
  *
  * VFS calls FS_SYNC on the filesystem prior to unmounting it.
  */
-static
-int
-sfs_unmount(struct fs *fs)
-{
+static int sfs_unmount(struct fs *fs) {
 	struct sfs_fs *sfs = fs->fs_data;
 
 	vfs_biglock_acquire();
@@ -316,22 +290,19 @@ static const struct fs_ops sfs_fsops = {
  * but skips stuff that requires reading the volume, like allocating
  * the freemap.
  */
-static
-struct sfs_fs *
-sfs_fs_create(void)
-{
+static struct sfs_fs *sfs_fs_create(void) {
 	struct sfs_fs *sfs;
 
 	/*
 	 * Make sure our on-disk structures aren't messed up
 	 */
-	COMPILE_ASSERT(sizeof(struct sfs_superblock)==SFS_BLOCKSIZE);
-	COMPILE_ASSERT(sizeof(struct sfs_dinode)==SFS_BLOCKSIZE);
+	COMPILE_ASSERT(sizeof(struct sfs_superblock) == SFS_BLOCKSIZE);
+	COMPILE_ASSERT(sizeof(struct sfs_dinode) == SFS_BLOCKSIZE);
 	COMPILE_ASSERT(SFS_BLOCKSIZE % sizeof(struct sfs_direntry) == 0);
 
 	/* Allocate object */
 	sfs = kmalloc(sizeof(struct sfs_fs));
-	if (sfs==NULL) {
+	if (sfs == NULL) {
 		goto fail;
 	}
 
@@ -381,10 +352,7 @@ fail:
  * filesystems with the same name mounted at once, or two filesystems
  * mounted on the same device at once.
  */
-static
-int
-sfs_domount(void *options, struct device *dev, struct fs **ret)
-{
+static int sfs_domount(void *options, struct device *dev, struct fs **ret) {
 	int result;
 	struct sfs_fs *sfs;
 
@@ -404,7 +372,7 @@ sfs_domount(void *options, struct device *dev, struct fs **ret)
 	if (dev->d_blocksize != SFS_BLOCKSIZE) {
 		vfs_biglock_release();
 		kprintf("sfs: Cannot mount on device with blocksize %zu\n",
-			dev->d_blocksize);
+				dev->d_blocksize);
 		return ENXIO;
 	}
 
@@ -418,8 +386,8 @@ sfs_domount(void *options, struct device *dev, struct fs **ret)
 	sfs->sfs_device = dev;
 
 	/* Load superblock */
-	result = sfs_readblock(sfs, SFS_SUPER_BLOCK, &sfs->sfs_sb,
-			       sizeof(sfs->sfs_sb));
+	result =
+		sfs_readblock(sfs, SFS_SUPER_BLOCK, &sfs->sfs_sb, sizeof(sfs->sfs_sb));
 	if (result) {
 		sfs->sfs_device = NULL;
 		sfs_fs_destroy(sfs);
@@ -431,9 +399,8 @@ sfs_domount(void *options, struct device *dev, struct fs **ret)
 
 	if (sfs->sfs_sb.sb_magic != SFS_MAGIC) {
 		kprintf("sfs: Wrong magic number in superblock "
-			"(0x%x, should be 0x%x)\n",
-			sfs->sfs_sb.sb_magic,
-			SFS_MAGIC);
+				"(0x%x, should be 0x%x)\n",
+				sfs->sfs_sb.sb_magic, SFS_MAGIC);
 		sfs->sfs_device = NULL;
 		sfs_fs_destroy(sfs);
 		vfs_biglock_release();
@@ -442,11 +409,11 @@ sfs_domount(void *options, struct device *dev, struct fs **ret)
 
 	if (sfs->sfs_sb.sb_nblocks > dev->d_blocks) {
 		kprintf("sfs: warning - fs has %u blocks, device has %u\n",
-			sfs->sfs_sb.sb_nblocks, dev->d_blocks);
+				sfs->sfs_sb.sb_nblocks, dev->d_blocks);
 	}
 
 	/* Ensure null termination of the volume name */
-	sfs->sfs_sb.sb_volname[sizeof(sfs->sfs_sb.sb_volname)-1] = 0;
+	sfs->sfs_sb.sb_volname[sizeof(sfs->sfs_sb.sb_volname) - 1] = 0;
 
 	/* Load free block bitmap */
 	sfs->sfs_freemap = bitmap_create(SFS_FS_FREEMAPBITS(sfs));
@@ -474,8 +441,6 @@ sfs_domount(void *options, struct device *dev, struct fs **ret)
 /*
  * Actual function called from high-level code to mount an sfs.
  */
-int
-sfs_mount(const char *device)
-{
+int sfs_mount(const char *device) {
 	return vfs_mount(device, NULL, sfs_domount);
 }

@@ -43,10 +43,7 @@
 #include "config.h"
 #include "test.h"
 
-static
-void
-open_badflags(void)
-{
+static void open_badflags(void) {
 	int fd;
 
 	report_begin("open null: with bad flags");
@@ -54,23 +51,18 @@ open_badflags(void)
 	report_check(fd, errno, EINVAL);
 }
 
-static
-void
-open_empty(void)
-{
+static void open_empty(void) {
 	int rv;
 
 	report_begin("open empty string");
 	rv = open("", O_RDONLY);
 	report_check(rv, errno, EINVAL);
-	if (rv>=0) {
+	if (rv >= 0) {
 		close(rv);
 	}
 }
 
-void
-test_open(void)
-{
+void test_open(void) {
 	test_open_path();
 
 	open_badflags();

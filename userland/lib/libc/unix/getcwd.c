@@ -36,9 +36,7 @@
  * all the work.
  */
 
-char *
-getcwd(char *buf, size_t buflen)
-{
+char *getcwd(char *buf, size_t buflen) {
 	int r;
 
 	if (buflen < 1) {
@@ -46,7 +44,7 @@ getcwd(char *buf, size_t buflen)
 		return NULL;
 	}
 
-	r = __getcwd(buf, buflen-1);
+	r = __getcwd(buf, buflen - 1);
 	if (r < 0) {
 		return NULL;
 	}

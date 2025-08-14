@@ -60,10 +60,7 @@
 
 /* struct to (portably) hold exit info */
 struct exitinfo {
-	unsigned val:8,
-		signaled:1,
-		stopped:1,
-		coredump:1;
+	unsigned val : 8, signaled : 1, stopped : 1, coredump : 1;
 };
 
 /* set to nonzero if __time syscall seems to work */
@@ -77,10 +74,7 @@ static pid_t bgpids[MAXBG];
  * can_bg
  * just checks for an open slot.
  */
-static
-int
-can_bg(void)
-{
+static int can_bg(void) {
 	int i;
 
 	for (i = 0; i < MAXBG; i++) {
@@ -97,10 +91,7 @@ can_bg(void)
  * sticks the pid in an open slot in the background array.  note the assert --
  * better check can_bg before calling this.
  */
-static
-void
-remember_bg(pid_t pid)
-{
+static void remember_bg(pid_t pid) {
 	int i;
 	for (i = 0; i < MAXBG; i++) {
 		if (bgpids[i] == 0) {
@@ -114,10 +105,7 @@ remember_bg(pid_t pid)
 /*
  * constructor for exitinfo
  */
-static
-void
-exitinfo_exit(struct exitinfo *ei, int code)
-{
+static void exitinfo_exit(struct exitinfo *ei, int code) {
 	ei->val = code;
 	ei->signaled = 0;
 	ei->stopped = 0;
@@ -128,62 +116,48 @@ exitinfo_exit(struct exitinfo *ei, int code)
  * readstatus
  * unpack results from wait
  */
-static
-void
-readstatus(int status, struct exitinfo *ei)
-{
+static void readstatus(int status, struct exitinfo *ei) {
 	if (WIFEXITED(status)) {
 		ei->val = WEXITSTATUS(status);
 		ei->signaled = 0;
 		ei->stopped = 0;
 		ei->coredump = 0;
-	}
-	else if (WIFSIGNALED(status) && WCOREDUMP(status)) {
+	} else if (WIFSIGNALED(status) && WCOREDUMP(status)) {
 		ei->val = WTERMSIG(status);
 		ei->signaled = 1;
 		ei->stopped = 0;
 		ei->coredump = 1;
-	}
-	else if (WIFSIGNALED(status)) {
+	} else if (WIFSIGNALED(status)) {
 		ei->val = WTERMSIG(status);
 		ei->signaled = 1;
 		ei->stopped = 0;
 		ei->coredump = 0;
-	}
-	else if (WIFSTOPPED(status)) {
+	} else if (WIFSTOPPED(status)) {
 		ei->val = WSTOPSIG(status);
 		ei->signaled = 0;
 		ei->stopped = 1;
 		ei->coredump = 0;
-	}
-	else {
+	} else {
 		printf("Invalid status code %d", status);
 		ei->val = status;
 		ei->signaled = 0;
 		ei->stopped = 0;
 		ei->coredump = 0;
 	}
-
 }
 
 /*
  * printstatus
  * print results from wait
  */
-static
-void
-printstatus(const struct exitinfo *ei, int printexitzero)
-{
+static void printstatus(const struct exitinfo *ei, int printexitzero) {
 	if (ei->signaled && ei->coredump) {
 		printf("Signal %d (core dumped)\n", ei->val);
-	}
-	else if (ei->signaled) {
+	} else if (ei->signaled) {
 		printf("Signal %d\n", ei->val);
-	}
-	else if (ei->stopped) {
+	} else if (ei->stopped) {
 		printf("Stopped on signal %d\n", ei->val);
-	}
-	else if (printexitzero || ei->val != 0) {
+	} else if (printexitzero || ei->val != 0) {
 		printf("Exit %d\n", ei->val);
 	}
 }
@@ -192,17 +166,13 @@ printstatus(const struct exitinfo *ei, int printexitzero)
  * dowait
  * just does a waitpid.
  */
-static
-void
-dowait(pid_t pid)
-{
+static void dowait(pid_t pid) {
 	struct exitinfo ei;
 	int status;
 
 	if (waitpid(pid, &status, 0) < 0) {
 		warn("pid %d", pid);
-	}
-	else {
+	} else {
 		printf("pid %d: ", pid);
 		readstatus(status, &ei);
 		printstatus(&ei, 1);
@@ -214,10 +184,7 @@ dowait(pid_t pid)
  * dowaitpoll
  * like dowait, but uses WNOHANG. returns true if we got something.
  */
-static
-int
-dowaitpoll(pid_t pid)
-{
+static int dowaitpoll(pid_t pid) {
 	struct exitinfo ei;
 	pid_t foundpid;
 	int status;
@@ -225,8 +192,7 @@ dowaitpoll(pid_t pid)
 	foundpid = waitpid(pid, &status, WNOHANG);
 	if (foundpid < 0) {
 		warn("pid %d", pid);
-	}
-	else if (foundpid != 0) {
+	} else if (foundpid != 0) {
 		printf("pid %d: ", pid);
 		readstatus(status, &ei);
 		printstatus(&ei, 1);
@@ -239,12 +205,9 @@ dowaitpoll(pid_t pid)
  * waitpoll
  * poll all background jobs for having exited.
  */
-static
-void
-waitpoll(void)
-{
+static void waitpoll(void) {
 	int i;
-	for (i=0; i < MAXBG; i++) {
+	for (i = 0; i < MAXBG; i++) {
 		if (bgpids[i] != 0) {
 			if (dowaitpoll(bgpids[i])) {
 				bgpids[i] = 0;
@@ -260,10 +223,7 @@ waitpoll(void)
  * know the pids, this is a little tough to use with an arg, but without an
  * arg it will wait for all the background jobs.
  */
-static
-void
-cmd_wait(int ac, char *av[], struct exitinfo *ei)
-{
+static void cmd_wait(int ac, char *av[], struct exitinfo *ei) {
 	int i;
 	pid_t pid;
 
@@ -271,15 +231,14 @@ cmd_wait(int ac, char *av[], struct exitinfo *ei)
 		pid = atoi(av[1]);
 		dowait(pid);
 		for (i = 0; i < MAXBG; i++) {
-			if (bgpids[i]==pid) {
+			if (bgpids[i] == pid) {
 				bgpids[i] = 0;
 			}
 		}
 		exitinfo_exit(ei, 0);
 		return;
-	}
-	else if (ac == 1) {
-		for (i=0; i < MAXBG; i++) {
+	} else if (ac == 1) {
+		for (i = 0; i < MAXBG; i++) {
 			if (bgpids[i] != 0) {
 				dowait(bgpids[i]);
 				bgpids[i] = 0;
@@ -297,10 +256,7 @@ cmd_wait(int ac, char *av[], struct exitinfo *ei)
  * just an interface to the system call.  no concept of home directory, so
  * require the directory.
  */
-static
-void
-cmd_chdir(int ac, char *av[], struct exitinfo *ei)
-{
+static void cmd_chdir(int ac, char *av[], struct exitinfo *ei) {
 	if (ac == 2) {
 		if (chdir(av[1])) {
 			warn("chdir: %s", av[1]);
@@ -319,19 +275,14 @@ cmd_chdir(int ac, char *av[], struct exitinfo *ei)
  * pretty simple.  allow the user to choose the exit code if they want,
  * otherwise default to 0 (success).
  */
-static
-void
-cmd_exit(int ac, char *av[], struct exitinfo *ei)
-{
+static void cmd_exit(int ac, char *av[], struct exitinfo *ei) {
 	int code;
 
 	if (ac == 1) {
 		code = 0;
-	}
-	else if (ac == 2) {
+	} else if (ac == 2) {
 		code = atoi(av[1]);
-	}
-	else {
+	} else {
 		printf("Usage: exit [code]\n");
 		exitinfo_exit(ei, 1);
 		return;
@@ -347,13 +298,11 @@ cmd_exit(int ac, char *av[], struct exitinfo *ei)
 static struct {
 	const char *name;
 	void (*func)(int, char **, struct exitinfo *);
-} builtins[] = {
-	{ "cd",    cmd_chdir },
-	{ "chdir", cmd_chdir },
-	{ "exit",  cmd_exit },
-	{ "wait",  cmd_wait },
-	{ NULL, NULL }
-};
+} builtins[] = {{"cd", cmd_chdir},
+				{"chdir", cmd_chdir},
+				{"exit", cmd_exit},
+				{"wait", cmd_wait},
+				{NULL, NULL}};
 
 /*
  * docommand
@@ -362,16 +311,13 @@ static struct {
  * otherwise, it's a standard command.  check for the '&', try to background
  * the job if possible, otherwise just run it and wait on it.
  */
-static
-void
-docommand(char *buf, struct exitinfo *ei)
-{
+static void docommand(char *buf, struct exitinfo *ei) {
 	char *args[NARG_MAX + 1];
 	int nargs, i;
 	char *s;
 	pid_t pid;
 	int status;
-	int bg=0;
+	int bg = 0;
 	time_t startsecs, endsecs;
 	unsigned long startnsecs, endnsecs;
 
@@ -379,8 +325,8 @@ docommand(char *buf, struct exitinfo *ei)
 	for (s = strtok(buf, " \t\r\n"); s; s = strtok(NULL, " \t\r\n")) {
 		if (nargs >= NARG_MAX) {
 			printf("%s: Too many arguments "
-			       "(exceeds system limit)\n",
-			       args[0]);
+				   "(exceeds system limit)\n",
+				   args[0]);
 			exitinfo_exit(ei, 1);
 			return;
 		}
@@ -388,13 +334,13 @@ docommand(char *buf, struct exitinfo *ei)
 	}
 	args[nargs] = NULL;
 
-	if (nargs==0) {
+	if (nargs == 0) {
 		/* empty line */
 		exitinfo_exit(ei, 0);
 		return;
 	}
 
-	for (i=0; builtins[i].name; i++) {
+	for (i = 0; builtins[i].name; i++) {
 		if (!strcmp(builtins[i].name, args[0])) {
 			builtins[i].func(nargs, args, ei);
 			return;
@@ -403,12 +349,12 @@ docommand(char *buf, struct exitinfo *ei)
 
 	/* Not a builtin; run it */
 
-	if (nargs > 0 && !strcmp(args[nargs-1], "&")) {
+	if (nargs > 0 && !strcmp(args[nargs - 1], "&")) {
 		/* background */
 		if (!can_bg()) {
 			printf("%s: Too many background jobs; wait for "
-			       "some to finish before starting more\n",
-			       args[0]);
+				   "some to finish before starting more\n",
+				   args[0]);
 			exitinfo_exit(ei, 1);
 			return;
 		}
@@ -423,25 +369,25 @@ docommand(char *buf, struct exitinfo *ei)
 
 	pid = fork();
 	switch (pid) {
-		case -1:
-			/* error */
-			warn("fork");
-			exitinfo_exit(ei, 255);
-			return;
-		case 0:
-			/* child */
-			execvp(args[0], args);
-			warn("%s", args[0]);
-			/*
+	case -1:
+		/* error */
+		warn("fork");
+		exitinfo_exit(ei, 255);
+		return;
+	case 0:
+		/* child */
+		execvp(args[0], args);
+		warn("%s", args[0]);
+		/*
 			 * Use _exit() instead of exit() in the child
 			 * process to avoid calling atexit() functions,
 			 * which would cause hostcompat (if present) to
 			 * reset the tty state and mess up our input
 			 * handling.
 			 */
-			_exit(1);
-		default:
-			break;
+		_exit(1);
+	default:
+		break;
 	}
 
 	/* parent */
@@ -456,8 +402,7 @@ docommand(char *buf, struct exitinfo *ei)
 	if (waitpid(pid, &status, 0) < 0) {
 		warn("waitpid");
 		exitinfo_exit(ei, 255);
-	}
-	else {
+	} else {
 		readstatus(status, ei);
 	}
 
@@ -469,8 +414,8 @@ docommand(char *buf, struct exitinfo *ei)
 		}
 		endnsecs -= startnsecs;
 		endsecs -= startsecs;
-		warnx("subprocess time: %lu.%09lu seconds",
-		      (unsigned long) endsecs, (unsigned long) endnsecs);
+		warnx("subprocess time: %lu.%09lu seconds", (unsigned long)endsecs,
+			  (unsigned long)endnsecs);
 	}
 }
 
@@ -484,12 +429,9 @@ docommand(char *buf, struct exitinfo *ei)
  * if there's an invalid character or a backspace when there's nothing
  * in the buffer, putchars an alert (bell).
  */
-static
-void
-getcmd(char *buf, size_t len)
-{
+static void getcmd(char *buf, size_t len) {
 	size_t pos = 0;
-	int done=0, ch;
+	int done = 0, ch;
 
 	/*
 	 * In the absence of a <ctype.h>, assume input is 7-bit ASCII.
@@ -502,17 +444,14 @@ getcmd(char *buf, size_t len)
 			putchar(' ');
 			putchar('\b');
 			pos--;
-		}
-		else if (ch == '\r' || ch == '\n') {
+		} else if (ch == '\r' || ch == '\n') {
 			putchar('\r');
 			putchar('\n');
 			done = 1;
-		}
-		else if (ch >= 32 && ch < 127 && pos < len-1) {
+		} else if (ch >= 32 && ch < 127 && pos < len - 1) {
 			buf[pos++] = ch;
 			putchar(ch);
-		}
-		else {
+		} else {
 			/* alert (bell) character */
 			putchar('\a');
 		}
@@ -526,10 +465,7 @@ getcmd(char *buf, size_t len)
  * commands and running them (and printing the exit status if it's not
  * success.)
  */
-static
-void
-interactive(void)
-{
+static void interactive(void) {
 	char buf[CMDLINE_MAX];
 	struct exitinfo ei;
 
@@ -544,10 +480,7 @@ interactive(void)
 	}
 }
 
-static
-void
-check_timing(void)
-{
+static void check_timing(void) {
 	time_t secs;
 	unsigned long nsecs;
 	if (__time(&secs, &nsecs) != -1) {
@@ -561,9 +494,7 @@ check_timing(void)
  * if there are no arguments, run interactively, otherwise, run a program
  * from within the shell, but immediately exit.
  */
-int
-main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
 #ifdef HOST
 	hostcompat_init(argc, argv);
 #endif
@@ -575,16 +506,14 @@ main(int argc, char *argv[])
 	 */
 	if (argc == 0 || argc == 1) {
 		interactive();
-	}
-	else if (argc == 3 && !strcmp(argv[1], "-c")) {
+	} else if (argc == 3 && !strcmp(argv[1], "-c")) {
 		struct exitinfo ei;
 		docommand(argv[2], &ei);
 		printstatus(&ei, 0);
 		if (ei.signaled || ei.stopped || ei.val != 0) {
 			exit(1);
 		}
-	}
-	else {
+	} else {
 		errx(1, "Usage: sh [-c command]");
 	}
 	return 0;

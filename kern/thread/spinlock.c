@@ -28,8 +28,8 @@
  */
 
 /* Make sure to build out-of-line versions of inline functions */
-#define SPINLOCK_INLINE   /* empty */
-#define MEMBAR_INLINE     /* empty */
+#define SPINLOCK_INLINE /* empty */
+#define MEMBAR_INLINE	/* empty */
 
 #include <types.h>
 #include <lib.h>
@@ -37,19 +37,16 @@
 #include <spl.h>
 #include <spinlock.h>
 #include <membar.h>
-#include <current.h>	/* for curcpu */
+#include <current.h> /* for curcpu */
 
 /*
  * Spinlocks.
  */
 
-
 /*
  * Initialize spinlock.
  */
-void
-spinlock_init(struct spinlock *splk)
-{
+void spinlock_init(struct spinlock *splk) {
 	spinlock_data_set(&splk->splk_lock, 0);
 	splk->splk_holder = NULL;
 	HANGMAN_LOCKABLEINIT(&splk->splk_hangman, "spinlock");
@@ -58,9 +55,7 @@ spinlock_init(struct spinlock *splk)
 /*
  * Clean up spinlock.
  */
-void
-spinlock_cleanup(struct spinlock *splk)
-{
+void spinlock_cleanup(struct spinlock *splk) {
 	KASSERT(splk->splk_holder == NULL);
 	KASSERT(spinlock_data_get(&splk->splk_lock) == 0);
 }
@@ -72,9 +67,7 @@ spinlock_cleanup(struct spinlock *splk)
  * might come back to this lock and deadlock), then use a machine-level
  * atomic operation to wait for the lock to be free.
  */
-void
-spinlock_acquire(struct spinlock *splk)
-{
+void spinlock_acquire(struct spinlock *splk) {
 	struct cpu *mycpu;
 
 	splraise(IPL_NONE, IPL_HIGH);
@@ -88,8 +81,7 @@ spinlock_acquire(struct spinlock *splk)
 		mycpu->c_spinlocks++;
 
 		HANGMAN_WAIT(&curcpu->c_hangman, &splk->splk_hangman);
-	}
-	else {
+	} else {
 		mycpu = NULL;
 	}
 
@@ -124,9 +116,7 @@ spinlock_acquire(struct spinlock *splk)
 /*
  * Release the lock.
  */
-void
-spinlock_release(struct spinlock *splk)
-{
+void spinlock_release(struct spinlock *splk) {
 	/* this must work before curcpu initialization */
 	if (CURCPU_EXISTS()) {
 		KASSERT(splk->splk_holder == curcpu->c_self);
@@ -144,9 +134,7 @@ spinlock_release(struct spinlock *splk)
 /*
  * Check if the current cpu holds the lock.
  */
-bool
-spinlock_do_i_hold(struct spinlock *splk)
-{
+bool spinlock_do_i_hold(struct spinlock *splk) {
 	if (!CURCPU_EXISTS()) {
 		return true;
 	}

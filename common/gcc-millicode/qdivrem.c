@@ -42,10 +42,10 @@
 
 #include "longlong.h"
 
-#define	B	((int)1 << HALF_BITS)	/* digit base */
+#define B ((int)1 << HALF_BITS) /* digit base */
 
 /* Combine two `digits' to make a single two-digit number. */
-#define	COMBINE(a, b) (((unsigned int)(a) << HALF_BITS) | (b))
+#define COMBINE(a, b) (((unsigned int)(a) << HALF_BITS) | (b))
 
 /* select a type for digits in base B: use unsigned short if they fit */
 #if UINT_MAX == 0xffffffffU && USHRT_MAX >= 0xffff
@@ -64,10 +64,8 @@ static void shl(digit *p, int len, int sh);
  * length dividend and divisor are 4 `digits' in this base (they are
  * shorter if they have leading zeros).
  */
-unsigned long long
-__qdivrem(unsigned long long ull, unsigned long long vll,
-	  unsigned long long *arq)
-{
+unsigned long long __qdivrem(unsigned long long ull, unsigned long long vll,
+							 unsigned long long *arq) {
 	union uu tmp;
 	digit *u, *v, *q;
 	digit v1, v2;
@@ -122,7 +120,7 @@ __qdivrem(unsigned long long ull, unsigned long long vll,
 	v[4] = (digit)LHALF(tmp.ui[L]);
 	for (n = 4; v[1] == 0; v++) {
 		if (--n == 1) {
-			unsigned int rbj;  /* r*B+u[j] (not root boy jim) */
+			unsigned int rbj; /* r*B+u[j] (not root boy jim) */
 			digit q1, q2, q3, q4;
 
 			/*
@@ -133,7 +131,7 @@ __qdivrem(unsigned long long ull, unsigned long long vll,
 			 *		r = (r*B + u[j]) % v;
 			 * We unroll this completely here.
 			 */
-			t = v[2];	/* nonzero, by definition */
+			t = v[2]; /* nonzero, by definition */
 			q1 = (digit)(u[1] / t);
 			rbj = COMBINE(u[1] % t, u[2]);
 			q2 = (digit)(rbj / t);
@@ -170,15 +168,15 @@ __qdivrem(unsigned long long ull, unsigned long long vll,
 	for (t = v[1]; t < B / 2; t <<= 1)
 		d++;
 	if (d > 0) {
-		shl(&u[0], m + n, d);		/* u <<= d */
-		shl(&v[1], n - 1, d);		/* v <<= d */
+		shl(&u[0], m + n, d); /* u <<= d */
+		shl(&v[1], n - 1, d); /* v <<= d */
 	}
 	/*
 	 * D2: j = 0.
 	 */
 	j = 0;
-	v1 = v[1];	/* for D3 -- note that v[1..n] are constant */
-	v2 = v[2];	/* for D3 */
+	v1 = v[1]; /* for D3 -- note that v[1..n] are constant */
+	v2 = v[2]; /* for D3 */
 	do {
 		digit uj0, uj1, uj2;
 
@@ -190,9 +188,9 @@ __qdivrem(unsigned long long ull, unsigned long long vll,
 		 * decrement qhat and increase rhat correspondingly.
 		 * Note that if rhat >= B, v[2]*qhat < rhat*B.
 		 */
-		uj0 = u[j + 0];	/* for D3 only -- note that u[j+...] change */
-		uj1 = u[j + 1];	/* for D3 only */
-		uj2 = u[j + 2];	/* for D3 only */
+		uj0 = u[j + 0]; /* for D3 only -- note that u[j+...] change */
+		uj1 = u[j + 1]; /* for D3 only */
+		uj2 = u[j + 2]; /* for D3 only */
 		if (uj0 == v1) {
 			qhat = B;
 			rhat = uj1;
@@ -203,7 +201,7 @@ __qdivrem(unsigned long long ull, unsigned long long vll,
 			rhat = nn % v1;
 		}
 		while (v2 * qhat > COMBINE(rhat, uj2)) {
-	qhat_too_big:
+		qhat_too_big:
 			qhat--;
 			if ((rhat += v1) >= B)
 				break;
@@ -237,7 +235,7 @@ __qdivrem(unsigned long long ull, unsigned long long vll,
 			u[j] = (digit)LHALF(u[j] + t);
 		}
 		q[j] = (digit)qhat;
-	} while (++j <= m);		/* D7: loop on j. */
+	} while (++j <= m); /* D7: loop on j. */
 
 	/*
 	 * If caller wants the remainder, we have to calculate it as
@@ -247,9 +245,9 @@ __qdivrem(unsigned long long ull, unsigned long long vll,
 	if (arq) {
 		if (d) {
 			for (i = m + n; i > m; --i)
-				u[i] = (digit)(((unsigned int)u[i] >> d) |
-				    LHALF((unsigned int)u[i - 1] <<
-					  (HALF_BITS - d)));
+				u[i] =
+					(digit)(((unsigned int)u[i] >> d) |
+							LHALF((unsigned int)u[i - 1] << (HALF_BITS - d)));
 			u[i] = 0;
 		}
 		tmp.ui[H] = COMBINE(uspace[1], uspace[2]);
@@ -267,13 +265,11 @@ __qdivrem(unsigned long long ull, unsigned long long vll,
  * `fall out' the left (there never will be any such anyway).
  * We may assume len >= 0.  NOTE THAT THIS WRITES len+1 DIGITS.
  */
-static void
-shl(digit *p, int len, int sh)
-{
+static void shl(digit *p, int len, int sh) {
 	int i;
 
 	for (i = 0; i < len; i++)
 		p[i] = (digit)(LHALF((unsigned int)p[i] << sh) |
-		    ((unsigned int)p[i + 1] >> (HALF_BITS - sh)));
+					   ((unsigned int)p[i + 1] >> (HALF_BITS - sh)));
 	p[i] = (digit)(LHALF((unsigned int)p[i] << sh));
 }

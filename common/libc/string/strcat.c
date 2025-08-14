@@ -43,12 +43,10 @@
  * Standard C string function: append one string to another.
  */
 
-char *
-strcat(char *dest, const char *src)
-{
+char *strcat(char *dest, const char *src) {
 	size_t offset;
 
 	offset = strlen(dest);
-	strcpy(dest+offset, src);
+	strcpy(dest + offset, src);
 	return dest;
 }

@@ -34,9 +34,7 @@
 
 #ifdef NEED_NTOHLL
 
-uint64_t
-ntohll(uint64_t x)
-{
+uint64_t ntohll(uint64_t x) {
 	uint32_t x0, x1, y0, y1;
 
 	if (ntohl(1) == 1) {

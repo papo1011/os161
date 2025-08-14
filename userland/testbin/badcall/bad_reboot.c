@@ -43,10 +43,7 @@
 #include "config.h"
 #include "test.h"
 
-static
-void
-reboot_badflags(void)
-{
+static void reboot_badflags(void) {
 	int rv;
 
 	printf("(This should not kill the system...)\n");
@@ -55,8 +52,4 @@ reboot_badflags(void)
 	report_check(rv, errno, EINVAL);
 }
 
-void
-test_reboot(void)
-{
-	reboot_badflags();
-}
+void test_reboot(void) { reboot_badflags(); }

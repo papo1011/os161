@@ -48,24 +48,21 @@
 #include <err.h>
 
 #if defined(__mips__)
-#define KERNEL_ADDR	0x80000000
-#define INVAL_ADDR	0x40000000
-#define INSN_TYPE	uint32_t
-#define INVAL_INSN	0x0000003f
+#define KERNEL_ADDR 0x80000000
+#define INVAL_ADDR 0x40000000
+#define INSN_TYPE uint32_t
+#define INVAL_INSN 0x0000003f
 #else
 #error "Please fix this"
 #endif
 
-#define MAGIC		123456
+#define MAGIC 123456
 
 typedef void (*func)(void);
 
 static int forking = 1;
 
-static
-void
-read_from_null(void)
-{
+static void read_from_null(void) {
 	int *null = NULL;
 	volatile int x;
 
@@ -75,11 +72,8 @@ read_from_null(void)
 	(void)x;
 }
 
-static
-void
-read_from_inval(void)
-{
-	int *ptr = (int *) INVAL_ADDR;
+static void read_from_inval(void) {
+	int *ptr = (int *)INVAL_ADDR;
 	volatile int x;
 
 	x = *ptr;
@@ -88,11 +82,8 @@ read_from_inval(void)
 	(void)x;
 }
 
-static
-void
-read_from_kernel(void)
-{
-	int *ptr = (int *) KERNEL_ADDR;
+static void read_from_kernel(void) {
+	int *ptr = (int *)KERNEL_ADDR;
 	volatile int x;
 
 	x = *ptr;
@@ -101,67 +92,42 @@ read_from_kernel(void)
 	(void)x;
 }
 
-static
-void
-write_to_null(void)
-{
+static void write_to_null(void) {
 	int *null = NULL;
 	*null = 6;
 }
 
-static
-void
-write_to_inval(void)
-{
-	int *ptr = (int *) INVAL_ADDR;
+static void write_to_inval(void) {
+	int *ptr = (int *)INVAL_ADDR;
 	*ptr = 8;
 }
 
-static
-void
-write_to_code(void)
-{
+static void write_to_code(void) {
 	INSN_TYPE *x = (INSN_TYPE *)write_to_code;
 	*x = INVAL_INSN;
 }
 
-static
-void
-write_to_kernel(void)
-{
-	int *ptr = (int *) KERNEL_ADDR;
+static void write_to_kernel(void) {
+	int *ptr = (int *)KERNEL_ADDR;
 	*ptr = 8;
 }
 
-static
-void
-jump_to_null(void)
-{
+static void jump_to_null(void) {
 	func f = NULL;
 	f();
 }
 
-static
-void
-jump_to_inval(void)
-{
-	func f = (func) INVAL_ADDR;
+static void jump_to_inval(void) {
+	func f = (func)INVAL_ADDR;
 	f();
 }
 
-static
-void
-jump_to_kernel(void)
-{
-	func f = (func) KERNEL_ADDR;
+static void jump_to_kernel(void) {
+	func f = (func)KERNEL_ADDR;
 	f();
 }
 
-
-static
-void
-illegal_instruction(void)
-{
+static void illegal_instruction(void) {
 #if defined(__mips__)
 	asm(".long 0x0000003f");
 #else
@@ -169,10 +135,7 @@ illegal_instruction(void)
 #endif
 }
 
-static
-void
-alignment_error(void)
-{
+static void alignment_error(void) {
 	int x;
 	int *ptr, *badptr;
 	volatile uintptr_t ptrval;
@@ -195,38 +158,29 @@ alignment_error(void)
 	(void)j;
 }
 
-static
-void
-divide_by_zero(void)
-{
+static void divide_by_zero(void) {
 	volatile int x = 6;
 	volatile int z = 0;
 	volatile int a;
 
-	a = x/z;
+	a = x / z;
 
 	// gcc 4.8 improperly demands this
 	(void)a;
 }
 
-static
-void
-mod_by_zero(void)
-{
+static void mod_by_zero(void) {
 	volatile int x = 6;
 	volatile int z = 0;
 	volatile int a;
 
-	a = x%z;
+	a = x % z;
 
 	// gcc 4.8 improperly demands this
 	(void)a;
 }
 
-static
-void
-recurse_inf(void)
-{
+static void recurse_inf(void) {
 	volatile char buf[16];
 
 	buf[0] = 0;
@@ -237,60 +191,51 @@ recurse_inf(void)
 	(void)buf;
 }
 
-
-static
-struct {
+static struct {
 	int ch;
 	const char *name;
 	func f;
 	int sig;
-} ops[] = {
-	{ 'a', "read from NULL",            read_from_null,      SIGSEGV },
-	{ 'b', "read from invalid address", read_from_inval,     SIGSEGV },
-	{ 'c', "read from kernel address",  read_from_kernel,    SIGBUS },
-	{ 'd', "write to NULL",             write_to_null,       SIGSEGV },
-	{ 'e', "write to invalid address",  write_to_inval,      SIGSEGV },
-	{ 'f', "write to code segment",     write_to_code,       SIGSEGV },
-	{ 'g', "write to kernel address",   write_to_kernel,     SIGBUS },
-	{ 'h', "jump to NULL",              jump_to_null,        SIGSEGV },
-	{ 'i', "jump to invalid address",   jump_to_inval,       SIGSEGV },
-	{ 'j', "jump to kernel address",    jump_to_kernel,      SIGBUS },
-	{ 'k', "alignment error",           alignment_error,     SIGBUS },
-	{ 'l', "illegal instruction",       illegal_instruction, SIGILL },
-	{ 'm', "divide by zero",            divide_by_zero,      SIGTRAP },
-	{ 'n', "mod by zero",               mod_by_zero,         SIGTRAP },
-	{ 'o', "Recurse infinitely",        recurse_inf,         SIGSEGV },
-	{ 0, NULL, NULL, 0 }
-};
+} ops[] = {{'a', "read from NULL", read_from_null, SIGSEGV},
+		   {'b', "read from invalid address", read_from_inval, SIGSEGV},
+		   {'c', "read from kernel address", read_from_kernel, SIGBUS},
+		   {'d', "write to NULL", write_to_null, SIGSEGV},
+		   {'e', "write to invalid address", write_to_inval, SIGSEGV},
+		   {'f', "write to code segment", write_to_code, SIGSEGV},
+		   {'g', "write to kernel address", write_to_kernel, SIGBUS},
+		   {'h', "jump to NULL", jump_to_null, SIGSEGV},
+		   {'i', "jump to invalid address", jump_to_inval, SIGSEGV},
+		   {'j', "jump to kernel address", jump_to_kernel, SIGBUS},
+		   {'k', "alignment error", alignment_error, SIGBUS},
+		   {'l', "illegal instruction", illegal_instruction, SIGILL},
+		   {'m', "divide by zero", divide_by_zero, SIGTRAP},
+		   {'n', "mod by zero", mod_by_zero, SIGTRAP},
+		   {'o', "Recurse infinitely", recurse_inf, SIGSEGV},
+		   {0, NULL, NULL, 0}};
 
-static
-void
-runop(int op)
-{
+static void runop(int op) {
 	int opindex;
 	pid_t pid;
 	int status;
 	int ok;
 
-	if (op=='*') {
-		for (unsigned i=0; ops[i].name; i++) {
+	if (op == '*') {
+		for (unsigned i = 0; ops[i].name; i++) {
 			runop(ops[i].ch);
 		}
 		return;
-	}
-	else if (op == '-') {
+	} else if (op == '-') {
 		forking = 0;
 		warnx("Forking disabled - next try will be the last");
 		return;
-	}
-	else if (op == '+') {
+	} else if (op == '+') {
 		forking = 1;
 		warnx("Forking enabled.");
 		return;
 	}
 
 	/* intentionally don't check if op is in bounds :) */
-	opindex = op-'a';
+	opindex = op - 'a';
 
 	printf("Running: [%c] %s\n", ops[opindex].ch, ops[opindex].name);
 
@@ -299,8 +244,7 @@ runop(int op)
 		if (pid < 0) {
 			/* error */
 			err(1, "fork");
-		}
-		else if (pid > 0) {
+		} else if (pid > 0) {
 			/* parent */
 			if (waitpid(pid, &status, 0) < 0) {
 				err(1, "waitpid");
@@ -311,8 +255,7 @@ runop(int op)
 				if (WTERMSIG(status) == ops[opindex].sig) {
 					ok = 1;
 				}
-			}
-			else {
+			} else {
 				printf("Exit %d\n", WEXITSTATUS(status));
 				if (WEXITSTATUS(status) == MAGIC) {
 					ok = 1;
@@ -320,10 +263,8 @@ runop(int op)
 			}
 			if (ok) {
 				printf("Ok.\n");
-			}
-			else {
-				printf("FAILED: expected signal %d\n",
-				       ops[opindex].sig);
+			} else {
+				printf("FAILED: expected signal %d\n", ops[opindex].sig);
 			}
 			printf("\n");
 			return;
@@ -341,16 +282,13 @@ runop(int op)
 	errx(1, "I wasn't killed!");
 }
 
-static
-void
-ask(void)
-{
+static void ask(void) {
 	unsigned i;
 	int op;
 
 	while (1) {
 
-		for (i=0; ops[i].name; i++) {
+		for (i = 0; ops[i].name; i++) {
 			printf("[%c] %s\n", ops[i].ch, ops[i].name);
 		}
 		printf("[-] Disable forking\n");
@@ -369,17 +307,14 @@ ask(void)
 	}
 }
 
-int
-main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
 	if (argc == 0 || argc == 1) {
 		/* no arguments */
 		ask();
-	}
-	else {
+	} else {
 		/* run the selected ops */
-		for (int i=1; i<argc; i++) {
-			for (size_t j=0; argv[i][j]; j++) {
+		for (int i = 1; i < argc; i++) {
+			for (size_t j = 0; argv[i][j]; j++) {
 				runop(argv[i][j]);
 			}
 		}

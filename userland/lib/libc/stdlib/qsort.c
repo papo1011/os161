@@ -34,21 +34,18 @@
 /*
  * qsort() for OS/161, where it isn't in libc.
  */
-void
-qsort(void *vdata, unsigned num, size_t size,
-      int (*f)(const void *, const void *))
-{
+void qsort(void *vdata, unsigned num, size_t size,
+		   int (*f)(const void *, const void *)) {
 	unsigned pivot, head, tail;
 	char *data = vdata;
 	char tmp[size];
 
-#define COMPARE(aa, bb) \
-		((aa) == (bb) ? 0 : f(data + (aa) * size, data + (bb) * size))
-#define EXCHANGE(aa, bb) \
-		memcpy(tmp, data + (aa) * size, size);			\
-		memcpy(data + (aa) * size, data + (bb) * size, size);	\
-		memcpy(data + (bb) * size, tmp, size)
-
+#define COMPARE(aa, bb)                                                        \
+	((aa) == (bb) ? 0 : f(data + (aa)*size, data + (bb)*size))
+#define EXCHANGE(aa, bb)                                                       \
+	memcpy(tmp, data + (aa)*size, size);                                       \
+	memcpy(data + (aa)*size, data + (bb)*size, size);                          \
+	memcpy(data + (bb)*size, tmp, size)
 
 	if (num <= 1) {
 		return;
@@ -76,16 +73,13 @@ qsort(void *vdata, unsigned num, size_t size,
 	while (head < tail) {
 		if (COMPARE(head, pivot) <= 0) {
 			head++;
-		}
-		else if (COMPARE(tail, pivot) > 0) {
+		} else if (COMPARE(tail, pivot) > 0) {
 			tail--;
-		}
-		else {
+		} else {
 			EXCHANGE(head, tail);
 			if (pivot == head) {
 				pivot = tail;
-			}
-			else if (pivot == tail) {
+			} else if (pivot == tail) {
 				pivot = head;
 			}
 			head++;

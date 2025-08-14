@@ -47,13 +47,10 @@
 
 char buffer[BUFSIZE];
 
-static
-void
-tail(int file, off_t where, const char *filename)
-{
+static void tail(int file, off_t where, const char *filename) {
 	int len;
 
-	if (lseek(file, where, SEEK_SET)<0) {
+	if (lseek(file, where, SEEK_SET) < 0) {
 		err(1, "%s", filename);
 	}
 
@@ -62,9 +59,7 @@ tail(int file, off_t where, const char *filename)
 	}
 }
 
-int
-main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
 	int file;
 
 	if (argc < 3) {
@@ -78,4 +73,3 @@ main(int argc, char **argv)
 	close(file);
 	return 0;
 }
-

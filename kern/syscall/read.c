@@ -32,24 +32,21 @@
  *   - EFAULT: The memory address pointed to by 'buf' is invalid.
  *   - EIO:    A hardware I/O error occurred while reading.
  */
-int sys_read(int fd, userptr_t buf_ptr, size_t size)
-{
-    int i;
-    char *p = (char *)buf_ptr;
+int sys_read(int fd, userptr_t buf_ptr, size_t size) {
+	int i;
+	char *p = (char *)buf_ptr;
 
-    if (fd != STDIN_FILENO)
-    {
-        // TODO: Implement sys_read for other file descriptors
-        kprintf("sys_read supported only to stdin\n");
-        return -1;
-    }
+	if (fd != STDIN_FILENO) {
+		// TODO: Implement sys_read for other file descriptors
+		kprintf("sys_read supported only to stdin\n");
+		return -1;
+	}
 
-    for (i = 0; i < (int)size; i++)
-    {
-        p[i] = getch();
-        if (p[i] < 0)
-            return i;
-    }
+	for (i = 0; i < (int)size; i++) {
+		p[i] = getch();
+		if (p[i] < 0)
+			return i;
+	}
 
-    return (int)size;
+	return (int)size;
 }

@@ -45,17 +45,14 @@
 /*
  * Get current directory as a vnode.
  */
-int
-vfs_getcurdir(struct vnode **ret)
-{
+int vfs_getcurdir(struct vnode **ret) {
 	int rv = 0;
 
 	spinlock_acquire(&curproc->p_lock);
-	if (curproc->p_cwd!=NULL) {
+	if (curproc->p_cwd != NULL) {
 		VOP_INCREF(curproc->p_cwd);
 		*ret = curproc->p_cwd;
-	}
-	else {
+	} else {
 		rv = ENOENT;
 	}
 	spinlock_release(&curproc->p_lock);
@@ -67,9 +64,7 @@ vfs_getcurdir(struct vnode **ret)
  * Set current directory as a vnode.
  * The passed vnode must in fact be a directory.
  */
-int
-vfs_setcurdir(struct vnode *dir)
-{
+int vfs_setcurdir(struct vnode *dir) {
 	struct vnode *old;
 	mode_t vtype;
 	int result;
@@ -89,7 +84,7 @@ vfs_setcurdir(struct vnode *dir)
 	curproc->p_cwd = dir;
 	spinlock_release(&curproc->p_lock);
 
-	if (old!=NULL) {
+	if (old != NULL) {
 		VOP_DECREF(old);
 	}
 
@@ -99,9 +94,7 @@ vfs_setcurdir(struct vnode *dir)
 /*
  * Set current directory to "none".
  */
-int
-vfs_clearcurdir(void)
-{
+int vfs_clearcurdir(void) {
 	struct vnode *old;
 
 	spinlock_acquire(&curproc->p_lock);
@@ -109,7 +102,7 @@ vfs_clearcurdir(void)
 	curproc->p_cwd = NULL;
 	spinlock_release(&curproc->p_lock);
 
-	if (old!=NULL) {
+	if (old != NULL) {
 		VOP_DECREF(old);
 	}
 
@@ -120,9 +113,7 @@ vfs_clearcurdir(void)
  * Set current directory, as a pathname. Use vfs_lookup to translate
  * it to a vnode.
  */
-int
-vfs_chdir(char *path)
-{
+int vfs_chdir(char *path) {
 	struct vnode *vn;
 	int result;
 
@@ -140,15 +131,13 @@ vfs_chdir(char *path)
  * Use VOP_NAMEFILE to get the pathname and FSOP_GETVOLNAME to get the
  * volume name.
  */
-int
-vfs_getcwd(struct uio *uio)
-{
+int vfs_getcwd(struct uio *uio) {
 	struct vnode *cwd;
 	int result;
 	const char *name;
-	char colon=':';
+	char colon = ':';
 
-	KASSERT(uio->uio_rw==UIO_READ);
+	KASSERT(uio->uio_rw == UIO_READ);
 
 	result = vfs_getcurdir(&cwd);
 	if (result) {
@@ -159,7 +148,7 @@ vfs_getcwd(struct uio *uio)
 	KASSERT(cwd->vn_fs != NULL);
 
 	name = FSOP_GETVOLNAME(cwd->vn_fs);
-	if (name==NULL) {
+	if (name == NULL) {
 		vfs_biglock_acquire();
 		name = vfs_getdevname(cwd->vn_fs);
 		vfs_biglock_release();
@@ -177,7 +166,7 @@ vfs_getcwd(struct uio *uio)
 
 	result = VOP_NAMEFILE(cwd, uio);
 
- out:
+out:
 
 	VOP_DECREF(cwd);
 	return result;

@@ -34,14 +34,12 @@
  * their sort order.
  */
 
-int
-memcmp(const void *av, const void *bv, size_t len)
-{
+int memcmp(const void *av, const void *bv, size_t len) {
 	const unsigned char *a = av;
 	const unsigned char *b = bv;
 	size_t i;
 
-	for (i=0; i<len; i++) {
+	for (i = 0; i < len; i++) {
 		if (a[i] != b[i]) {
 			return (int)(a[i] - b[i]);
 		}

@@ -51,30 +51,21 @@ static struct termios hostcompat_savetios;
 /*
  * Put the tty state back the way it was.
  */
-static
-void
-hostcompat_ttyreset(void)
-{
+static void hostcompat_ttyreset(void) {
 	tcsetattr(STDIN_FILENO, TCSADRAIN, &hostcompat_savetios);
 }
 
 /*
  * Set the tty state back to the way we want it for running.
  */
-static
-void
-hostcompat_ttyresume(void)
-{
+static void hostcompat_ttyresume(void) {
 	tcsetattr(STDIN_FILENO, TCSADRAIN, &hostcompat_runtios);
 }
 
 /*
  * Set up the tty state stuff.
  */
-static
-int
-hostcompat_ttysetup(void)
-{
+static int hostcompat_ttysetup(void) {
 	struct termios tios;
 
 	/* Get the current tty state. */
@@ -98,19 +89,19 @@ hostcompat_ttysetup(void)
 	tios.c_cc[VTIME] = 0;
 
 	/* Turn off echoing of keypresses. */
-	tios.c_lflag &= ~(ECHO|ECHONL|ECHOCTL);
+	tios.c_lflag &= ~(ECHO | ECHONL | ECHOCTL);
 
 	/* Do not support XON/XOFF flow control. */
-	tios.c_iflag &= ~(IXON|IXOFF);
+	tios.c_iflag &= ~(IXON | IXOFF);
 
 	/* On input, we want no CR/LF translation. */
-	tios.c_iflag &= ~(INLCR|IGNCR|ICRNL);
+	tios.c_iflag &= ~(INLCR | IGNCR | ICRNL);
 
 	/* However, on output we want LF ('\n') mapped to CRLF. */
-#ifdef OCRNL	/* missing on OS X */
+#ifdef OCRNL /* missing on OS X */
 	tios.c_oflag &= ~(OCRNL);
 #endif
-	tios.c_oflag |= OPOST|ONLCR;
+	tios.c_oflag |= OPOST | ONLCR;
 
 	/* Enable keyboard signals (^C, ^Z, etc.) because they're useful. */
 	tios.c_lflag |= ISIG;
@@ -125,10 +116,7 @@ hostcompat_ttysetup(void)
 /*
  * Signal handler for all the fatal signals (SIGSEGV, SIGTERM, etc.)
  */
-static
-void
-hostcompat_die(int sig)
-{
+static void hostcompat_die(int sig) {
 	/* Set the tty back to the way we found it */
 	hostcompat_ttyreset();
 
@@ -145,10 +133,7 @@ hostcompat_die(int sig)
 /*
  * Signal handler for the stop signals (SIGTSTP, SIGTTIN, etc.)
  */
-static
-void
-hostcompat_stop(int sig)
-{
+static void hostcompat_stop(int sig) {
 	/* Set the tty back to the way we found it */
 	hostcompat_ttyreset();
 
@@ -162,10 +147,7 @@ hostcompat_stop(int sig)
 /*
  * Signal handler for SIGCONT.
  */
-static
-void
-hostcompat_cont(int sig)
-{
+static void hostcompat_cont(int sig) {
 	(void)sig;
 
 	/* Set the tty to the way we want it for running. */
@@ -184,9 +166,7 @@ hostcompat_cont(int sig)
 /*
  * Initialize the hostcompat library.
  */
-void
-hostcompat_init(int argc, char *argv[])
-{
+void hostcompat_init(int argc, char *argv[]) {
 	/* Set the program name */
 	if (argc > 0 && argv[0] != NULL) {
 		hostcompat_progname = argv[0];

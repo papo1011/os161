@@ -44,20 +44,19 @@
 #include <lamebus/ltimer.h>
 #include "autoconf.h"
 
-struct rtclock_softc *
-attach_rtclock_to_ltimer(int rtclockno, struct ltimer_softc *ls)
-{
+struct rtclock_softc *attach_rtclock_to_ltimer(int rtclockno,
+											   struct ltimer_softc *ls) {
 	/*
 	 * No need to probe; ltimer always has a clock.
 	 * Just allocate the rtclock, set our fields, and return it.
 	 */
 	struct rtclock_softc *rtc = kmalloc(sizeof(struct rtclock_softc));
-	if (rtc==NULL) {
+	if (rtc == NULL) {
 		/* Out of memory */
 		return NULL;
 	}
 
-	(void)rtclockno;  // unused
+	(void)rtclockno; // unused
 
 	rtc->rtc_devdata = ls;
 	rtc->rtc_gettime = ltimer_gettime;

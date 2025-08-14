@@ -41,14 +41,14 @@
  *
  */
 
-#define SectorSize   512
+#define SectorSize 512
 
-#define TMULT        50
-#define FSIZE        ((SectorSize + 1) * TMULT)
+#define TMULT 50
+#define FSIZE ((SectorSize + 1) * TMULT)
 
-#define FNAME        "f-testfile"
-#define READCHAR     'r'
-#define WRITECHAR    'w'
+#define FNAME "f-testfile"
+#define READCHAR 'r'
+#define WRITECHAR 'w'
 
 #include <unistd.h>
 #include <stdio.h>
@@ -57,13 +57,11 @@
 
 static char buffer[SectorSize + 1];
 
-void
-subproc_write(void)
-{
+void subproc_write(void) {
 	int fd;
 	int i;
 
-	for (i=0; i < SectorSize + 1; i++) {
+	for (i = 0; i < SectorSize + 1; i++) {
 		buffer[i] = WRITECHAR;
 	}
 
@@ -74,7 +72,7 @@ subproc_write(void)
 		err(1, "%s: open", FNAME);
 	}
 
-	for (i=0; i<TMULT; i++) {
+	for (i = 0; i < TMULT; i++) {
 		// yield();
 		write(fd, buffer, SectorSize + 1);
 	}

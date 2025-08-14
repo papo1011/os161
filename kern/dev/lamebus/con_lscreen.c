@@ -38,11 +38,9 @@
 #include <lamebus/lscreen.h>
 #include "autoconf.h"
 
-struct con_softc *
-attach_con_to_lscreen(int consno, struct lscreen_softc *ls)
-{
+struct con_softc *attach_con_to_lscreen(int consno, struct lscreen_softc *ls) {
 	struct con_softc *cs = kmalloc(sizeof(struct con_softc));
-	if (cs==NULL) {
+	if (cs == NULL) {
 		return NULL;
 	}
 
@@ -56,4 +54,3 @@ attach_con_to_lscreen(int consno, struct lscreen_softc *ls)
 
 	return cs;
 }
-

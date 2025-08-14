@@ -37,7 +37,6 @@
 /* in threadstart.S */
 extern void mips_threadstart(/* arguments are in unusual registers */);
 
-
 /*
  * Function to initialize the switchframe of a new thread, which is
  * *not* the one that is currently running.
@@ -51,26 +50,24 @@ extern void mips_threadstart(/* arguments are in unusual registers */);
  * store the arguments in the s* registers, and use a bit of asm
  * (mips_threadstart) to move them and then jump to thread_startup.
  */
-void
-switchframe_init(struct thread *thread,
-		 void (*entrypoint)(void *data1, unsigned long data2),
-		 void *data1, unsigned long data2)
-{
+void switchframe_init(struct thread *thread,
+					  void (*entrypoint)(void *data1, unsigned long data2),
+					  void *data1, unsigned long data2) {
 	vaddr_t stacktop;
 	struct switchframe *sf;
 
-        /*
+	/*
          * MIPS stacks grow down. t_stack is just a hunk of memory, so
          * get the other end of it. Then set up a switchframe on the
          * top of the stack.
          */
-        stacktop = ((vaddr_t)thread->t_stack) + STACK_SIZE;
-        sf = ((struct switchframe *) stacktop) - 1;
+	stacktop = ((vaddr_t)thread->t_stack) + STACK_SIZE;
+	sf = ((struct switchframe *)stacktop) - 1;
 
-        /* Zero out the switchframe. */
-        bzero(sf, sizeof(*sf));
+	/* Zero out the switchframe. */
+	bzero(sf, sizeof(*sf));
 
-        /*
+	/*
          * Now set the important parts: pass through the three arguments,
          * and set the return address register to the place we want
          * execution to begin.
@@ -88,11 +85,11 @@ switchframe_init(struct thread *thread,
          * This has implications for code at the bottom of
          * thread_switch, described in thread.c.
          */
-        sf->sf_s0 = (uint32_t)entrypoint;
-        sf->sf_s1 = (uint32_t)data1;
-        sf->sf_s2 = (uint32_t)data2;
-        sf->sf_ra = (uint32_t)mips_threadstart;
+	sf->sf_s0 = (uint32_t)entrypoint;
+	sf->sf_s1 = (uint32_t)data1;
+	sf->sf_s2 = (uint32_t)data2;
+	sf->sf_ra = (uint32_t)mips_threadstart;
 
-        /* Set ->t_context, and we're done. */
+	/* Set ->t_context, and we're done. */
 	thread->t_context = sf;
 }

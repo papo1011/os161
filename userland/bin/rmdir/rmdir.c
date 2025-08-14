@@ -37,10 +37,8 @@
  * Just calls the rmdir() system call.
  */
 
-int
-main(int argc, char *argv[])
-{
-	if (argc!=2) {
+int main(int argc, char *argv[]) {
+	if (argc != 2) {
 		errx(1, "Usage: rmdir DIRECTORY");
 	}
 

@@ -38,9 +38,7 @@
  * POSIX C function: exec a program on the search path. Tries
  * execv() repeatedly until one of the choices works.
  */
-int
-execvp(const char *prog, char *const *args)
-{
+int execvp(const char *prog, char *const *args) {
 	const char *searchpath, *s, *t;
 	char progpath[PATH_MAX];
 	size_t len;
@@ -62,8 +60,7 @@ execvp(const char *prog, char *const *args)
 			len = t - s;
 			/* advance past the colon */
 			t++;
-		}
-		else {
+		} else {
 			len = strlen(s);
 		}
 		if (len == 0) {
@@ -76,12 +73,12 @@ execvp(const char *prog, char *const *args)
 		snprintf(progpath + len, sizeof(progpath) - len, "/%s", prog);
 		execv(progpath, args);
 		switch (errno) {
-		    case ENOENT:
-		    case ENOTDIR:
-		    case ENOEXEC:
+		case ENOENT:
+		case ENOTDIR:
+		case ENOEXEC:
 			/* routine errors, try next dir */
 			break;
-		    default:
+		default:
 			/* oops, let's fail */
 			return -1;
 		}

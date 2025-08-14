@@ -41,14 +41,13 @@
 #include "support.h"
 #include "kern/sfs.h"
 
-
 #ifdef HOST
 /*
  * OS/161 runs natively on a big-endian platform, so we can
  * conveniently use the byteswapping functions for network byte order.
  */
 #include <netinet/in.h> // for arpa/inet.h
-#include <arpa/inet.h>  // for ntohl
+#include <arpa/inet.h>	// for ntohl
 #include "hostcompat.h"
 #define SWAP64(x) ntohll(x)
 #define SWAP32(x) ntohl(x)
@@ -67,7 +66,7 @@ extern const char *hostcompat_progname;
 #include "disk.h"
 
 #define ARRAYCOUNT(a) (sizeof(a) / sizeof((a)[0]))
-#define DIVROUNDUP(a, b) (((a) + (b) - 1) / (b))
+#define DIVROUNDUP(a, b) (((a) + (b)-1) / (b))
 
 static bool dofiles, dodirs;
 static bool doindirect;
@@ -78,10 +77,7 @@ static bool recurse;
 
 static unsigned dumppos;
 
-static
-void
-dumpval(const char *desc, const char *val)
-{
+static void dumpval(const char *desc, const char *val) {
 	size_t dlen, vlen, used;
 
 	dlen = strlen(desc);
@@ -102,10 +98,7 @@ dumpval(const char *desc, const char *val)
 	dumppos++;
 }
 
-static
-void
-dumpvalf(const char *desc, const char *valf, ...)
-{
+static void dumpvalf(const char *desc, const char *valf, ...) {
 	va_list ap;
 	char buf[128];
 
@@ -115,10 +108,7 @@ dumpvalf(const char *desc, const char *valf, ...)
 	dumpval(desc, buf);
 }
 
-static
-void
-dumplval(const char *desc, const char *lval)
-{
+static void dumplval(const char *desc, const char *lval) {
 	if (dumppos % 2 == 1) {
 		printf("\n");
 		dumppos++;
@@ -132,10 +122,7 @@ dumplval(const char *desc, const char *lval)
 
 static void dumpinode(uint32_t ino, const char *name);
 
-static
-uint32_t
-readsb(void)
-{
+static uint32_t readsb(void) {
 	struct sfs_superblock sb;
 
 	diskread(&sb, SFS_SUPER_BLOCK);
@@ -145,38 +132,32 @@ readsb(void)
 	return SWAP32(sb.sb_nblocks);
 }
 
-static
-void
-dumpsb(void)
-{
+static void dumpsb(void) {
 	struct sfs_superblock sb;
 	unsigned i;
 
 	diskread(&sb, SFS_SUPER_BLOCK);
-	sb.sb_volname[sizeof(sb.sb_volname)-1] = 0;
+	sb.sb_volname[sizeof(sb.sb_volname) - 1] = 0;
 
 	printf("Superblock\n");
 	printf("----------\n");
 	dumpvalf("Magic", "0x%8x", SWAP32(sb.sb_magic));
 	dumpvalf("Size", "%u blocks", SWAP32(sb.sb_nblocks));
 	dumpvalf("Freemap size", "%u blocks",
-		 SFS_FREEMAPBLOCKS(SWAP32(sb.sb_nblocks)));
+			 SFS_FREEMAPBLOCKS(SWAP32(sb.sb_nblocks)));
 	dumpvalf("Block size", "%u bytes", SFS_BLOCKSIZE);
 	dumplval("Volume name", sb.sb_volname);
 
-	for (i=0; i<ARRAYCOUNT(sb.reserved); i++) {
+	for (i = 0; i < ARRAYCOUNT(sb.reserved); i++) {
 		if (sb.reserved[i] != 0) {
-			printf("    Word %u in reserved area: 0x%x\n",
-			       i, SWAP32(sb.reserved[i]));
+			printf("    Word %u in reserved area: 0x%x\n", i,
+				   SWAP32(sb.reserved[i]));
 		}
 	}
 	printf("\n");
 }
 
-static
-void
-dumpfreemap(uint32_t fsblocks)
-{
+static void dumpfreemap(uint32_t fsblocks) {
 	uint32_t freemapblocks = SFS_FREEMAPBLOCKS(fsblocks);
 	uint32_t i, j, k, bn;
 	uint8_t data[SFS_BLOCKSIZE], mask;
@@ -184,43 +165,39 @@ dumpfreemap(uint32_t fsblocks)
 
 	printf("Free block bitmap\n");
 	printf("-----------------\n");
-	for (i=0; i<freemapblocks; i++) {
-		diskread(data, SFS_FREEMAP_START+i);
+	for (i = 0; i < freemapblocks; i++) {
+		diskread(data, SFS_FREEMAP_START + i);
 		printf("    Freemap block #%u in disk block %u: blocks %u - %u"
-		       " (0x%x - 0x%x)\n",
-		       i, SFS_FREEMAP_START+i,
-		       i*SFS_BITSPERBLOCK, (i+1)*SFS_BITSPERBLOCK - 1,
-		       i*SFS_BITSPERBLOCK, (i+1)*SFS_BITSPERBLOCK - 1);
-		for (j=0; j<SFS_BLOCKSIZE; j++) {
+			   " (0x%x - 0x%x)\n",
+			   i, SFS_FREEMAP_START + i, i * SFS_BITSPERBLOCK,
+			   (i + 1) * SFS_BITSPERBLOCK - 1, i * SFS_BITSPERBLOCK,
+			   (i + 1) * SFS_BITSPERBLOCK - 1);
+		for (j = 0; j < SFS_BLOCKSIZE; j++) {
 			if (j % 8 == 0) {
 				snprintf(tmp, sizeof(tmp), "0x%x",
-					 i*SFS_BITSPERBLOCK + j*8);
+						 i * SFS_BITSPERBLOCK + j * 8);
 				printf("%-7s ", tmp);
 			}
-			for (k=0; k<8; k++) {
-				bn = i*SFS_BITSPERBLOCK + j*8 + k;
+			for (k = 0; k < 8; k++) {
+				bn = i * SFS_BITSPERBLOCK + j * 8 + k;
 				mask = 1U << k;
 				if (bn >= fsblocks) {
 					if (data[j] & mask) {
 						putchar('x');
-					}
-					else {
+					} else {
 						putchar('!');
 					}
-				}
-				else {
+				} else {
 					if (data[j] & mask) {
 						putchar('*');
-					}
-					else {
+					} else {
 						putchar('.');
 					}
 				}
 			}
 			if (j % 8 == 7) {
 				printf("\n");
-			}
-			else {
+			} else {
 				printf(" ");
 			}
 		}
@@ -228,11 +205,8 @@ dumpfreemap(uint32_t fsblocks)
 	printf("\n");
 }
 
-static
-void
-dumpindirect(uint32_t block)
-{
-	uint32_t ib[SFS_BLOCKSIZE/sizeof(uint32_t)];
+static void dumpindirect(uint32_t block) {
+	uint32_t ib[SFS_BLOCKSIZE / sizeof(uint32_t)];
 	char tmp[128];
 	unsigned i;
 
@@ -242,12 +216,11 @@ dumpindirect(uint32_t block)
 	printf("Indirect block %u\n", block);
 
 	diskread(ib, block);
-	for (i=0; i<ARRAYCOUNT(ib); i++) {
+	for (i = 0; i < ARRAYCOUNT(ib); i++) {
 		if (i % 4 == 0) {
 			printf("@%-3u   ", i);
 		}
-		snprintf(tmp, sizeof(tmp), "%u (0x%x)",
-			 SWAP32(ib[i]), SWAP32(ib[i]));
+		snprintf(tmp, sizeof(tmp), "%u (0x%x)", SWAP32(ib[i]), SWAP32(ib[i]));
 		printf("  %-16s", tmp);
 		if (i % 4 == 3) {
 			printf("\n");
@@ -255,30 +228,25 @@ dumpindirect(uint32_t block)
 	}
 }
 
-static
-uint32_t
-traverse_ib(uint32_t fileblock, uint32_t numblocks, uint32_t block,
-	    void (*doblock)(uint32_t, uint32_t))
-{
-	uint32_t ib[SFS_BLOCKSIZE/sizeof(uint32_t)];
+static uint32_t traverse_ib(uint32_t fileblock, uint32_t numblocks,
+							uint32_t block,
+							void (*doblock)(uint32_t, uint32_t)) {
+	uint32_t ib[SFS_BLOCKSIZE / sizeof(uint32_t)];
 	unsigned i;
 
 	if (block == 0) {
 		memset(ib, 0, sizeof(ib));
-	}
-	else {
+	} else {
 		diskread(ib, block);
 	}
-	for (i=0; i<ARRAYCOUNT(ib) && fileblock < numblocks; i++) {
+	for (i = 0; i < ARRAYCOUNT(ib) && fileblock < numblocks; i++) {
 		doblock(fileblock++, SWAP32(ib[i]));
 	}
 	return fileblock;
 }
 
-static
-void
-traverse(const struct sfs_dinode *sfi, void (*doblock)(uint32_t, uint32_t))
-{
+static void traverse(const struct sfs_dinode *sfi,
+					 void (*doblock)(uint32_t, uint32_t)) {
 	uint32_t fileblock;
 	uint32_t numblocks;
 	unsigned i;
@@ -286,22 +254,19 @@ traverse(const struct sfs_dinode *sfi, void (*doblock)(uint32_t, uint32_t))
 	numblocks = DIVROUNDUP(SWAP32(sfi->sfi_size), SFS_BLOCKSIZE);
 
 	fileblock = 0;
-	for (i=0; i<SFS_NDIRECT && fileblock < numblocks; i++) {
+	for (i = 0; i < SFS_NDIRECT && fileblock < numblocks; i++) {
 		doblock(fileblock++, SWAP32(sfi->sfi_direct[i]));
 	}
 	if (fileblock < numblocks) {
-		fileblock = traverse_ib(fileblock, numblocks,
-					SWAP32(sfi->sfi_indirect), doblock);
+		fileblock = traverse_ib(fileblock, numblocks, SWAP32(sfi->sfi_indirect),
+								doblock);
 	}
 	assert(fileblock == numblocks);
 }
 
-static
-void
-dumpdirblock(uint32_t fileblock, uint32_t diskblock)
-{
-	struct sfs_direntry sds[SFS_BLOCKSIZE/sizeof(struct sfs_direntry)];
-	int nsds = SFS_BLOCKSIZE/sizeof(struct sfs_direntry);
+static void dumpdirblock(uint32_t fileblock, uint32_t diskblock) {
+	struct sfs_direntry sds[SFS_BLOCKSIZE / sizeof(struct sfs_direntry)];
+	int nsds = SFS_BLOCKSIZE / sizeof(struct sfs_direntry);
 	int i;
 
 	(void)fileblock;
@@ -312,22 +277,18 @@ dumpdirblock(uint32_t fileblock, uint32_t diskblock)
 	diskread(&sds, diskblock);
 
 	printf("    [block %u]\n", diskblock);
-	for (i=0; i<nsds; i++) {
+	for (i = 0; i < nsds; i++) {
 		uint32_t ino = SWAP32(sds[i].sfd_ino);
-		if (ino==SFS_NOINO) {
+		if (ino == SFS_NOINO) {
 			printf("        [free entry]\n");
-		}
-		else {
-			sds[i].sfd_name[SFS_NAMELEN-1] = 0; /* just in case */
+		} else {
+			sds[i].sfd_name[SFS_NAMELEN - 1] = 0; /* just in case */
 			printf("        %u %s\n", ino, sds[i].sfd_name);
 		}
 	}
 }
 
-static
-void
-dumpdir(uint32_t ino, const struct sfs_dinode *sfi)
-{
+static void dumpdir(uint32_t ino, const struct sfs_dinode *sfi) {
 	int nentries;
 
 	nentries = SWAP32(sfi->sfi_size) / sizeof(struct sfs_direntry);
@@ -338,12 +299,9 @@ dumpdir(uint32_t ino, const struct sfs_dinode *sfi)
 	traverse(sfi, dumpdirblock);
 }
 
-static
-void
-recursedirblock(uint32_t fileblock, uint32_t diskblock)
-{
-	struct sfs_direntry sds[SFS_BLOCKSIZE/sizeof(struct sfs_direntry)];
-	int nsds = SFS_BLOCKSIZE/sizeof(struct sfs_direntry);
+static void recursedirblock(uint32_t fileblock, uint32_t diskblock) {
+	struct sfs_direntry sds[SFS_BLOCKSIZE / sizeof(struct sfs_direntry)];
+	int nsds = SFS_BLOCKSIZE / sizeof(struct sfs_direntry);
 	int i;
 
 	(void)fileblock;
@@ -352,20 +310,17 @@ recursedirblock(uint32_t fileblock, uint32_t diskblock)
 	}
 	diskread(&sds, diskblock);
 
-	for (i=0; i<nsds; i++) {
+	for (i = 0; i < nsds; i++) {
 		uint32_t ino = SWAP32(sds[i].sfd_ino);
-		if (ino==SFS_NOINO) {
+		if (ino == SFS_NOINO) {
 			continue;
 		}
-		sds[i].sfd_name[SFS_NAMELEN-1] = 0; /* just in case */
+		sds[i].sfd_name[SFS_NAMELEN - 1] = 0; /* just in case */
 		dumpinode(ino, sds[i].sfd_name);
 	}
 }
 
-static
-void
-recursedir(uint32_t ino, const struct sfs_dinode *sfi)
-{
+static void recursedir(uint32_t ino, const struct sfs_dinode *sfi) {
 	int nentries;
 
 	nentries = SWAP32(sfi->sfi_size) / sizeof(struct sfs_direntry);
@@ -374,9 +329,7 @@ recursedir(uint32_t ino, const struct sfs_dinode *sfi)
 	printf("Done with directory %u\n", ino);
 }
 
-static
-void dumpfileblock(uint32_t fileblock, uint32_t diskblock)
-{
+static void dumpfileblock(uint32_t fileblock, uint32_t diskblock) {
 	uint8_t data[SFS_BLOCKSIZE];
 	unsigned i, j;
 	char tmp[128];
@@ -387,26 +340,23 @@ void dumpfileblock(uint32_t fileblock, uint32_t diskblock)
 	}
 
 	diskread(data, diskblock);
-	for (i=0; i<SFS_BLOCKSIZE; i++) {
+	for (i = 0; i < SFS_BLOCKSIZE; i++) {
 		if (i % 16 == 0) {
-			snprintf(tmp, sizeof(tmp), "0x%x",
-				 fileblock * SFS_BLOCKSIZE + i);
+			snprintf(tmp, sizeof(tmp), "0x%x", fileblock * SFS_BLOCKSIZE + i);
 			printf("%8s", tmp);
 		}
 		if (i % 8 == 0) {
 			printf("  ");
-		}
-		else {
+		} else {
 			printf(" ");
 		}
 		printf("%02x", data[i]);
 		if (i % 16 == 15) {
 			printf("  ");
-			for (j = i-15; j<=i; j++) {
+			for (j = i - 15; j <= i; j++) {
 				if (data[j] < 32 || data[j] > 126) {
 					putchar('.');
-				}
-				else {
+				} else {
 					putchar(data[j]);
 				}
 			}
@@ -415,18 +365,12 @@ void dumpfileblock(uint32_t fileblock, uint32_t diskblock)
 	}
 }
 
-static
-void
-dumpfile(uint32_t ino, const struct sfs_dinode *sfi)
-{
+static void dumpfile(uint32_t ino, const struct sfs_dinode *sfi) {
 	printf("File contents for inode %u:\n", ino);
 	traverse(sfi, dumpfileblock);
 }
 
-static
-void
-dumpinode(uint32_t ino, const char *name)
-{
+static void dumpinode(uint32_t ino, const char *name) {
 	struct sfs_dinode sfi;
 	const char *typename;
 	char tmp[128];
@@ -442,17 +386,23 @@ dumpinode(uint32_t ino, const char *name)
 	printf("--------------\n");
 
 	switch (SWAP16(sfi.sfi_type)) {
-	    case SFS_TYPE_FILE: typename = "regular file"; break;
-	    case SFS_TYPE_DIR: typename = "directory"; break;
-	    default: typename = "invalid"; break;
+	case SFS_TYPE_FILE:
+		typename = "regular file";
+		break;
+	case SFS_TYPE_DIR:
+		typename = "directory";
+		break;
+	default:
+		typename = "invalid";
+		break;
 	}
 	dumpvalf("Type", "%u (%s)", SWAP16(sfi.sfi_type), typename);
 	dumpvalf("Size", "%u", SWAP32(sfi.sfi_size));
 	dumpvalf("Link count", "%u", SWAP16(sfi.sfi_linkcount));
 	printf("\n");
 
-        printf("    Direct blocks:\n");
-        for (i=0; i<SFS_NDIRECT; i++) {
+	printf("    Direct blocks:\n");
+	for (i = 0; i < SFS_NDIRECT; i++) {
 		if (i % 4 == 0) {
 			printf("@%-2u    ", i);
 		}
@@ -464,8 +414,8 @@ dumpinode(uint32_t ino, const char *name)
 		 * only up to 6 decimal digits. The complete block
 		 * number print then needs up to 16 digits.
 		 */
-		snprintf(tmp, sizeof(tmp), "%u (0x%x)",
-			 SWAP32(sfi.sfi_direct[i]), SWAP32(sfi.sfi_direct[i]));
+		snprintf(tmp, sizeof(tmp), "%u (0x%x)", SWAP32(sfi.sfi_direct[i]),
+				 SWAP32(sfi.sfi_direct[i]));
 		printf("  %-16s", tmp);
 		if (i % 4 == 3) {
 			printf("\n");
@@ -474,12 +424,12 @@ dumpinode(uint32_t ino, const char *name)
 	if (i % 4 != 0) {
 		printf("\n");
 	}
-	printf("    Indirect block: %u (0x%x)\n",
-	       SWAP32(sfi.sfi_indirect), SWAP32(sfi.sfi_indirect));
-	for (i=0; i<ARRAYCOUNT(sfi.sfi_waste); i++) {
+	printf("    Indirect block: %u (0x%x)\n", SWAP32(sfi.sfi_indirect),
+		   SWAP32(sfi.sfi_indirect));
+	for (i = 0; i < ARRAYCOUNT(sfi.sfi_waste); i++) {
 		if (sfi.sfi_waste[i] != 0) {
-			printf("    Word %u in waste area: 0x%x\n",
-			       i, SWAP32(sfi.sfi_waste[i]));
+			printf("    Word %u in waste area: 0x%x\n", i,
+				   SWAP32(sfi.sfi_waste[i]));
 		}
 	}
 
@@ -501,10 +451,7 @@ dumpinode(uint32_t ino, const char *name)
 ////////////////////////////////////////////////////////////
 // main
 
-static
-void
-usage(void)
-{
+static void usage(void) {
 	warnx("Usage: dumpsfs [options] device/diskfile");
 	warnx("   -s: dump superblock");
 	warnx("   -b: dump free block bitmap");
@@ -517,9 +464,7 @@ usage(void)
 	errx(1, "   Default is -i 1");
 }
 
-int
-main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
 	bool dosb = false;
 	bool dofreemap = false;
 	uint32_t dumpino = 0;
@@ -534,27 +479,38 @@ main(int argc, char **argv)
 	hostcompat_progname = argv[0];
 #endif
 
-	for (i=1; i<argc; i++) {
+	for (i = 1; i < argc; i++) {
 		if (argv[i][0] == '-') {
-			for (j=1; argv[i][j]; j++) {
+			for (j = 1; argv[i][j]; j++) {
 				switch (argv[i][j]) {
-				    case 's': dosb = true; break;
-				    case 'b': dofreemap = true; break;
-				    case 'i':
-					if (argv[i][j+1] == 0) {
+				case 's':
+					dosb = true;
+					break;
+				case 'b':
+					dofreemap = true;
+					break;
+				case 'i':
+					if (argv[i][j + 1] == 0) {
 						dumpino = atoi(argv[++i]);
-					}
-					else {
-						dumpino = atoi(argv[i]+j+1);
+					} else {
+						dumpino = atoi(argv[i] + j + 1);
 						j = strlen(argv[i]);
 					}
 					/* XXX ugly */
 					goto nextarg;
-				    case 'I': doindirect = true; break;
-				    case 'f': dofiles = true; break;
-				    case 'd': dodirs = true; break;
-				    case 'r': recurse = true; break;
-				    case 'a':
+				case 'I':
+					doindirect = true;
+					break;
+				case 'f':
+					dofiles = true;
+					break;
+				case 'd':
+					dodirs = true;
+					break;
+				case 'r':
+					recurse = true;
+					break;
+				case 'a':
 					dosb = true;
 					dofreemap = true;
 					if (dumpino == 0) {
@@ -565,20 +521,18 @@ main(int argc, char **argv)
 					dodirs = true;
 					recurse = true;
 					break;
-				    default:
+				default:
 					usage();
 					break;
 				}
 			}
-		}
-		else {
+		} else {
 			if (dumpdisk != NULL) {
 				usage();
 			}
 			dumpdisk = argv[i];
 		}
-	 nextarg:
-		;
+	nextarg:;
 	}
 	if (dumpdisk == NULL) {
 		usage();

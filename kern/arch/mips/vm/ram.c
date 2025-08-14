@@ -32,19 +32,16 @@
 #include <vm.h>
 #include <mainbus.h>
 
+vaddr_t firstfree; /* first free virtual address; set by start.S */
 
-vaddr_t firstfree;   /* first free virtual address; set by start.S */
-
-static paddr_t firstpaddr;  /* address of first free physical page */
-static paddr_t lastpaddr;   /* one past end of last free physical page */
+static paddr_t firstpaddr; /* address of first free physical page */
+static paddr_t lastpaddr;  /* one past end of last free physical page */
 
 /*
  * Called very early in system boot to figure out how much physical
  * RAM is available.
  */
-void
-ram_bootstrap(void)
-{
+void ram_bootstrap(void) {
 	size_t ramsize;
 
 	/* Get size of RAM. */
@@ -57,8 +54,8 @@ ram_bootstrap(void)
 	 * everything would get a lot more complicated. This is not a
 	 * case we are going to worry about.
 	 */
-	if (ramsize > 512*1024*1024) {
-		ramsize = 512*1024*1024;
+	if (ramsize > 512 * 1024 * 1024) {
+		ramsize = 512 * 1024 * 1024;
 	}
 
 	lastpaddr = ramsize;
@@ -69,8 +66,7 @@ ram_bootstrap(void)
 	 */
 	firstpaddr = firstfree - MIPS_KSEG0;
 
-	kprintf("%uk physical memory available\n",
-		(lastpaddr-firstpaddr)/1024);
+	kprintf("%uk physical memory available\n", (lastpaddr - firstpaddr) / 1024);
 }
 
 /*
@@ -91,9 +87,7 @@ ram_bootstrap(void)
  * This function should not be called once the VM system is initialized,
  * so it is not synchronized.
  */
-paddr_t
-ram_stealmem(unsigned long npages)
-{
+paddr_t ram_stealmem(unsigned long npages) {
 	size_t size;
 	paddr_t paddr;
 
@@ -124,11 +118,7 @@ ram_stealmem(unsigned long npages)
  * initialize the VM system, after which the VM system should take
  * charge of knowing what memory exists.
  */
-paddr_t
-ram_getsize(void)
-{
-	return lastpaddr;
-}
+paddr_t ram_getsize(void) { return lastpaddr; }
 
 /*
  * This function is intended to be called by the VM system when it
@@ -142,9 +132,7 @@ ram_getsize(void)
  * This function should not be called once the VM system is initialized,
  * so it is not synchronized.
  */
-paddr_t
-ram_getfirstfree(void)
-{
+paddr_t ram_getfirstfree(void) {
 	paddr_t ret;
 
 	ret = firstpaddr;

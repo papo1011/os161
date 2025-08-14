@@ -41,27 +41,25 @@
 #include "disk.h"
 
 #define HOSTSTRING "System/161 Disk Image"
-#define BLOCKSIZE  512
+#define BLOCKSIZE 512
 
 #ifndef EINTR
 #define EINTR 0
 #endif
 
-static int fd=-1;
+static int fd = -1;
 static uint32_t nblocks;
 
 /*
  * Open a disk. If we're built for the host OS, check that it's a
  * System/161 disk image, and then ignore the header block.
  */
-void
-opendisk(const char *path)
-{
+void opendisk(const char *path) {
 	struct stat statbuf;
 
-	assert(fd<0);
+	assert(fd < 0);
 	fd = open(path, O_RDWR);
-	if (fd<0) {
+	if (fd < 0) {
 		err(1, "%s", path);
 	}
 	if (fstat(fd, &statbuf)) {
@@ -78,8 +76,8 @@ opendisk(const char *path)
 		int len;
 
 		do {
-			len = read(fd, buf, sizeof(buf)-1);
-			if (len < 0 && (errno==EINTR || errno==EAGAIN)) {
+			len = read(fd, buf, sizeof(buf) - 1);
+			if (len < 0 && (errno == EINTR || errno == EAGAIN)) {
 				continue;
 			}
 		} while (0);
@@ -97,53 +95,47 @@ opendisk(const char *path)
 /*
  * Return the block size. (This is fixed, but still...)
  */
-uint32_t
-diskblocksize(void)
-{
-	assert(fd>=0);
+uint32_t diskblocksize(void) {
+	assert(fd >= 0);
 	return BLOCKSIZE;
 }
 
 /*
  * Return the device/image size in blocks.
  */
-uint32_t
-diskblocks(void)
-{
-	assert(fd>=0);
+uint32_t diskblocks(void) {
+	assert(fd >= 0);
 	return nblocks;
 }
 
 /*
  * Write a block.
  */
-void
-diskwrite(const void *data, uint32_t block)
-{
+void diskwrite(const void *data, uint32_t block) {
 	const char *cdata = data;
-	uint32_t tot=0;
+	uint32_t tot = 0;
 	int len;
 
-	assert(fd>=0);
+	assert(fd >= 0);
 
 #ifdef HOST
 	// skip over disk file header
 	block++;
 #endif
 
-	if (lseek(fd, block*BLOCKSIZE, SEEK_SET)<0) {
+	if (lseek(fd, block * BLOCKSIZE, SEEK_SET) < 0) {
 		err(1, "lseek");
 	}
 
 	while (tot < BLOCKSIZE) {
 		len = write(fd, cdata + tot, BLOCKSIZE - tot);
 		if (len < 0) {
-			if (errno==EINTR || errno==EAGAIN) {
+			if (errno == EINTR || errno == EAGAIN) {
 				continue;
 			}
 			err(1, "write");
 		}
-		if (len==0) {
+		if (len == 0) {
 			err(1, "write returned 0?");
 		}
 		tot += len;
@@ -153,33 +145,31 @@ diskwrite(const void *data, uint32_t block)
 /*
  * Read a block.
  */
-void
-diskread(void *data, uint32_t block)
-{
+void diskread(void *data, uint32_t block) {
 	char *cdata = data;
-	uint32_t tot=0;
+	uint32_t tot = 0;
 	int len;
 
-	assert(fd>=0);
+	assert(fd >= 0);
 
 #ifdef HOST
 	// skip over disk file header
 	block++;
 #endif
 
-	if (lseek(fd, block*BLOCKSIZE, SEEK_SET)<0) {
+	if (lseek(fd, block * BLOCKSIZE, SEEK_SET) < 0) {
 		err(1, "lseek");
 	}
 
 	while (tot < BLOCKSIZE) {
 		len = read(fd, cdata + tot, BLOCKSIZE - tot);
 		if (len < 0) {
-			if (errno==EINTR || errno==EAGAIN) {
+			if (errno == EINTR || errno == EAGAIN) {
 				continue;
 			}
 			err(1, "read");
 		}
-		if (len==0) {
+		if (len == 0) {
 			err(1, "unexpected EOF in mid-sector");
 		}
 		tot += len;
@@ -189,10 +179,8 @@ diskread(void *data, uint32_t block)
 /*
  * Close the disk.
  */
-void
-closedisk(void)
-{
-	assert(fd>=0);
+void closedisk(void) {
+	assert(fd >= 0);
 	if (close(fd)) {
 		err(1, "close");
 	}

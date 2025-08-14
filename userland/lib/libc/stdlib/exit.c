@@ -34,9 +34,7 @@
  * C standard function: exit process.
  */
 
-void
-exit(int code)
-{
+void exit(int code) {
 	/*
 	 * In a more complicated libc, this would call functions registered
 	 * with atexit() before calling the syscall to actually exit.
@@ -59,19 +57,19 @@ exit(int code)
 	 * hopefully doesn't matter as the only local it can lose
 	 * track of is "code" and we don't use it afterwards.
 	 */
-	__asm volatile("jal _exit;"	/* call _exit */
-		       "move $4, %0"	/* put code in a0 (delay slot) */
-		       :		/* no outputs */
-		       : "r" (code));	/* code is an input */
+	__asm volatile("jal _exit;"	 /* call _exit */
+				   "move $4, %0" /* put code in a0 (delay slot) */
+				   :			 /* no outputs */
+				   : "r"(code)); /* code is an input */
 	/*
 	 * Ok, exiting doesn't work; see if we can get our process
 	 * killed by making an illegal memory access. Use a magic
 	 * number address so the symptoms are recognizable and
 	 * unlikely to occur by accident otherwise.
 	 */
-	__asm volatile("li $2, 0xeeeee00f;"	/* load magic addr into v0 */
-		       "lw $2, 0($2)"		/* fetch from it */
-		       :: );			/* no args */
+	__asm volatile("li $2, 0xeeeee00f;" /* load magic addr into v0 */
+				   "lw $2, 0($2)"		/* fetch from it */
+				   ::);					/* no args */
 #else
 	_exit(code);
 #endif
@@ -79,5 +77,6 @@ exit(int code)
 	 * We can't return; so if we can't exit, the only other choice
 	 * is to loop.
 	 */
-	while (1) { }
+	while (1) {
+	}
 }

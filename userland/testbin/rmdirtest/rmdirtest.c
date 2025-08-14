@@ -46,7 +46,6 @@
 #include <limits.h>
 #include <err.h>
 
-
 static const char testdir[] = "testdir";
 static char startpoint[PATH_MAX - sizeof(testdir)];
 
@@ -55,11 +54,8 @@ static char startpoint[PATH_MAX - sizeof(testdir)];
  * where we came from.
  */
 
-static
-void
-startup(void)
-{
-	if (getcwd(startpoint, sizeof(startpoint))==NULL) {
+static void startup(void) {
+	if (getcwd(startpoint, sizeof(startpoint)) == NULL) {
 		err(1, "getcwd (not in test dir)");
 	}
 
@@ -80,14 +76,11 @@ startup(void)
  * from the current directory, which is justifiably prohibited.
  */
 
-static
-void
-killdir(void)
-{
+static void killdir(void) {
 	char tmp[PATH_MAX];
 
 	snprintf(tmp, sizeof(tmp), "%s/%s", startpoint, testdir);
-	if (rmdir(tmp)<0) {
+	if (rmdir(tmp) < 0) {
 		err(1, "%s: rmdir", tmp);
 	}
 }
@@ -97,11 +90,8 @@ killdir(void)
  * can try again.
  */
 
-static
-void
-finish(void)
-{
-	if (chdir(startpoint)<0) {
+static void finish(void) {
+	if (chdir(startpoint) < 0) {
 		err(1, "%s: chdir", startpoint);
 	}
 }
@@ -112,10 +102,7 @@ finish(void)
  * Basic test - just try removing the directory without doing anything
  * evil.
  */
-static
-void
-test1(void)
-{
+static void test1(void) {
 	printf("Making %s\n", testdir);
 	startup();
 
@@ -130,23 +117,20 @@ test1(void)
  * Now do it while we also have the directory open.
  */
 
-static
-void
-test2(void)
-{
+static void test2(void) {
 	int fd;
 
 	printf("Now trying with the directory open...\n");
 	startup();
 	fd = open(".", O_RDONLY);
-	if (fd<0) {
+	if (fd < 0) {
 		err(1, ".: open");
 	}
 	killdir();
 	finish();
 
 	/* close *after* leaving, just for excitement */
-	if (close(fd)<0) {
+	if (close(fd) < 0) {
 		err(1, "removed %s: close", testdir);
 	}
 }
@@ -155,10 +139,7 @@ test2(void)
  * Now see if . and .. work after rmdir.
  */
 
-static
-void
-test3(void)
-{
+static void test3(void) {
 	char buf[PATH_MAX];
 	int fd;
 
@@ -167,52 +148,49 @@ test3(void)
 	killdir();
 
 	fd = open(".", O_RDONLY);
-	if (fd<0) {
+	if (fd < 0) {
 		switch (errno) {
-		    case EINVAL:
-		    case EIO:
-		    case ENOENT:
+		case EINVAL:
+		case EIO:
+		case ENOENT:
 			break;
-		    default:
+		default:
 			err(1, ".");
 			break;
 		}
-	}
-	else {
+	} else {
 		close(fd);
 	}
 
 	fd = open("..", O_RDONLY);
-	if (fd<0) {
+	if (fd < 0) {
 		switch (errno) {
-		    case EINVAL:
-		    case EIO:
-		    case ENOENT:
+		case EINVAL:
+		case EIO:
+		case ENOENT:
 			break;
-		    default:
+		default:
 			err(1, "..");
 			break;
 		}
-	}
-	else {
+	} else {
 		warnx("..: openable after rmdir - might be bad");
 		close(fd);
 	}
 
 	snprintf(buf, sizeof(buf), "../%s", testdir);
 	fd = open(buf, O_RDONLY);
-	if (fd<0) {
+	if (fd < 0) {
 		switch (errno) {
-		    case EINVAL:
-		    case EIO:
-		    case ENOENT:
+		case EINVAL:
+		case EIO:
+		case ENOENT:
 			break;
-		    default:
+		default:
 			err(1, "%s", buf);
 			break;
 		}
-	}
-	else {
+	} else {
 		errx(1, "%s: works after rmdir", buf);
 	}
 
@@ -223,10 +201,7 @@ test3(void)
  * Now try to create files.
  */
 
-static
-void
-test4(void)
-{
+static void test4(void) {
 	char buf[4096];
 	int fd;
 
@@ -234,19 +209,18 @@ test4(void)
 	startup();
 	killdir();
 
-	fd = open("newfile", O_WRONLY|O_CREAT|O_TRUNC, 0664);
-	if (fd<0) {
+	fd = open("newfile", O_WRONLY | O_CREAT | O_TRUNC, 0664);
+	if (fd < 0) {
 		switch (errno) {
-		    case EINVAL:
-		    case EIO:
-		    case ENOENT:
+		case EINVAL:
+		case EIO:
+		case ENOENT:
 			break;
-		    default:
+		default:
 			err(1, "%s", buf);
 			break;
 		}
-	}
-	else {
+	} else {
 		warnx("newfile: creating files after rmdir works");
 		warnx("(this is only ok if the space gets reclaimed)");
 
@@ -268,26 +242,22 @@ test4(void)
  * Now try to create directories.
  */
 
-static
-void
-test5(void)
-{
+static void test5(void) {
 	printf("Checking if creating subdirs works after rmdir...\n");
 	startup();
 	killdir();
 
-	if (mkdir("newdir", 0775)<0) {
+	if (mkdir("newdir", 0775) < 0) {
 		switch (errno) {
-		    case EINVAL:
-		    case EIO:
-		    case ENOENT:
+		case EINVAL:
+		case EIO:
+		case ENOENT:
 			break;
-		    default:
+		default:
 			err(1, "mkdir in removed dir");
 			break;
 		}
-	}
-	else {
+	} else {
 		warnx("newfile: creating directories after rmdir works");
 		warnx("(this is only ok if the space gets reclaimed)");
 
@@ -308,23 +278,20 @@ test5(void)
 /*
  * Now try listing the directory.
  */
-static
-void
-test6(void)
-{
+static void test6(void) {
 	char buf[PATH_MAX];
 	int fd, len;
 
 	printf("Now trying to list the directory...\n");
 	startup();
 	fd = open(".", O_RDONLY);
-	if (fd<0) {
+	if (fd < 0) {
 		err(1, ".: open");
 	}
 	killdir();
 
-	while ((len = getdirentry(fd, buf, sizeof(buf)-1))>0) {
-		if ((unsigned)len >= sizeof(buf)-1) {
+	while ((len = getdirentry(fd, buf, sizeof(buf) - 1)) > 0) {
+		if ((unsigned)len >= sizeof(buf) - 1) {
 			errx(1, ".: getdirentry: returned invalid length");
 		}
 		buf[len] = 0;
@@ -334,15 +301,14 @@ test6(void)
 		}
 		errx(1, ".: getdirentry: returned unexpected name %s", buf);
 	}
-	if (len==0) {
+	if (len == 0) {
 		/* EOF - ok */
-	}
-	else { /* len < 0 */
+	} else { /* len < 0 */
 		switch (errno) {
-		    case EINVAL:
-		    case EIO:
+		case EINVAL:
+		case EIO:
 			break;
-		    default:
+		default:
 			err(1, ".: getdirentry");
 			break;
 		}
@@ -351,7 +317,7 @@ test6(void)
 	finish();
 
 	/* close *after* leaving, just for excitement */
-	if (close(fd)<0) {
+	if (close(fd) < 0) {
 		err(1, "removed %s: close", testdir);
 	}
 }
@@ -359,28 +325,23 @@ test6(void)
 /*
  * Try getcwd.
  */
-static
-void
-test7(void)
-{
+static void test7(void) {
 	char buf[PATH_MAX];
 
 	startup();
 	killdir();
-	if (getcwd(buf, sizeof(buf))==NULL) {
+	if (getcwd(buf, sizeof(buf)) == NULL) {
 		switch (errno) {
-		    case EINVAL:
-		    case EIO:
-		    case ENOENT:
+		case EINVAL:
+		case EIO:
+		case ENOENT:
 			break;
-		    default:
+		default:
 			err(1, "getcwd after removing %s", testdir);
 			break;
 		}
-	}
-	else {
-		errx(1, "getcwd after removing %s: succeeded (got %s)",
-		     testdir, buf);
+	} else {
+		errx(1, "getcwd after removing %s: succeeded (got %s)", testdir, buf);
 	}
 
 	finish();
@@ -388,9 +349,7 @@ test7(void)
 
 /**************************************************************/
 
-int
-main(void)
-{
+int main(void) {
 	test1();
 	test2();
 	test3();

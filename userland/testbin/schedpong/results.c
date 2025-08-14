@@ -44,14 +44,12 @@ static int resultsfile = -1;
  * Create the file that the timing results are written to.
  * This is done first, in the main process.
  */
-void
-createresultsfile(void)
-{
+void createresultsfile(void) {
 	int fd;
 
 	assert(resultsfile == -1);
 
-	fd = open(RESULTSFILE, O_RDWR|O_CREAT|O_TRUNC, 0664);
+	fd = open(RESULTSFILE, O_RDWR | O_CREAT | O_TRUNC, 0664);
 	if (fd < 0) {
 		err(1, "%s", RESULTSFILE);
 	}
@@ -64,9 +62,7 @@ createresultsfile(void)
  * Remove the timing results file.
  * This is done last, in the main process.
  */
-void
-destroyresultsfile(void)
-{
+void destroyresultsfile(void) {
 	if (remove(RESULTSFILE) == -1) {
 		if (errno != ENOSYS) {
 			warn("%s: remove", RESULTSFILE);
@@ -80,9 +76,7 @@ destroyresultsfile(void)
  * then require extra semaphoring to coordinate...) and afterwards
  * done for reading in the main process.
  */
-void
-openresultsfile(int openflags)
-{
+void openresultsfile(int openflags) {
 	assert(openflags == O_RDONLY || openflags == O_WRONLY);
 	assert(resultsfile == -1);
 
@@ -95,9 +89,7 @@ openresultsfile(int openflags)
 /*
  * Close the timing results file.
  */
-void
-closeresultsfile(void)
-{
+void closeresultsfile(void) {
 	assert(resultsfile >= 0);
 
 	if (close(resultsfile) == -1) {
@@ -109,9 +101,7 @@ closeresultsfile(void)
 /*
  * Write a result into the timing results file.
  */
-void
-putresult(unsigned groupid, time_t secs, unsigned long nsecs)
-{
+void putresult(unsigned groupid, time_t secs, unsigned long nsecs) {
 	off_t pos;
 	ssize_t r;
 
@@ -140,9 +130,7 @@ putresult(unsigned groupid, time_t secs, unsigned long nsecs)
 /*
  * Read a result from the timing results file.
  */
-void
-getresult(unsigned groupid, time_t *secs, unsigned long *nsecs)
-{
+void getresult(unsigned groupid, time_t *secs, unsigned long *nsecs) {
 	off_t pos;
 	ssize_t r;
 

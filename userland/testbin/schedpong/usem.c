@@ -41,16 +41,14 @@
 
 #include "usem.h"
 
-void
-usem_init(struct usem *sem, const char *namefmt, ...)
-{
+void usem_init(struct usem *sem, const char *namefmt, ...) {
 	va_list ap;
 
 	va_start(ap, namefmt);
 	vsnprintf(sem->name, sizeof(sem->name), namefmt, ap);
 	va_end(ap);
 
-	sem->fd = open(sem->name, O_RDWR|O_CREAT|O_TRUNC, 0664);
+	sem->fd = open(sem->name, O_RDWR | O_CREAT | O_TRUNC, 0664);
 	if (sem->fd < 0) {
 		err(1, "%s: create", sem->name);
 	}
@@ -58,32 +56,22 @@ usem_init(struct usem *sem, const char *namefmt, ...)
 	sem->fd = -1;
 }
 
-void
-usem_open(struct usem *sem)
-{
+void usem_open(struct usem *sem) {
 	sem->fd = open(sem->name, O_RDWR);
 	if (sem->fd < 0) {
 		err(1, "%s: open", sem->name);
 	}
 }
 
-void
-usem_close(struct usem *sem)
-{
+void usem_close(struct usem *sem) {
 	if (close(sem->fd) == -1) {
 		warn("%s: close", sem->name);
 	}
 }
 
-void
-usem_cleanup(struct usem *sem)
-{
-	(void)remove(sem->name);
-}
+void usem_cleanup(struct usem *sem) { (void)remove(sem->name); }
 
-void
-Pn(struct usem *sem, unsigned count)
-{
+void Pn(struct usem *sem, unsigned count) {
 	ssize_t r;
 	char c[count];
 
@@ -96,15 +84,9 @@ Pn(struct usem *sem, unsigned count)
 	}
 }
 
-void
-P(struct usem *sem)
-{
-	Pn(sem, 1);
-}
+void P(struct usem *sem) { Pn(sem, 1); }
 
-void
-Vn(struct usem *sem, unsigned count)
-{
+void Vn(struct usem *sem, unsigned count) {
 	ssize_t r;
 	char c[count];
 
@@ -120,8 +102,4 @@ Vn(struct usem *sem, unsigned count)
 	}
 }
 
-void
-V(struct usem *sem)
-{
-	Vn(sem, 1);
-}
+void V(struct usem *sem) { Vn(sem, 1); }

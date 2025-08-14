@@ -33,10 +33,7 @@
 
 #include "extern.h"
 
-static
-void
-randchar(char *c)
-{
+static void randchar(char *c) {
 #if RAND_MAX != 0x7fffffff
 #error "This code assumes RAND_MAX is 0x7fffffff"
 #endif
@@ -50,7 +47,7 @@ randchar(char *c)
 	*c = 0;
 
 	while (ct < CHAR_BIT) {
-		if (lnum==0) {
+		if (lnum == 0) {
 			lbits = random();
 			lnum = 31;
 		}
@@ -66,53 +63,39 @@ randchar(char *c)
 	}
 }
 
-static
-void
-fillrand(void *p, size_t len)
-{
+static void fillrand(void *p, size_t len) {
 	size_t i;
 	char *cp = p;
-	for (i=0; i<len; i++) {
+	for (i = 0; i < len; i++) {
 		randchar(&cp[i]);
 	}
 }
 
-void *
-randptr(void)
-{
+void *randptr(void) {
 	void *x;
 	fillrand(&x, sizeof(x));
 	return x;
 }
 
-int
-randint(void)
-{
+int randint(void) {
 	int x;
 	fillrand(&x, sizeof(x));
 	return x;
 }
 
-off_t
-randoff(void)
-{
+off_t randoff(void) {
 	off_t x;
 	fillrand(&x, sizeof(x));
 	return x;
 }
 
-size_t
-randsize(void)
-{
+size_t randsize(void) {
 	size_t x;
 	fillrand(&x, sizeof(x));
 	return x;
 }
 
-static
-void
-usage(void)
-{
+static void usage(void) {
 	printf("Usage: randcall [-f] [-c count] [-r seed] 2|3|4|all\n");
 	printf("   -f   suppress forking\n");
 	printf("   -c   set iteration count (default 100)\n");
@@ -120,39 +103,32 @@ usage(void)
 	exit(1);
 }
 
-int
-main(int argc, char *argv[])
-{
-	int count=100, seed = 0, dofork = 1;
+int main(int argc, char *argv[]) {
+	int count = 100, seed = 0, dofork = 1;
 	int an, i;
 
-	for (i=1; i<argc; i++) {
+	for (i = 1; i < argc; i++) {
 		if (!strcmp(argv[i], "-f")) {
 			dofork = 0;
-		}
-		else if (!strcmp(argv[i], "-c") && i<argc-1) {
+		} else if (!strcmp(argv[i], "-c") && i < argc - 1) {
 			count = atoi(argv[++i]);
-		}
-		else if (!strcmp(argv[i], "-r") && i<argc-1) {
+		} else if (!strcmp(argv[i], "-r") && i < argc - 1) {
 			seed = atoi(argv[++i]);
-		}
-		else if (argv[i][0] == '-') {
+		} else if (argv[i][0] == '-') {
 			usage();
-		}
-		else {
+		} else {
 			break;
 		}
 	}
-	if (i != argc-1) {
+	if (i != argc - 1) {
 		usage();
 	}
 
 	if (!strcmp(argv[i], "all")) {
 		an = 5;
-	}
-	else {
+	} else {
 		an = atoi(argv[i]);
-		if (an <2 || an > 4) {
+		if (an < 2 || an > 4) {
 			usage();
 		}
 	}

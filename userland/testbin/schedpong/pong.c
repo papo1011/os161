@@ -55,29 +55,25 @@ static unsigned nsems;
  * that way each task process has its own file handles and they don't
  * interfere with each other if file handle locking isn't so great.
  */
-void
-pong_prep(unsigned groupid, unsigned count)
-{
+void pong_prep(unsigned groupid, unsigned count) {
 	unsigned i;
 
 	if (count > MAXCOUNT) {
 		err(1, "pong: too many pongers -- recompile pong.c");
 	}
-	for (i=0; i<count; i++) {
+	for (i = 0; i < count; i++) {
 		usem_init(&sems[i], "sem:pong-%u-%u", groupid, i);
 	}
 	nsems = count;
 }
 
-void
-pong_cleanup(unsigned groupid, unsigned count)
-{
+void pong_cleanup(unsigned groupid, unsigned count) {
 	unsigned i;
 
 	assert(nsems == count);
 	(void)groupid;
-	
-	for (i=0; i<count; i++) {
+
+	for (i = 0; i < count; i++) {
 		usem_cleanup(&sems[i]);
 	}
 }
@@ -87,15 +83,12 @@ pong_cleanup(unsigned groupid, unsigned count)
  * If we're id 0, don't wait the first go so things start, but do
  * wait the last go.
  */
-static
-void
-pong_cyclic(unsigned id)
-{
+static void pong_cyclic(unsigned id) {
 	unsigned i;
 	unsigned nextid;
 
 	nextid = (id + 1) % nsems;
-	for (i=0; i<PONGLOOPS; i++) {
+	for (i = 0; i < PONGLOOPS; i++) {
 		if (i > 0 || id > 0) {
 			P(&sems[id]);
 		}
@@ -124,10 +117,7 @@ pong_cyclic(unsigned id)
  * Pong back and forth. This runs the tasks with middle numbers more
  * often.
  */
-static
-void
-pong_reciprocating(unsigned id)
-{
+static void pong_reciprocating(unsigned id) {
 	unsigned i, n;
 	unsigned nextfwd, nextback;
 	unsigned gofwd = 1;
@@ -135,18 +125,16 @@ pong_reciprocating(unsigned id)
 	if (id == 0) {
 		nextfwd = nextback = 1;
 		n = PONGLOOPS;
-	}
-	else if (id == nsems - 1) {
+	} else if (id == nsems - 1) {
 		nextfwd = nextback = nsems - 2;
 		n = PONGLOOPS;
-	}
-	else {
+	} else {
 		nextfwd = id + 1;
 		nextback = id - 1;
 		n = PONGLOOPS * 2;
 	}
 
-	for (i=0; i<n; i++) {
+	for (i = 0; i < n; i++) {
 		if (i > 0 || id > 0) {
 			P(&sems[id]);
 		}
@@ -160,8 +148,7 @@ pong_reciprocating(unsigned id)
 		if (gofwd) {
 			V(&sems[nextfwd]);
 			gofwd = 0;
-		}
-		else {
+		} else {
 			V(&sems[nextback]);
 			gofwd = 1;
 		}
@@ -181,9 +168,7 @@ pong_reciprocating(unsigned id)
 /*
  * Do the pong thing.
  */
-void
-pong(unsigned groupid, unsigned id)
-{
+void pong(unsigned groupid, unsigned id) {
 	unsigned idfwd, idback;
 
 	(void)groupid;

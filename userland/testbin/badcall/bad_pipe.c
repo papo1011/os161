@@ -43,10 +43,7 @@
 #include "config.h"
 #include "test.h"
 
-static
-void
-pipe_badptr(void *ptr, const char *desc)
-{
+static void pipe_badptr(void *ptr, const char *desc) {
 	int rv;
 
 	report_begin("%s", desc);
@@ -54,10 +51,7 @@ pipe_badptr(void *ptr, const char *desc)
 	report_check(rv, errno, EFAULT);
 }
 
-static
-void
-pipe_unaligned(void)
-{
+static void pipe_unaligned(void) {
 	int fds[3], rv;
 	char *ptr;
 
@@ -69,15 +63,13 @@ pipe_unaligned(void)
 	rv = pipe((int *)ptr);
 	report_survival(rv, errno);
 	if (rv == 0) {
-		memmove(fds, ptr, 2*sizeof(int));
+		memmove(fds, ptr, 2 * sizeof(int));
 		close(fds[0]);
 		close(fds[1]);
 	}
 }
 
-void
-test_pipe(void)
-{
+void test_pipe(void) {
 	pipe_badptr(NULL, "pipe with NULL pointer");
 	pipe_badptr(INVAL_PTR, "pipe with invalid pointer");
 	pipe_badptr(KERN_PTR, "pipe with kernel pointer");

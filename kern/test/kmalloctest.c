@@ -54,26 +54,22 @@
  * threads at once.
  */
 
-#define NTRIES   1200
-#define ITEMSIZE  997
-#define NTHREADS  8
+#define NTRIES 1200
+#define ITEMSIZE 997
+#define NTHREADS 8
 
-static
-void
-kmallocthread(void *sm, unsigned long num)
-{
+static void kmallocthread(void *sm, unsigned long num) {
 	struct semaphore *sem = sm;
 	void *ptr;
-	void *oldptr=NULL;
-	void *oldptr2=NULL;
+	void *oldptr = NULL;
+	void *oldptr2 = NULL;
 	int i;
 
-	for (i=0; i<NTRIES; i++) {
+	for (i = 0; i < NTRIES; i++) {
 		ptr = kmalloc(ITEMSIZE);
-		if (ptr==NULL) {
+		if (ptr == NULL) {
 			if (sem) {
-				kprintf("thread %lu: kmalloc returned NULL\n",
-					num);
+				kprintf("thread %lu: kmalloc returned NULL\n", num);
 				goto done;
 			}
 			kprintf("kmalloc returned null; test failed.\n");
@@ -97,9 +93,7 @@ done:
 	}
 }
 
-int
-kmalloctest(int nargs, char **args)
-{
+int kmalloctest(int nargs, char **args) {
 	(void)nargs;
 	(void)args;
 
@@ -110,9 +104,7 @@ kmalloctest(int nargs, char **args)
 	return 0;
 }
 
-int
-kmallocstress(int nargs, char **args)
-{
+int kmallocstress(int nargs, char **args) {
 	struct semaphore *sem;
 	int i, result;
 
@@ -126,16 +118,14 @@ kmallocstress(int nargs, char **args)
 
 	kprintf("Starting kmalloc stress test...\n");
 
-	for (i=0; i<NTHREADS; i++) {
-		result = thread_fork("kmallocstress", NULL,
-				     kmallocthread, sem, i);
+	for (i = 0; i < NTHREADS; i++) {
+		result = thread_fork("kmallocstress", NULL, kmallocthread, sem, i);
 		if (result) {
-			panic("kmallocstress: thread_fork failed: %s\n",
-			      strerror(result));
+			panic("kmallocstress: thread_fork failed: %s\n", strerror(result));
 		}
 	}
 
-	for (i=0; i<NTHREADS; i++) {
+	for (i = 0; i < NTHREADS; i++) {
 		P(sem);
 	}
 
@@ -169,11 +159,9 @@ kmallocstress(int nargs, char **args)
  * Having set this up, the test just allocates and then frees all the
  * pointers in order, setting and checking the contents.
  */
-int
-kmalloctest3(int nargs, char **args)
-{
+int kmalloctest3(int nargs, char **args) {
 #define NUM_KM3_SIZES 5
-	static const unsigned sizes[NUM_KM3_SIZES] = { 32, 41, 109, 86, 9 };
+	static const unsigned sizes[NUM_KM3_SIZES] = {32, 41, 109, 86, 9};
 	unsigned numptrs;
 	size_t ptrspace;
 	size_t blocksize;
@@ -197,8 +185,8 @@ kmalloctest3(int nargs, char **args)
 	blocksize = PAGE_SIZE / 4;
 	numptrblocks = DIVROUNDUP(ptrspace, blocksize);
 
-	kprintf("kmalloctest3: %u objects, %u pointer blocks\n",
-		numptrs, numptrblocks);
+	kprintf("kmalloctest3: %u objects, %u pointer blocks\n", numptrs,
+			numptrblocks);
 
 	/* Allocate the upper tier. */
 	ptrblocks = kmalloc(numptrblocks * sizeof(ptrblocks[0]));
@@ -206,7 +194,7 @@ kmalloctest3(int nargs, char **args)
 		panic("kmalloctest3: failed on pointer block array\n");
 	}
 	/* Allocate the lower tier. */
-	for (i=0; i<numptrblocks; i++) {
+	for (i = 0; i < numptrblocks; i++) {
 		ptrblocks[i] = kmalloc(blocksize);
 		if (ptrblocks[i] == NULL) {
 			panic("kmalloctest3: failed on pointer block %u\n", i);
@@ -218,20 +206,19 @@ kmalloctest3(int nargs, char **args)
 	curpos = 0;
 	cursizeindex = 0;
 	totalsize = 0;
-	for (i=0; i<numptrs; i++) {
+	for (i = 0; i < numptrs; i++) {
 		cursize = sizes[cursizeindex];
 		ptr = kmalloc(cursize);
 		if (ptr == NULL) {
-			kprintf("kmalloctest3: failed on object %u size %u\n",
-				i, cursize);
-			kprintf("kmalloctest3: pos %u in pointer block %u\n",
-				curpos, curblock);
+			kprintf("kmalloctest3: failed on object %u size %u\n", i, cursize);
+			kprintf("kmalloctest3: pos %u in pointer block %u\n", curpos,
+					curblock);
 			kprintf("kmalloctest3: total so far %zu\n", totalsize);
 			panic("kmalloctest3: failed.\n");
 		}
 		/* Fill the object with its number. */
-		for (j=0; j<cursize; j++) {
-			ptr[j] = (unsigned char) i;
+		for (j = 0; j < cursize; j++) {
+			ptr[j] = (unsigned char)i;
 		}
 		/* Move to the next slot in the tree. */
 		ptrblocks[curblock][curpos] = ptr;
@@ -251,21 +238,20 @@ kmalloctest3(int nargs, char **args)
 	curblock = 0;
 	curpos = 0;
 	cursizeindex = 0;
-	for (i=0; i<numptrs; i++) {
+	for (i = 0; i < numptrs; i++) {
 		cursize = sizes[cursizeindex];
 		ptr = ptrblocks[curblock][curpos];
 		KASSERT(ptr != NULL);
-		for (j=0; j<cursize; j++) {
-			if (ptr[j] == (unsigned char) i) {
+		for (j = 0; j < cursize; j++) {
+			if (ptr[j] == (unsigned char)i) {
 				continue;
 			}
-			kprintf("kmalloctest3: failed on object %u size %u\n",
-				i, cursize);
-			kprintf("kmalloctest3: pos %u in pointer block %u\n",
-				curpos, curblock);
+			kprintf("kmalloctest3: failed on object %u size %u\n", i, cursize);
+			kprintf("kmalloctest3: pos %u in pointer block %u\n", curpos,
+					curblock);
 			kprintf("kmalloctest3: at object offset %u\n", j);
-			kprintf("kmalloctest3: expected 0x%x, found 0x%x\n",
-				ptr[j], (unsigned char) i);
+			kprintf("kmalloctest3: expected 0x%x, found 0x%x\n", ptr[j],
+					(unsigned char)i);
 			panic("kmalloctest3: failed.\n");
 		}
 		kfree(ptr);
@@ -281,7 +267,7 @@ kmalloctest3(int nargs, char **args)
 	KASSERT(totalsize == 0);
 
 	/* Free the lower tier. */
-	for (i=0; i<numptrblocks; i++) {
+	for (i = 0; i < numptrblocks; i++) {
 		KASSERT(ptrblocks[i] != NULL);
 		kfree(ptrblocks[i]);
 	}
@@ -295,25 +281,22 @@ kmalloctest3(int nargs, char **args)
 ////////////////////////////////////////////////////////////
 // km4
 
-static
-void
-kmalloctest4thread(void *sm, unsigned long num)
-{
+static void kmalloctest4thread(void *sm, unsigned long num) {
 #define NUM_KM4_SIZES 5
-	static const unsigned sizes[NUM_KM4_SIZES] = { 1, 3, 5, 2, 4 };
+	static const unsigned sizes[NUM_KM4_SIZES] = {1, 3, 5, 2, 4};
 
 	struct semaphore *sem = sm;
 	void *ptrs[NUM_KM4_SIZES];
 	unsigned p, q;
 	unsigned i;
 
-	for (i=0; i<NUM_KM4_SIZES; i++) {
+	for (i = 0; i < NUM_KM4_SIZES; i++) {
 		ptrs[i] = NULL;
 	}
 	p = 0;
 	q = NUM_KM4_SIZES / 2;
 
-	for (i=0; i<NTRIES; i++) {
+	for (i = 0; i < NTRIES; i++) {
 		if (ptrs[q] != NULL) {
 			kfree(ptrs[q]);
 			ptrs[q] = NULL;
@@ -321,14 +304,14 @@ kmalloctest4thread(void *sm, unsigned long num)
 		ptrs[p] = kmalloc(sizes[p] * PAGE_SIZE);
 		if (ptrs[p] == NULL) {
 			panic("kmalloctest4: thread %lu: "
-			      "allocating %u pages failed\n",
-			      num, sizes[p]);
+				  "allocating %u pages failed\n",
+				  num, sizes[p]);
 		}
 		p = (p + 1) % NUM_KM4_SIZES;
 		q = (q + 1) % NUM_KM4_SIZES;
 	}
 
-	for (i=0; i<NUM_KM4_SIZES; i++) {
+	for (i = 0; i < NUM_KM4_SIZES; i++) {
 		if (ptrs[i] != NULL) {
 			kfree(ptrs[i]);
 		}
@@ -337,9 +320,7 @@ kmalloctest4thread(void *sm, unsigned long num)
 	V(sem);
 }
 
-int
-kmalloctest4(int nargs, char **args)
-{
+int kmalloctest4(int nargs, char **args) {
 	struct semaphore *sem;
 	unsigned nthreads;
 	unsigned i;
@@ -359,18 +340,16 @@ kmalloctest4(int nargs, char **args)
 	}
 
 	/* use 6 instead of 8 threads */
-	nthreads = (3*NTHREADS)/4;
+	nthreads = (3 * NTHREADS) / 4;
 
-	for (i=0; i<nthreads; i++) {
-		result = thread_fork("kmalloctest4", NULL,
-				     kmalloctest4thread, sem, i);
+	for (i = 0; i < nthreads; i++) {
+		result = thread_fork("kmalloctest4", NULL, kmalloctest4thread, sem, i);
 		if (result) {
-			panic("kmallocstress: thread_fork failed: %s\n",
-			      strerror(result));
+			panic("kmallocstress: thread_fork failed: %s\n", strerror(result));
 		}
 	}
 
-	for (i=0; i<nthreads; i++) {
+	for (i = 0; i < nthreads; i++) {
 		P(sem);
 	}
 

@@ -48,10 +48,7 @@
  *
  * We reject O_APPEND.
  */
-static
-int
-dev_eachopen(struct vnode *v, int flags)
-{
+static int dev_eachopen(struct vnode *v, int flags) {
 	struct device *d = v->vn_data;
 
 	if (flags & (O_CREAT | O_TRUNC | O_EXCL | O_APPEND)) {
@@ -65,10 +62,7 @@ dev_eachopen(struct vnode *v, int flags)
  * Called when the vnode refcount reaches zero.
  * Do nothing; devices are permanent.
  */
-static
-int
-dev_reclaim(struct vnode *v)
-{
+static int dev_reclaim(struct vnode *v) {
 	(void)v;
 	/* nothing - device continues to exist even when not in use */
 	return 0;
@@ -81,12 +75,9 @@ dev_reclaim(struct vnode *v)
  * For character devices, we should prohibit seeking entirely, but
  * for the moment we need to accept any position. (XXX)
  */
-static
-int
-dev_tryseek(struct device *d, off_t pos)
-{
+static int dev_tryseek(struct device *d, off_t pos) {
 	if (d->d_blocks > 0) {
-		if ((pos % d->d_blocksize)!=0) {
+		if ((pos % d->d_blocksize) != 0) {
 			/* not block-aligned */
 			return EINVAL;
 		}
@@ -94,8 +85,7 @@ dev_tryseek(struct device *d, off_t pos)
 			/* off the end */
 			return EINVAL;
 		}
-	}
-	else {
+	} else {
 		//return ESPIPE;
 	}
 	return 0;
@@ -104,10 +94,7 @@ dev_tryseek(struct device *d, off_t pos)
 /*
  * Called for read. Hand off to DEVOP_IO.
  */
-static
-int
-dev_read(struct vnode *v, struct uio *uio)
-{
+static int dev_read(struct vnode *v, struct uio *uio) {
 	struct device *d = v->vn_data;
 	int result;
 
@@ -123,10 +110,7 @@ dev_read(struct vnode *v, struct uio *uio)
 /*
  * Called for write. Hand off to DEVOP_IO.
  */
-static
-int
-dev_write(struct vnode *v, struct uio *uio)
-{
+static int dev_write(struct vnode *v, struct uio *uio) {
 	struct device *d = v->vn_data;
 	int result;
 
@@ -142,10 +126,7 @@ dev_write(struct vnode *v, struct uio *uio)
 /*
  * Called for ioctl(). Just pass through.
  */
-static
-int
-dev_ioctl(struct vnode *v, int op, userptr_t data)
-{
+static int dev_ioctl(struct vnode *v, int op, userptr_t data) {
 	struct device *d = v->vn_data;
 	return DEVOP_IOCTL(d, op, data);
 }
@@ -155,10 +136,7 @@ dev_ioctl(struct vnode *v, int op, userptr_t data)
  * Set the type and the size (block devices only).
  * The link count for a device is always 1.
  */
-static
-int
-dev_stat(struct vnode *v, struct stat *statbuf)
-{
+static int dev_stat(struct vnode *v, struct stat *statbuf) {
 	struct device *d = v->vn_data;
 	int result;
 
@@ -167,8 +145,7 @@ dev_stat(struct vnode *v, struct stat *statbuf)
 	if (d->d_blocks > 0) {
 		statbuf->st_size = d->d_blocks * d->d_blocksize;
 		statbuf->st_blksize = d->d_blocksize;
-	}
-	else {
+	} else {
 		statbuf->st_size = 0;
 	}
 
@@ -196,15 +173,11 @@ dev_stat(struct vnode *v, struct stat *statbuf)
  * length. A device that generates data in a stream is a "character
  * device".
  */
-static
-int
-dev_gettype(struct vnode *v, mode_t *ret)
-{
+static int dev_gettype(struct vnode *v, mode_t *ret) {
 	struct device *d = v->vn_data;
 	if (d->d_blocks > 0) {
 		*ret = S_IFBLK;
-	}
-	else {
+	} else {
 		*ret = S_IFCHR;
 	}
 	return 0;
@@ -213,10 +186,7 @@ dev_gettype(struct vnode *v, mode_t *ret)
 /*
  * Check if seeking is allowed.
  */
-static
-bool
-dev_isseekable(struct vnode *v)
-{
+static bool dev_isseekable(struct vnode *v) {
 	struct device *d = v->vn_data;
 
 	if (d->d_blocks == 0) {
@@ -228,10 +198,7 @@ dev_isseekable(struct vnode *v)
 /*
  * For fsync() - meaningless, do nothing.
  */
-static
-int
-null_fsync(struct vnode *v)
-{
+static int null_fsync(struct vnode *v) {
 	(void)v;
 	return 0;
 }
@@ -240,10 +207,7 @@ null_fsync(struct vnode *v)
  * For mmap. If you want this to do anything, you have to write it
  * yourself. Some devices may not make sense to map. Others do.
  */
-static
-int
-dev_mmap(struct vnode *v  /* add stuff as needed */)
-{
+static int dev_mmap(struct vnode *v /* add stuff as needed */) {
 	(void)v;
 	return ENOSYS;
 }
@@ -251,16 +215,13 @@ dev_mmap(struct vnode *v  /* add stuff as needed */)
 /*
  * For ftruncate().
  */
-static
-int
-dev_truncate(struct vnode *v, off_t len)
-{
+static int dev_truncate(struct vnode *v, off_t len) {
 	struct device *d = v->vn_data;
 
 	/*
 	 * Allow truncating to the object's own size, if it has one.
 	 */
-	if (d->d_blocks > 0 && (off_t)(d->d_blocks*d->d_blocksize) == len) {
+	if (d->d_blocks > 0 && (off_t)(d->d_blocks * d->d_blocksize) == len) {
 		return 0;
 	}
 
@@ -273,10 +234,7 @@ dev_truncate(struct vnode *v, off_t len)
  * This should never be reached, as it's not possible to chdir to a
  * device vnode.
  */
-static
-int
-dev_namefile(struct vnode *v, struct uio *uio)
-{
+static int dev_namefile(struct vnode *v, struct uio *uio) {
 	/*
 	 * The name of a device is always just "device:". The VFS
 	 * layer puts in the device name for us, so we don't need to
@@ -301,17 +259,14 @@ dev_namefile(struct vnode *v, struct uio *uio)
  *
  * However, we have no support for this in the base system.
  */
-static
-int
-dev_lookup(struct vnode *dir,
-	   char *pathname, struct vnode **result)
-{
+static int dev_lookup(struct vnode *dir, char *pathname,
+					  struct vnode **result) {
 	/*
 	 * If the path was "device:", we get "". For that, return self.
 	 * Anything else is an error.
 	 * Increment the ref count of the vnode before returning it.
 	 */
-	if (strlen(pathname)>0) {
+	if (strlen(pathname) > 0) {
 		return ENOENT;
 	}
 	VOP_INCREF(dir);
@@ -353,21 +308,19 @@ static const struct vnode_ops dev_vnode_ops = {
 /*
  * Function to create a vnode for a VFS device.
  */
-struct vnode *
-dev_create_vnode(struct device *dev)
-{
+struct vnode *dev_create_vnode(struct device *dev) {
 	int result;
 	struct vnode *v;
 
 	v = kmalloc(sizeof(struct vnode));
-	if (v==NULL) {
+	if (v == NULL) {
 		return NULL;
 	}
 
 	result = vnode_init(v, &dev_vnode_ops, NULL, dev);
 	if (result != 0) {
 		panic("While creating vnode for device: vnode_init: %s\n",
-		      strerror(result));
+			  strerror(result));
 	}
 
 	return v;
@@ -379,9 +332,7 @@ dev_create_vnode(struct device *dev)
  * Note: this is only used in failure paths; we don't support
  * hotpluggable devices, so once a device is attached it's permanent.
  */
-void
-dev_uncreate_vnode(struct vnode *vn)
-{
+void dev_uncreate_vnode(struct vnode *vn) {
 	KASSERT(vn->vn_ops == &dev_vnode_ops);
 	vnode_cleanup(vn);
 	kfree(vn);

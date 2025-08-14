@@ -40,10 +40,7 @@
 /*
  * comparison functions for qsort
  */
-static
-int
-uintcmp(const void *av, const void *bv)
-{
+static int uintcmp(const void *av, const void *bv) {
 	unsigned a = *(const unsigned *)av;
 	unsigned b = *(const unsigned *)bv;
 
@@ -56,10 +53,7 @@ uintcmp(const void *av, const void *bv)
 	return 0;
 }
 
-static
-int
-altcmp(const void *av, const void *bv)
-{
+static int altcmp(const void *av, const void *bv) {
 	unsigned a = *(const unsigned *)av;
 	unsigned b = *(const unsigned *)bv;
 	unsigned ax = (a & 0xffff0000) >> 16;
@@ -104,32 +98,26 @@ shuffle(unsigned *p, unsigned n)
 /*
  * Compute first differences.
  */
-static
-void
-diffs(unsigned *p, unsigned n)
-{
+static void diffs(unsigned *p, unsigned n) {
 	unsigned p0;
 	unsigned i;
 
 	p0 = p[0];
 
-	for (i=0; i<n-1; i++) {
-		p[i] = p[i] - p[i+1];
+	for (i = 0; i < n - 1; i++) {
+		p[i] = p[i] - p[i + 1];
 	}
-	p[n-1] = p[n-1] - p0;
+	p[n - 1] = p[n - 1] - p0;
 }
 
 /*
  * Take the sum.
  */
-static
-unsigned
-sum(const unsigned *p, unsigned n)
-{
+static unsigned sum(const unsigned *p, unsigned n) {
 	unsigned t, i;
 
 	t = 0;
-	for (i=0; i<n; i++) {
+	for (i = 0; i < n; i++) {
 		t += p[i];
 	}
 	return t;
@@ -140,9 +128,7 @@ sum(const unsigned *p, unsigned n)
  *
  * Note that this won't work until you have a VM system.
  */
-void
-grind(unsigned groupid, unsigned id)
-{
+void grind(unsigned groupid, unsigned id) {
 	unsigned *p;
 	unsigned i, n, s;
 
@@ -151,7 +137,7 @@ grind(unsigned groupid, unsigned id)
 	waitstart();
 
 	/* each grind task uses 768K */
-	n = (768*1024) / sizeof(*p);
+	n = (768 * 1024) / sizeof(*p);
 	p = malloc(n * sizeof(*p));
 	if (p == NULL) {
 		if (errno == ENOSYS) {
@@ -168,7 +154,7 @@ grind(unsigned groupid, unsigned id)
 	/* First, get some random integers. */
 	warnx("grind %u: seeding", id);
 	srandom(1753);
-	for (i=0; i<n; i++) {
+	for (i = 0; i < n; i++) {
 		p[i] = random();
 	}
 

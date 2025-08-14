@@ -43,14 +43,12 @@
  * C standard string function: find rightmost instance of a character
  * in a string.
  */
-char *
-strrchr(const char *s, int ch_arg)
-{
+char *strrchr(const char *s, int ch_arg) {
 	/* avoid sign-extension problems */
 	const char ch = ch_arg;
 
 	/* start one past the last character INCLUDING NULL TERMINATOR */
-	size_t i = strlen(s)+1;
+	size_t i = strlen(s) + 1;
 
 	/* go from right to left; stop at 0 */
 	while (i > 0) {
@@ -60,7 +58,7 @@ strrchr(const char *s, int ch_arg)
 
 		/* now check the character we're over */
 		if (s[i] == ch) {
-			return (char *)(s+i);
+			return (char *)(s + i);
 		}
 	}
 

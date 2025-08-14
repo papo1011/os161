@@ -43,10 +43,7 @@
 #include "config.h"
 #include "test.h"
 
-static
-void
-mkdir_dot(void)
-{
+static void mkdir_dot(void) {
 	int rv;
 
 	report_begin("mkdir .");
@@ -54,10 +51,7 @@ mkdir_dot(void)
 	report_check(rv, errno, EEXIST);
 }
 
-static
-void
-mkdir_dotdot(void)
-{
+static void mkdir_dotdot(void) {
 	int rv;
 
 	report_begin("mkdir ..");
@@ -65,10 +59,7 @@ mkdir_dotdot(void)
 	report_check(rv, errno, EEXIST);
 }
 
-static
-void
-mkdir_empty(void)
-{
+static void mkdir_empty(void) {
 	int rv;
 
 	report_begin("mkdir of empty string");
@@ -76,9 +67,7 @@ mkdir_empty(void)
 	report_check(rv, errno, EINVAL);
 }
 
-void
-test_mkdir(void)
-{
+void test_mkdir(void) {
 	test_mkdir_path();
 
 	mkdir_dot();

@@ -74,9 +74,7 @@ static const char harvard_copyright[] =
 /*
  * Initial boot sequence.
  */
-static void
-boot(void)
-{
+static void boot(void) {
 	/*
 	 * The order of these is important!
 	 * Don't go changing it without thinking about the consequences.
@@ -141,9 +139,7 @@ boot(void)
 /*
  * Shutdown sequence. Opposite to boot().
  */
-static void
-shutdown(void)
-{
+static void shutdown(void) {
 
 	kprintf("Shutting down.\n");
 
@@ -165,10 +161,8 @@ shutdown(void)
  * not because this is where system call code should go. Other syscall
  * code should probably live in the "syscall" directory.
  */
-int sys_reboot(int code)
-{
-	switch (code)
-	{
+int sys_reboot(int code) {
+	switch (code) {
 	case RB_REBOOT:
 	case RB_HALT:
 	case RB_POWEROFF:
@@ -179,8 +173,7 @@ int sys_reboot(int code)
 
 	shutdown();
 
-	switch (code)
-	{
+	switch (code) {
 	case RB_HALT:
 		kprintf("The system is halted.\n");
 		mainbus_halt();
@@ -203,8 +196,7 @@ int sys_reboot(int code)
  * Kernel main. Boot up, then fork the menu thread; wait for a reboot
  * request, and then shut down.
  */
-void kmain(char *arguments)
-{
+void kmain(char *arguments) {
 	boot();
 
 #if OPT_HELLO

@@ -49,49 +49,42 @@
 #include <assert.h>
 #include <err.h>
 
+#define _PATH_RANDOM "random:"
 
-#define _PATH_RANDOM   "random:"
-
-#define SMALLSIZE   72
-#define MEDIUMSIZE  896
-#define BIGSIZE     16384
-#define HUGESIZE    (1024 * 1024 * 1024)
+#define SMALLSIZE 72
+#define MEDIUMSIZE 896
+#define BIGSIZE 16384
+#define HUGESIZE (1024 * 1024 * 1024)
 
 /* Maximum amount of space per block we allow for indexing structures */
-#define OVERHEAD         32
+#define OVERHEAD 32
 
 /* Point past which we assume something else is going on */
-#define ABSURD_OVERHEAD  256
+#define ABSURD_OVERHEAD 256
 
-static
-int
-geti(void)
-{
-	int val=0;
-	int ch, digits=0;
+static int geti(void) {
+	int val = 0;
+	int ch, digits = 0;
 
 	while (1) {
 		ch = getchar();
-		if (ch=='\n' || ch=='\r') {
+		if (ch == '\n' || ch == '\r') {
 			putchar('\n');
 			break;
-		}
-		else if ((ch=='\b' || ch==127) && digits>0) {
+		} else if ((ch == '\b' || ch == 127) && digits > 0) {
 			printf("\b \b");
-			val = val/10;
+			val = val / 10;
 			digits--;
-		}
-		else if (ch>='0' && ch<='9') {
+		} else if (ch >= '0' && ch <= '9') {
 			putchar(ch);
-			val = val*10 + (ch-'0');
+			val = val * 10 + (ch - '0');
 			digits++;
-		}
-		else {
+		} else {
 			putchar('\a');
 		}
 	}
 
-	if (digits==0) {
+	if (digits == 0) {
 		return -1;
 	}
 	return val;
@@ -102,10 +95,8 @@ geti(void)
 /*
  * Fill a block of memory with a test pattern.
  */
-static
-void
-markblock(volatile void *ptr, size_t size, unsigned bias, int doprint)
-{
+static void markblock(volatile void *ptr, size_t size, unsigned bias,
+					  int doprint) {
 	size_t n, i;
 	unsigned long *pl;
 	unsigned long val;
@@ -113,10 +104,10 @@ markblock(volatile void *ptr, size_t size, unsigned bias, int doprint)
 	pl = (unsigned long *)ptr;
 	n = size / sizeof(unsigned long);
 
-	for (i=0; i<n; i++) {
+	for (i = 0; i < n; i++) {
 		val = ((unsigned long)i ^ (unsigned long)bias);
 		pl[i] = val;
-		if (doprint && (i%64==63)) {
+		if (doprint && (i % 64 == 63)) {
 			printf(".");
 		}
 	}
@@ -128,10 +119,8 @@ markblock(volatile void *ptr, size_t size, unsigned bias, int doprint)
 /*
  * Check a block marked with markblock()
  */
-static
-int
-checkblock(volatile void *ptr, size_t size, unsigned bias, int doprint)
-{
+static int checkblock(volatile void *ptr, size_t size, unsigned bias,
+					  int doprint) {
 	size_t n, i;
 	unsigned long *pl;
 	unsigned long val;
@@ -139,20 +128,19 @@ checkblock(volatile void *ptr, size_t size, unsigned bias, int doprint)
 	pl = (unsigned long *)ptr;
 	n = size / sizeof(unsigned long);
 
-	for (i=0; i<n; i++) {
+	for (i = 0; i < n; i++) {
 		val = ((unsigned long)i ^ (unsigned long)bias);
 		if (pl[i] != val) {
 			if (doprint) {
 				printf("\n");
 			}
 			printf("FAILED: data mismatch at offset %lu of block "
-			       "at 0x%lx: %lu vs. %lu\n",
-			       (unsigned long) (i*sizeof(unsigned long)),
-			       (unsigned long)(uintptr_t)pl,
-			       pl[i], val);
+				   "at 0x%lx: %lu vs. %lu\n",
+				   (unsigned long)(i * sizeof(unsigned long)),
+				   (unsigned long)(uintptr_t)pl, pl[i], val);
 			return -1;
 		}
-		if (doprint && (i%64==63)) {
+		if (doprint && (i % 64 == 63)) {
 			printf(".");
 		}
 	}
@@ -172,16 +160,13 @@ checkblock(volatile void *ptr, size_t size, unsigned bias, int doprint)
  * allocated.
  */
 
-static
-void
-test1(void)
-{
+static void test1(void) {
 	volatile unsigned *x;
 
 	printf("*** Malloc test 1 ***\n");
 	printf("Allocating %u bytes\n", BIGSIZE);
 	x = malloc(BIGSIZE);
-	if (x==NULL) {
+	if (x == NULL) {
 		printf("FAILED: malloc failed\n");
 		return;
 	}
@@ -196,7 +181,6 @@ test1(void)
 
 	printf("Passed malloc test 1.\n");
 }
-
 
 ////////////////////////////////////////////////////////////
 
@@ -230,23 +214,20 @@ test1(void)
  * available.
  */
 
-static
-void
-test2(void)
-{
+static void test2(void) {
 	volatile unsigned *x;
 	size_t size;
 
 	printf("Entering malloc test 2.\n");
 	printf("Make sure you read and understand the comment in malloctest.c "
-	       "that\nexplains the conditions this test assumes.\n\n");
+		   "that\nexplains the conditions this test assumes.\n\n");
 
 	printf("Testing how much memory we can allocate:\n");
 
-	for (size = HUGESIZE; (x = malloc(size))==NULL; size = size/2) {
-		printf("  %9lu bytes: failed\n", (unsigned long) size);
+	for (size = HUGESIZE; (x = malloc(size)) == NULL; size = size / 2) {
+		printf("  %9lu bytes: failed\n", (unsigned long)size);
 	}
-	printf("  %9lu bytes: succeeded\n", (unsigned long) size);
+	printf("  %9lu bytes: succeeded\n", (unsigned long)size);
 
 	printf("Passed part 1\n");
 
@@ -260,14 +241,13 @@ test2(void)
 	}
 	printf("Passed part 2\n");
 
-
 	printf("Freeing the block\n");
 	free((void *)x);
 	printf("Passed part 3\n");
 	printf("Allocating another block\n");
 
 	x = malloc(size);
-	if (x==NULL) {
+	if (x == NULL) {
 		printf("FAILED: free didn't return the memory?\n");
 		return;
 	}
@@ -275,7 +255,6 @@ test2(void)
 
 	printf("Passed malloc test 2.\n");
 }
-
 
 ////////////////////////////////////////////////////////////
 
@@ -295,18 +274,15 @@ struct test3 {
 	char junk[(SMALLSIZE - sizeof(struct test3 *))];
 };
 
-static
-void
-test3(void)
-{
+static void test3(void) {
 	struct test3 *list = NULL, *tmp;
-	size_t tot=0;
-	int ct=0, failed=0;
+	size_t tot = 0;
+	int ct = 0, failed = 0;
 	void *x;
 
 	printf("Entering malloc test 3.\n");
 	printf("Make sure you read and understand the comment in malloctest.c "
-	       "that\nexplains the conditions this test assumes.\n\n");
+		   "that\nexplains the conditions this test assumes.\n\n");
 
 	printf("Testing how much memory we can allocate:\n");
 
@@ -321,12 +297,12 @@ test3(void)
 		markblock(list->junk, sizeof(list->junk), (uintptr_t)list, 0);
 
 		ct++;
-		if (ct%128==0) {
+		if (ct % 128 == 0) {
 			printf(".");
 		}
 	}
 
-	printf("Allocated %lu bytes\n", (unsigned long) tot);
+	printf("Allocated %lu bytes\n", (unsigned long)tot);
 
 	printf("Trying some more allocations which I expect to fail...\n");
 
@@ -353,8 +329,7 @@ test3(void)
 	while (list != NULL) {
 		tmp = list->next;
 
-		if (checkblock(list->junk, sizeof(list->junk),
-			       (uintptr_t)list, 0)) {
+		if (checkblock(list->junk, sizeof(list->junk), (uintptr_t)list, 0)) {
 			failed = 1;
 		}
 
@@ -390,10 +365,7 @@ test3(void)
  * next-fit/best-fit algorithm is used.
  */
 
-static
-void
-test4(void)
-{
+static void test4(void) {
 	void *x, *y, *z;
 	unsigned long lx, ly, lz, overhead, zsize;
 
@@ -404,13 +376,13 @@ test4(void)
 	printf("Testing free list coalescing:\n");
 
 	x = malloc(SMALLSIZE);
-	if (x==NULL) {
+	if (x == NULL) {
 		printf("FAILED: malloc(%u) failed\n", SMALLSIZE);
 		return;
 	}
 
 	y = malloc(MEDIUMSIZE);
-	if (y==NULL) {
+	if (y == NULL) {
 		printf("FAILED: malloc(%u) failed\n", MEDIUMSIZE);
 		return;
 	}
@@ -493,14 +465,13 @@ test4(void)
 		return;
 	}
 
-	lz = (unsigned long) z;
+	lz = (unsigned long)z;
 
 	printf("z is 0x%lx (x was 0x%lx, y 0x%lx)\n", lz, lx, ly);
 
-	if (lz==lx) {
+	if (lz == lx) {
 		printf("Passed.\n");
-	}
-	else {
+	} else {
 		printf("Failed.\n");
 	}
 
@@ -519,28 +490,25 @@ test4(void)
  * Test 7 asks for a seed.
  */
 
-static
-void
-test567(int testno, unsigned long seed)
-{
-	static const int sizes[8] = { 13, 17, 69, 176, 433, 871, 1150, 6060 };
+static void test567(int testno, unsigned long seed) {
+	static const int sizes[8] = {13, 17, 69, 176, 433, 871, 1150, 6060};
 
 	void *ptrs[32];
 	int psizes[32];
-	int i, n, size, failed=0;
+	int i, n, size, failed = 0;
 
 	srandom(seed);
 	printf("Seeded random number generator with %lu.\n", seed);
 
-	for (i=0; i<32; i++) {
+	for (i = 0; i < 32; i++) {
 		ptrs[i] = NULL;
 		psizes[i] = 0;
 	}
 
-	for (i=0; i<100000; i++) {
-		n = random()%32;
+	for (i = 0; i < 100000; i++) {
+		n = random() % 32;
 		if (ptrs[n] == NULL) {
-			size = sizes[random()%8];
+			size = sizes[random() % 8];
 			ptrs[n] = malloc(size);
 			psizes[n] = size;
 			if (ptrs[n] == NULL) {
@@ -549,8 +517,7 @@ test567(int testno, unsigned long seed)
 				break;
 			}
 			markblock(ptrs[n], size, n, 0);
-		}
-		else {
+		} else {
 			size = psizes[n];
 			if (checkblock(ptrs[n], size, n, 0)) {
 				failed = 1;
@@ -560,13 +527,13 @@ test567(int testno, unsigned long seed)
 			ptrs[n] = NULL;
 			psizes[n] = 0;
 		}
-		if (i%256==0) {
+		if (i % 256 == 0) {
 			printf(".");
 		}
 	}
 	printf("\n");
 
-	for (i=0; i<32; i++) {
+	for (i = 0; i < 32; i++) {
 		if (ptrs[i] != NULL) {
 			free(ptrs[i]);
 		}
@@ -574,24 +541,17 @@ test567(int testno, unsigned long seed)
 
 	if (failed) {
 		printf("FAILED malloc test %d\n", testno);
-	}
-	else {
+	} else {
 		printf("Passed malloc test %d\n", testno);
 	}
 }
 
-static
-void
-test5(void)
-{
+static void test5(void) {
 	printf("Beginning malloc test 5\n");
 	test567(5, 0);
 }
 
-static
-void
-test6(void)
-{
+static void test6(void) {
 	int fd, len;
 	unsigned long seed;
 
@@ -604,8 +564,7 @@ test6(void)
 	len = read(fd, &seed, sizeof(seed));
 	if (len < 0) {
 		err(1, "%s", _PATH_RANDOM);
-	}
-	else if (len < (int)sizeof(seed)) {
+	} else if (len < (int)sizeof(seed)) {
 		errx(1, "%s: Short read", _PATH_RANDOM);
 	}
 	close(fd);
@@ -613,10 +572,7 @@ test6(void)
 	test567(6, seed);
 }
 
-static
-void
-test7(void)
-{
+static void test7(void) {
 	unsigned long seed;
 
 	printf("Beginning malloc test 7\n");
@@ -633,23 +589,18 @@ static struct {
 	int num;
 	const char *desc;
 	void (*func)(void);
-} tests[] = {
-	{ 1, "Simple allocation test", test1 },
-	{ 2, "Allocate all memory in a big chunk", test2 },
-	{ 3, "Allocate all memory in small chunks", test3 },
-	{ 4, "Free list coalescing test (first/next/best-fit only)", test4 },
-	{ 5, "Stress test", test5 },
-	{ 6, "Randomized stress test", test6 },
-	{ 7, "Stress test with particular seed", test7 },
-	{ -1, NULL, NULL }
-};
+} tests[] = {{1, "Simple allocation test", test1},
+			 {2, "Allocate all memory in a big chunk", test2},
+			 {3, "Allocate all memory in small chunks", test3},
+			 {4, "Free list coalescing test (first/next/best-fit only)", test4},
+			 {5, "Stress test", test5},
+			 {6, "Randomized stress test", test6},
+			 {7, "Stress test with particular seed", test7},
+			 {-1, NULL, NULL}};
 
-static
-int
-dotest(int tn)
-{
+static int dotest(int tn) {
 	int i;
-	for (i=0; tests[i].num>=0; i++) {
+	for (i = 0; tests[i].num >= 0; i++) {
 		if (tests[i].num == tn) {
 			tests[i].func();
 			return 0;
@@ -658,13 +609,11 @@ dotest(int tn)
 	return -1;
 }
 
-int
-main(int argc, char *argv[])
-{
-	int i, tn, menu=1;
+int main(int argc, char *argv[]) {
+	int i, tn, menu = 1;
 
 	if (argc > 1) {
-		for (i=1; i<argc; i++) {
+		for (i = 1; i < argc; i++) {
 			dotest(atoi(argv[i]));
 		}
 		return 0;
@@ -672,9 +621,8 @@ main(int argc, char *argv[])
 
 	while (1) {
 		if (menu) {
-			for (i=0; tests[i].num>=0; i++) {
-				printf("  %2d  %s\n", tests[i].num,
-				       tests[i].desc);
+			for (i = 0; tests[i].num >= 0; i++) {
+				printf("  %2d  %s\n", tests[i].num, tests[i].desc);
 			}
 			menu = 0;
 		}
@@ -691,4 +639,3 @@ main(int argc, char *argv[])
 
 	return 0;
 }
-

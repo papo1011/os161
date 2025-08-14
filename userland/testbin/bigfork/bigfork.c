@@ -54,95 +54,72 @@
  */
 #define DIM 64
 
-static int m1[DIM*DIM], m2[DIM*DIM], m3[DIM*DIM], m4[DIM*DIM];
+static int m1[DIM * DIM], m2[DIM * DIM], m3[DIM * DIM], m4[DIM * DIM];
 static const int right[BRANCHES] = {
-	536763422,
-	478946723,
-	375722852,
-	369910585,
-	328220902,
-	62977821,
+	536763422, 478946723, 375722852, 369910585, 328220902, 62977821,
 };
 static unsigned failures;
 
-static
-void
-init(void)
-{
+static void init(void) {
 	unsigned i, j;
 
 	srandom(73771);
-	for (i=0; i<DIM; i++) {
-		for (j=0; j<DIM; j++) {
-			m1[i*DIM+j] = random() % 11 - 5;
+	for (i = 0; i < DIM; i++) {
+		for (j = 0; j < DIM; j++) {
+			m1[i * DIM + j] = random() % 11 - 5;
 		}
 	}
 }
 
-static
-void
-add(int *x, const int *a, const int *b)
-{
+static void add(int *x, const int *a, const int *b) {
 	unsigned i, j;
 
-	for (i=0; i<DIM; i++) {
-		for (j=0; j<DIM; j++) {
-			x[i*DIM+j] = a[i*DIM+j] + b[i*DIM+j];
+	for (i = 0; i < DIM; i++) {
+		for (j = 0; j < DIM; j++) {
+			x[i * DIM + j] = a[i * DIM + j] + b[i * DIM + j];
 		}
 	}
 }
 
-static
-void
-mul(int *x, const int *a, const int *b)
-{
+static void mul(int *x, const int *a, const int *b) {
 	unsigned i, j, k;
 
-	for (i=0; i<DIM; i++) {
-		for (j=0; j<DIM; j++) {
-			x[i*DIM+j] = 0;
-			for (k=0; k<DIM; k++) {
-				x[i*DIM+j] += a[i*DIM+k] * b[k*DIM+j]; 
+	for (i = 0; i < DIM; i++) {
+		for (j = 0; j < DIM; j++) {
+			x[i * DIM + j] = 0;
+			for (k = 0; k < DIM; k++) {
+				x[i * DIM + j] += a[i * DIM + k] * b[k * DIM + j];
 			}
 		}
 	}
 }
 
-static
-void
-scale(int *x, const int *a, int b)
-{
+static void scale(int *x, const int *a, int b) {
 	unsigned i, j;
 
-	for (i=0; i<DIM; i++) {
-		for (j=0; j<DIM; j++) {
-			x[i*DIM+j] = a[i*DIM+j] / b;
+	for (i = 0; i < DIM; i++) {
+		for (j = 0; j < DIM; j++) {
+			x[i * DIM + j] = a[i * DIM + j] / b;
 		}
 	}
 }
 
-static
-void
-grind(void)
-{
+static void grind(void) {
 	/*
 	 * compute: m2 = m1*m1, m3 = m2+m1, m4 = m3*m3, m1 = m4 / 2
 	 */
-	 mul(m2, m1, m1);
-	 add(m3, m2, m1);
-	 mul(m4, m3, m3);
-	 scale(m1, m4, 2);
+	mul(m2, m1, m1);
+	add(m3, m2, m1);
+	mul(m4, m3, m3);
+	scale(m1, m4, 2);
 }
 
-static
-int
-trace(void)
-{
+static int trace(void) {
 	unsigned i;
 	int val = 0;
 
-	for (i=0; i<DIM; i++) {
-		val += m1[i*DIM+i];
+	for (i = 0; i < DIM; i++) {
+		val += m1[i * DIM + i];
 	}
 	while (val < 0) {
 		val += 0x20000000;
@@ -150,10 +127,7 @@ trace(void)
 	return val % 0x20000000;
 }
 
-static
-pid_t
-dofork(void)
-{
+static pid_t dofork(void) {
 	pid_t pid;
 
 	pid = fork();
@@ -163,10 +137,7 @@ dofork(void)
 	return pid;
 }
 
-static
-void
-dowait(pid_t pid)
-{
+static void dowait(pid_t pid) {
 	int status;
 
 	if (pid == -1) {
@@ -175,64 +146,54 @@ dowait(pid_t pid)
 	}
 	if (pid == 0) {
 		exit(failures);
-	}
-	else {
+	} else {
 		if (waitpid(pid, &status, 0) < 0) {
 			warn("waitpid(%d)", pid);
-		}
-		else if (WIFSIGNALED(status)) {
+		} else if (WIFSIGNALED(status)) {
 			warnx("pid %d: signal %d", pid, WTERMSIG(status));
-		}
-		else if (WEXITSTATUS(status) > 0) {
+		} else if (WEXITSTATUS(status) > 0) {
 			failures += WEXITSTATUS(status);
 		}
 	}
 }
 
-static
-void
-dotest(void)
-{
+static void dotest(void) {
 	unsigned i, me;
 	pid_t pids[BRANCHES];
 	int t;
 	char msg[128];
 
 	me = 0;
-	for (i=0; i<BRANCHES; i++) {
+	for (i = 0; i < BRANCHES; i++) {
 		pids[i] = dofork();
 		if (pids[i] == 0) {
-			me += 1U<<i;
+			me += 1U << i;
 		}
 		grind();
 		t = trace();
 		if (t == right[i]) {
+			snprintf(msg, sizeof(msg), "Stage %u #%u done: %d\n", i, me,
+					 trace());
+		} else {
 			snprintf(msg, sizeof(msg),
-				 "Stage %u #%u done: %d\n", i, me, trace());
-		}
-		else {
-			snprintf(msg, sizeof(msg),
-				 "Stage %u #%u FAILED: got %d, expected %d\n",
-				 i, me, t, right[i]);
+					 "Stage %u #%u FAILED: got %d, expected %d\n", i, me, t,
+					 right[i]);
 			failures++;
 		}
 		(void)write(STDOUT_FILENO, msg, strlen(msg));
 	}
 
-	for (i=BRANCHES; i-- > 0; ) {
+	for (i = BRANCHES; i-- > 0;) {
 		dowait(pids[i]);
 	}
 	if (failures > 0) {
 		printf("%u failures.\n", failures);
-	}
-	else {
+	} else {
 		printf("Done.\n");
 	}
 }
 
-int
-main(void)
-{
+int main(void) {
 	init();
 	dotest();
 	return 0;

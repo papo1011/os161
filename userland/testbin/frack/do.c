@@ -39,9 +39,7 @@
 #include "name.h"
 #include "do.h"
 
-int
-do_opendir(unsigned name)
-{
+int do_opendir(unsigned name) {
 	const char *namestr;
 	int fd;
 
@@ -53,22 +51,18 @@ do_opendir(unsigned name)
 	return fd;
 }
 
-void
-do_closedir(int fd, unsigned name)
-{
+void do_closedir(int fd, unsigned name) {
 	if (close(fd)) {
 		warn("%s: closedir", name_get(name));
 	}
 }
 
-int
-do_createfile(unsigned name)
-{
+int do_createfile(unsigned name) {
 	const char *namestr;
 	int fd;
 
 	namestr = name_get(name);
-	fd = open(namestr, O_WRONLY|O_CREAT|O_EXCL, 0664);
+	fd = open(namestr, O_WRONLY | O_CREAT | O_EXCL, 0664);
 	if (fd < 0) {
 		err(1, "%s: create", namestr);
 	}
@@ -76,9 +70,7 @@ do_createfile(unsigned name)
 	return fd;
 }
 
-int
-do_openfile(unsigned name, int dotrunc)
-{
+int do_openfile(unsigned name, int dotrunc) {
 	const char *namestr;
 	int fd;
 
@@ -90,18 +82,14 @@ do_openfile(unsigned name, int dotrunc)
 	return fd;
 }
 
-void
-do_closefile(int fd, unsigned name)
-{
+void do_closefile(int fd, unsigned name) {
 	if (close(fd)) {
 		warn("%s: close", name_get(name));
 	}
 }
 
-void
-do_write(int fd, unsigned name, unsigned code, unsigned seq,
-	 off_t pos, off_t len)
-{
+void do_write(int fd, unsigned name, unsigned code, unsigned seq, off_t pos,
+			  off_t len) {
 	off_t done = 0;
 	ssize_t ret;
 	char *buf;
@@ -116,8 +104,7 @@ do_write(int fd, unsigned name, unsigned code, unsigned seq,
 	while (done < len) {
 		ret = write(fd, buf + done, len - done);
 		if (ret == -1) {
-			err(1, "%s: write %lld at %lld", name_get(name),
-			    len, pos);
+			err(1, "%s: write %lld at %lld", name_get(name), len, pos);
 		}
 		done += ret;
 	}
@@ -125,9 +112,7 @@ do_write(int fd, unsigned name, unsigned code, unsigned seq,
 	printf("write %s: %lld at %lld\n", namestr, len, pos);
 }
 
-void
-do_truncate(int fd, unsigned name, off_t len)
-{
+void do_truncate(int fd, unsigned name, off_t len) {
 	const char *namestr;
 
 	namestr = name_get(name);
@@ -137,9 +122,7 @@ do_truncate(int fd, unsigned name, off_t len)
 	printf("truncate %s: to %lld\n", namestr, len);
 }
 
-void
-do_mkdir(unsigned name)
-{
+void do_mkdir(unsigned name) {
 	const char *namestr;
 
 	namestr = name_get(name);
@@ -149,9 +132,7 @@ do_mkdir(unsigned name)
 	printf("mkdir %s\n", namestr);
 }
 
-void
-do_rmdir(unsigned name)
-{
+void do_rmdir(unsigned name) {
 	const char *namestr;
 
 	namestr = name_get(name);
@@ -161,9 +142,7 @@ do_rmdir(unsigned name)
 	printf("rmdir %s\n", namestr);
 }
 
-void
-do_unlink(unsigned name)
-{
+void do_unlink(unsigned name) {
 	const char *namestr;
 
 	namestr = name_get(name);
@@ -173,9 +152,7 @@ do_unlink(unsigned name)
 	printf("remove %s\n", namestr);
 }
 
-void
-do_link(unsigned from, unsigned to)
-{
+void do_link(unsigned from, unsigned to) {
 	const char *fromstr, *tostr;
 
 	fromstr = name_get(from);
@@ -186,9 +163,7 @@ do_link(unsigned from, unsigned to)
 	printf("link %s %s\n", fromstr, tostr);
 }
 
-void
-do_rename(unsigned from, unsigned to)
-{
+void do_rename(unsigned from, unsigned to) {
 	const char *fromstr, *tostr;
 
 	fromstr = name_get(from);
@@ -199,9 +174,7 @@ do_rename(unsigned from, unsigned to)
 	printf("rename %s %s\n", fromstr, tostr);
 }
 
-void
-do_renamexd(unsigned fromdir, unsigned from, unsigned todir, unsigned to)
-{
+void do_renamexd(unsigned fromdir, unsigned from, unsigned todir, unsigned to) {
 	char frombuf[64];
 	char tobuf[64];
 
@@ -219,9 +192,7 @@ do_renamexd(unsigned fromdir, unsigned from, unsigned todir, unsigned to)
 	printf("rename %s %s\n", frombuf, tobuf);
 }
 
-void
-do_chdir(unsigned name)
-{
+void do_chdir(unsigned name) {
 	const char *namestr;
 
 	namestr = name_get(name);
@@ -231,18 +202,14 @@ do_chdir(unsigned name)
 	printf("chdir %s\n", namestr);
 }
 
-void
-do_chdirup(void)
-{
+void do_chdirup(void) {
 	if (chdir("..") == -1) {
 		err(1, "chdir: ..");
 	}
 	printf("chdir ..\n");
 }
 
-void
-do_sync(void)
-{
+void do_sync(void) {
 	if (sync()) {
 		warn("sync");
 	}

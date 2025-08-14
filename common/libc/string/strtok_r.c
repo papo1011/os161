@@ -46,11 +46,9 @@
  * The "context" argument should point to a "char *" that is preserved
  * between calls to strtok_r that wish to operate on same string.
  */
-char *
-strtok_r(char *string, const char *seps, char **context)
-{
-	char *head;  /* start of word */
-	char *tail;  /* end of word */
+char *strtok_r(char *string, const char *seps, char **context) {
+	char *head; /* start of word */
+	char *tail; /* end of word */
 
 	/* If we're starting up, initialize context */
 	if (string) {
@@ -84,8 +82,7 @@ strtok_r(char *string, const char *seps, char **context)
 	/* Save head for next time in context */
 	if (*tail == 0) {
 		*context = NULL;
-	}
-	else {
+	} else {
 		*tail = 0;
 		tail++;
 		*context = tail;

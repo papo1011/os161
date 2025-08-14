@@ -40,59 +40,48 @@
 #include <lamebus/lamebus.h>
 
 /* Register offsets within each config region */
-#define CFGREG_VID   0    /* Vendor ID */
-#define CFGREG_DID   4    /* Device ID */
-#define CFGREG_DRL   8    /* Device Revision Level */
+#define CFGREG_VID 0 /* Vendor ID */
+#define CFGREG_DID 4 /* Device ID */
+#define CFGREG_DRL 8 /* Device Revision Level */
 
 /* LAMEbus controller private registers (offsets within its config region) */
-#define CTLREG_RAMSZ    0x200
-#define CTLREG_IRQS     0x204
-#define CTLREG_PWR      0x208
-#define CTLREG_IRQE     0x20c
-#define CTLREG_CPUS     0x210
-#define CTLREG_CPUE     0x214
-#define CTLREG_SELF     0x218
+#define CTLREG_RAMSZ 0x200
+#define CTLREG_IRQS 0x204
+#define CTLREG_PWR 0x208
+#define CTLREG_IRQE 0x20c
+#define CTLREG_CPUS 0x210
+#define CTLREG_CPUE 0x214
+#define CTLREG_SELF 0x218
 
 /* LAMEbus CPU control registers (offsets within each per-cpu region) */
-#define CTLCPU_CIRQE	0x000
-#define CTLCPU_CIPI	0x004
-#define CTLCPU_CRAM	0x300
-
+#define CTLCPU_CIRQE 0x000
+#define CTLCPU_CIPI 0x004
+#define CTLCPU_CRAM 0x300
 
 /*
  * Read a config register for the given slot.
  */
-static
-inline
-uint32_t
-read_cfg_register(struct lamebus_softc *lb, int slot, uint32_t offset)
-{
+static inline uint32_t read_cfg_register(struct lamebus_softc *lb, int slot,
+										 uint32_t offset) {
 	/* Note that lb might be NULL on some platforms in some contexts. */
-	offset += LB_CONFIG_SIZE*slot;
+	offset += LB_CONFIG_SIZE * slot;
 	return lamebus_read_register(lb, LB_CONTROLLER_SLOT, offset);
 }
 
 /*
  * Write a config register for a given slot.
  */
-static
-inline
-void
-write_cfg_register(struct lamebus_softc *lb, int slot, uint32_t offset,
-		   uint32_t val)
-{
-	offset += LB_CONFIG_SIZE*slot;
+static inline void write_cfg_register(struct lamebus_softc *lb, int slot,
+									  uint32_t offset, uint32_t val) {
+	offset += LB_CONFIG_SIZE * slot;
 	lamebus_write_register(lb, LB_CONTROLLER_SLOT, offset, val);
 }
 
 /*
  * Read one of the bus controller's registers.
  */
-static
-inline
-uint32_t
-read_ctl_register(struct lamebus_softc *lb, uint32_t offset)
-{
+static inline uint32_t read_ctl_register(struct lamebus_softc *lb,
+										 uint32_t offset) {
 	/* Note that lb might be NULL on some platforms in some contexts. */
 	return read_cfg_register(lb, LB_CONTROLLER_SLOT, offset);
 }
@@ -100,23 +89,17 @@ read_ctl_register(struct lamebus_softc *lb, uint32_t offset)
 /*
  * Write one of the bus controller's registers.
  */
-static
-inline
-void
-write_ctl_register(struct lamebus_softc *lb, uint32_t offset, uint32_t val)
-{
+static inline void write_ctl_register(struct lamebus_softc *lb, uint32_t offset,
+									  uint32_t val) {
 	write_cfg_register(lb, LB_CONTROLLER_SLOT, offset, val);
 }
 
 /*
  * Write one of the bus controller's CPU control registers.
  */
-static
-inline
-void
-write_ctlcpu_register(struct lamebus_softc *lb, unsigned hw_cpunum,
-		      uint32_t offset, uint32_t val)
-{
+static inline void write_ctlcpu_register(struct lamebus_softc *lb,
+										 unsigned hw_cpunum, uint32_t offset,
+										 uint32_t val) {
 	offset += LB_CTLCPU_OFFSET + hw_cpunum * LB_CTLCPU_SIZE;
 	lamebus_write_register(lb, LB_CONTROLLER_SLOT, offset, val);
 }
@@ -124,20 +107,15 @@ write_ctlcpu_register(struct lamebus_softc *lb, unsigned hw_cpunum,
 /*
  * Find and create secondary CPUs.
  */
-void
-lamebus_find_cpus(struct lamebus_softc *lamebus)
-{
+void lamebus_find_cpus(struct lamebus_softc *lamebus) {
 	uint32_t mainboard_vid, mainboard_did;
 	uint32_t cpumask, self, bit, val;
 	unsigned i, numcpus, bootcpu;
 	unsigned hwnum[32];
 
-	mainboard_vid = read_cfg_register(lamebus, LB_CONTROLLER_SLOT,
-					  CFGREG_VID);
-	mainboard_did = read_cfg_register(lamebus, LB_CONTROLLER_SLOT,
-					  CFGREG_DID);
-	if (mainboard_vid == LB_VENDOR_CS161 &&
-	    mainboard_did == LBCS161_UPBUSCTL) {
+	mainboard_vid = read_cfg_register(lamebus, LB_CONTROLLER_SLOT, CFGREG_VID);
+	mainboard_did = read_cfg_register(lamebus, LB_CONTROLLER_SLOT, CFGREG_DID);
+	if (mainboard_vid == LB_VENDOR_CS161 && mainboard_did == LBCS161_UPBUSCTL) {
 		/* Old uniprocessor mainboard; no cpu registers. */
 		lamebus->ls_uniprocessor = 1;
 		return;
@@ -148,7 +126,7 @@ lamebus_find_cpus(struct lamebus_softc *lamebus)
 
 	numcpus = 0;
 	bootcpu = 0;
-	for (i=0; i<32; i++) {
+	for (i = 0; i < 32; i++) {
 		bit = (uint32_t)1 << i;
 		if ((cpumask & bit) != 0) {
 			if (self & bit) {
@@ -160,7 +138,7 @@ lamebus_find_cpus(struct lamebus_softc *lamebus)
 		}
 	}
 
-	for (i=0; i<numcpus; i++) {
+	for (i = 0; i < numcpus; i++) {
 		if (i != bootcpu) {
 			cpu_create(hwnum[i]);
 		}
@@ -172,11 +150,10 @@ lamebus_find_cpus(struct lamebus_softc *lamebus)
 	 * dynamic load balancing.
 	 */
 
-	for (i=0; i<numcpus; i++) {
+	for (i = 0; i < numcpus; i++) {
 		if (i != bootcpu) {
 			val = 0;
-		}
-		else {
+		} else {
 			val = 0xffffffff;
 		}
 		write_ctlcpu_register(lamebus, hwnum[i], CTLCPU_CIRQE, val);
@@ -193,9 +170,7 @@ lamebus_find_cpus(struct lamebus_softc *lamebus)
  * LAMEbus; if in some environment there are other CPUs about as well
  * this logic will have to be made more complex.
  */
-void
-lamebus_start_cpus(struct lamebus_softc *lamebus)
-{
+void lamebus_start_cpus(struct lamebus_softc *lamebus) {
 	uint32_t cpumask, self, bit;
 	uint32_t ctlcpuoffset;
 	uint32_t *cram;
@@ -211,16 +186,15 @@ lamebus_start_cpus(struct lamebus_softc *lamebus)
 
 	/* Poke in the startup address. */
 	cpunum = 1;
-	for (i=0; i<32; i++) {
+	for (i = 0; i < 32; i++) {
 		bit = (uint32_t)1 << i;
 		if ((cpumask & bit) != 0) {
 			if (self & bit) {
 				continue;
 			}
 			ctlcpuoffset = LB_CTLCPU_OFFSET + i * LB_CTLCPU_SIZE;
-			cram = lamebus_map_area(lamebus,
-						LB_CONTROLLER_SLOT,
-						ctlcpuoffset + CTLCPU_CRAM);
+			cram = lamebus_map_area(lamebus, LB_CONTROLLER_SLOT,
+									ctlcpuoffset + CTLCPU_CRAM);
 			cram[0] = (uint32_t)cpu_start_secondary;
 			cram[1] = cpunum++;
 		}
@@ -247,11 +221,8 @@ lamebus_start_cpus(struct lamebus_softc *lamebus)
  * more specific checks.
  */
 
-int
-lamebus_probe(struct lamebus_softc *sc,
-	      uint32_t vendorid, uint32_t deviceid,
-	      uint32_t lowver, uint32_t *version_ret)
-{
+int lamebus_probe(struct lamebus_softc *sc, uint32_t vendorid,
+				  uint32_t deviceid, uint32_t lowver, uint32_t *version_ret) {
 	int slot;
 	uint32_t val;
 
@@ -262,14 +233,14 @@ lamebus_probe(struct lamebus_softc *sc,
 
 	spinlock_acquire(&sc->ls_lock);
 
-	for (slot=0; slot<LB_NSLOTS; slot++) {
-		if (sc->ls_slotsinuse & (1<<slot)) {
+	for (slot = 0; slot < LB_NSLOTS; slot++) {
+		if (sc->ls_slotsinuse & (1 << slot)) {
 			/* Slot already in use; skip */
 			continue;
 		}
 
 		val = read_cfg_register(sc, slot, CFGREG_VID);
-		if (val!=vendorid) {
+		if (val != vendorid) {
 			/* Wrong vendor id */
 			continue;
 		}
@@ -306,15 +277,13 @@ lamebus_probe(struct lamebus_softc *sc,
  * This prevents the probe routine from returning the same device over
  * and over again.
  */
-void
-lamebus_mark(struct lamebus_softc *sc, int slot)
-{
+void lamebus_mark(struct lamebus_softc *sc, int slot) {
 	uint32_t mask = ((uint32_t)1) << slot;
-	KASSERT(slot>=0 && slot < LB_NSLOTS);
+	KASSERT(slot >= 0 && slot < LB_NSLOTS);
 
 	spinlock_acquire(&sc->ls_lock);
 
-	if ((sc->ls_slotsinuse & mask)!=0) {
+	if ((sc->ls_slotsinuse & mask) != 0) {
 		panic("lamebus_mark: slot %d already in use\n", slot);
 	}
 
@@ -326,15 +295,13 @@ lamebus_mark(struct lamebus_softc *sc, int slot)
 /*
  * Mark that a slot is no longer in use.
  */
-void
-lamebus_unmark(struct lamebus_softc *sc, int slot)
-{
+void lamebus_unmark(struct lamebus_softc *sc, int slot) {
 	uint32_t mask = ((uint32_t)1) << slot;
-	KASSERT(slot>=0 && slot < LB_NSLOTS);
+	KASSERT(slot >= 0 && slot < LB_NSLOTS);
 
 	spinlock_acquire(&sc->ls_lock);
 
-	if ((sc->ls_slotsinuse & mask)==0) {
+	if ((sc->ls_slotsinuse & mask) == 0) {
 		panic("lamebus_mark: slot %d not marked in use\n", slot);
 	}
 
@@ -347,23 +314,19 @@ lamebus_unmark(struct lamebus_softc *sc, int slot)
  * Register a function (and a device context pointer) to be called
  * when a particular slot signals an interrupt.
  */
-void
-lamebus_attach_interrupt(struct lamebus_softc *sc, int slot,
-			 void *devdata,
-			 void (*irqfunc)(void *devdata))
-{
+void lamebus_attach_interrupt(struct lamebus_softc *sc, int slot, void *devdata,
+							  void (*irqfunc)(void *devdata)) {
 	uint32_t mask = ((uint32_t)1) << slot;
-	KASSERT(slot>=0 && slot < LB_NSLOTS);
+	KASSERT(slot >= 0 && slot < LB_NSLOTS);
 
 	spinlock_acquire(&sc->ls_lock);
 
-	if ((sc->ls_slotsinuse & mask)==0) {
-		panic("lamebus_attach_interrupt: slot %d not marked in use\n",
-		      slot);
+	if ((sc->ls_slotsinuse & mask) == 0) {
+		panic("lamebus_attach_interrupt: slot %d not marked in use\n", slot);
 	}
 
-	KASSERT(sc->ls_devdata[slot]==NULL);
-	KASSERT(sc->ls_irqfuncs[slot]==NULL);
+	KASSERT(sc->ls_devdata[slot] == NULL);
+	KASSERT(sc->ls_irqfuncs[slot] == NULL);
 
 	sc->ls_devdata[slot] = devdata;
 	sc->ls_irqfuncs[slot] = irqfunc;
@@ -375,20 +338,17 @@ lamebus_attach_interrupt(struct lamebus_softc *sc, int slot,
  * Unregister a function that was being called when a particular slot
  * signaled an interrupt.
  */
-void
-lamebus_detach_interrupt(struct lamebus_softc *sc, int slot)
-{
+void lamebus_detach_interrupt(struct lamebus_softc *sc, int slot) {
 	uint32_t mask = ((uint32_t)1) << slot;
-	KASSERT(slot>=0 && slot < LB_NSLOTS);
+	KASSERT(slot >= 0 && slot < LB_NSLOTS);
 
 	spinlock_acquire(&sc->ls_lock);
 
-	if ((sc->ls_slotsinuse & mask)==0) {
-		panic("lamebus_detach_interrupt: slot %d not marked in use\n",
-		      slot);
+	if ((sc->ls_slotsinuse & mask) == 0) {
+		panic("lamebus_detach_interrupt: slot %d not marked in use\n", slot);
 	}
 
-	KASSERT(sc->ls_irqfuncs[slot]!=NULL);
+	KASSERT(sc->ls_irqfuncs[slot] != NULL);
 
 	sc->ls_devdata[slot] = NULL;
 	sc->ls_irqfuncs[slot] = NULL;
@@ -399,9 +359,7 @@ lamebus_detach_interrupt(struct lamebus_softc *sc, int slot)
 /*
  * Mask/unmask an interrupt using the global IRQE register.
  */
-void
-lamebus_mask_interrupt(struct lamebus_softc *lamebus, int slot)
-{
+void lamebus_mask_interrupt(struct lamebus_softc *lamebus, int slot) {
 	uint32_t bits, mask = ((uint32_t)1) << slot;
 	KASSERT(slot >= 0 && slot < LB_NSLOTS);
 
@@ -412,9 +370,7 @@ lamebus_mask_interrupt(struct lamebus_softc *lamebus, int slot)
 	spinlock_release(&lamebus->ls_lock);
 }
 
-void
-lamebus_unmask_interrupt(struct lamebus_softc *lamebus, int slot)
-{
+void lamebus_unmask_interrupt(struct lamebus_softc *lamebus, int slot) {
 	uint32_t bits, mask = ((uint32_t)1) << slot;
 	KASSERT(slot >= 0 && slot < LB_NSLOTS);
 
@@ -425,13 +381,10 @@ lamebus_unmask_interrupt(struct lamebus_softc *lamebus, int slot)
 	spinlock_release(&lamebus->ls_lock);
 }
 
-
 /*
  * LAMEbus interrupt handling function. (Machine-independent!)
  */
-void
-lamebus_interrupt(struct lamebus_softc *lamebus)
-{
+void lamebus_interrupt(struct lamebus_softc *lamebus) {
 	/*
 	 * Note that despite the fact that "spl" stands for "set
 	 * priority level", we don't actually support interrupt
@@ -469,8 +422,7 @@ lamebus_interrupt(struct lamebus_softc *lamebus)
 		/*
 		 * Huh? None of them? Must be a glitch.
 		 */
-		kprintf("lamebus: stray interrupt on cpu %u\n",
-			curcpu->c_number);
+		kprintf("lamebus: stray interrupt on cpu %u\n", curcpu->c_number);
 		duds++;
 		duds_this_time++;
 
@@ -492,7 +444,7 @@ lamebus_interrupt(struct lamebus_softc *lamebus)
 	 * ones are set.
 	 */
 
-	for (mask=1, slot=0; slot<LB_NSLOTS; mask<<=1, slot++) {
+	for (mask = 1, slot = 0; slot < LB_NSLOTS; mask <<= 1, slot++) {
 		if ((irqs & mask) == 0) {
 			/* Nope. */
 			continue;
@@ -502,7 +454,7 @@ lamebus_interrupt(struct lamebus_softc *lamebus)
 		 * This slot is signalling an interrupt.
 		 */
 
-		if ((lamebus->ls_slotsinuse & mask)==0) {
+		if ((lamebus->ls_slotsinuse & mask) == 0) {
 			/*
 			 * No device driver is using this slot.
 			 */
@@ -511,7 +463,7 @@ lamebus_interrupt(struct lamebus_softc *lamebus)
 			continue;
 		}
 
-		if (lamebus->ls_irqfuncs[slot]==NULL) {
+		if (lamebus->ls_irqfuncs[slot] == NULL) {
 			/*
 			 * The device driver hasn't installed an interrupt
 			 * handler.
@@ -542,7 +494,6 @@ lamebus_interrupt(struct lamebus_softc *lamebus)
 
 		irqs = read_ctl_register(lamebus, CTLREG_IRQS);
 	}
-
 
 	/*
 	 * If we get interrupts for a slot with no driver or no
@@ -578,9 +529,7 @@ lamebus_interrupt(struct lamebus_softc *lamebus)
 /*
  * Have the bus controller power the system off.
  */
-void
-lamebus_poweroff(struct lamebus_softc *lamebus)
-{
+void lamebus_poweroff(struct lamebus_softc *lamebus) {
 	/*
 	 * Write 0 to the power register to shut the system off.
 	 */
@@ -595,9 +544,7 @@ lamebus_poweroff(struct lamebus_softc *lamebus)
 /*
  * Ask the bus controller how much memory we have.
  */
-uint32_t
-lamebus_ramsize(void)
-{
+uint32_t lamebus_ramsize(void) {
 	/*
 	 * Note that this has to work before bus initialization.
 	 * On machines where lamebus_read_register doesn't work
@@ -611,39 +558,31 @@ lamebus_ramsize(void)
 /*
  * Turn on or off the interprocessor interrupt line for a given CPU.
  */
-void
-lamebus_assert_ipi(struct lamebus_softc *lamebus, struct cpu *target)
-{
+void lamebus_assert_ipi(struct lamebus_softc *lamebus, struct cpu *target) {
 	if (lamebus->ls_uniprocessor) {
 		return;
 	}
-	write_ctlcpu_register(lamebus, target->c_hardware_number,
-			      CTLCPU_CIPI, 1);
+	write_ctlcpu_register(lamebus, target->c_hardware_number, CTLCPU_CIPI, 1);
 }
 
-void
-lamebus_clear_ipi(struct lamebus_softc *lamebus, struct cpu *target)
-{
+void lamebus_clear_ipi(struct lamebus_softc *lamebus, struct cpu *target) {
 	if (lamebus->ls_uniprocessor) {
 		return;
 	}
-	write_ctlcpu_register(lamebus, target->c_hardware_number,
-			      CTLCPU_CIPI, 0);
+	write_ctlcpu_register(lamebus, target->c_hardware_number, CTLCPU_CIPI, 0);
 }
 
 /*
  * Initial setup.
  * Should be called from mainbus_bootstrap().
  */
-struct lamebus_softc *
-lamebus_init(void)
-{
+struct lamebus_softc *lamebus_init(void) {
 	struct lamebus_softc *lamebus;
 	int i;
 
 	/* Allocate space for lamebus data */
 	lamebus = kmalloc(sizeof(struct lamebus_softc));
-	if (lamebus==NULL) {
+	if (lamebus == NULL) {
 		panic("lamebus_init: Out of memory\n");
 	}
 
@@ -654,7 +593,7 @@ lamebus_init(void)
 	 */
 	lamebus->ls_slotsinuse = 1 << LB_CONTROLLER_SLOT;
 
-	for (i=0; i<LB_NSLOTS; i++) {
+	for (i = 0; i < LB_NSLOTS; i++) {
 		lamebus->ls_devdata[i] = NULL;
 		lamebus->ls_irqfuncs[i] = NULL;
 	}

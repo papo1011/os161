@@ -47,11 +47,8 @@ static struct spinlock hangman_lock = SPINLOCK_INITIALIZER;
  * only be waiting for one thing at a time, this turns out to be
  * quite simple.
  */
-static
-void
-hangman_check(const struct hangman_lockable *start,
-	      const struct hangman_actor *target)
-{
+static void hangman_check(const struct hangman_lockable *start,
+						  const struct hangman_actor *target) {
 	const struct hangman_actor *cur;
 
 	cur = start->l_holding;
@@ -66,7 +63,7 @@ hangman_check(const struct hangman_lockable *start,
 	}
 	return;
 
- found:
+found:
 	/*
 	 * None of this can change while we print it (that's the point
 	 * of it being a deadlock) so drop hangman_lock while
@@ -85,8 +82,8 @@ hangman_check(const struct hangman_lockable *start,
 	cur = start->l_holding;
 	while (cur != target) {
 		kprintf("   held by actor %s (%p)\n", cur->a_name, cur);
-		kprintf("   waiting for lockable %s (%p)\n",
-			cur->a_waiting->l_name, cur->a_waiting);
+		kprintf("   waiting for lockable %s (%p)\n", cur->a_waiting->l_name,
+				cur->a_waiting);
 		cur = cur->a_waiting->l_holding;
 	}
 	kprintf("   held by actor %s (%p)\n", cur->a_name, cur);
@@ -106,10 +103,7 @@ hangman_check(const struct hangman_lockable *start,
  * tricky and problematic. For now we'll settle for just detecting and
  * reporting deadlocks that do happen.
  */
-void
-hangman_wait(struct hangman_actor *a,
-	     struct hangman_lockable *l)
-{
+void hangman_wait(struct hangman_actor *a, struct hangman_lockable *l) {
 	if (l == &hangman_lock.splk_hangman) {
 		/* don't recurse */
 		return;
@@ -128,10 +122,7 @@ hangman_wait(struct hangman_actor *a,
 	spinlock_release(&hangman_lock);
 }
 
-void
-hangman_acquire(struct hangman_actor *a,
-		struct hangman_lockable *l)
-{
+void hangman_acquire(struct hangman_actor *a, struct hangman_lockable *l) {
 	if (l == &hangman_lock.splk_hangman) {
 		/* don't recurse */
 		return;
@@ -141,13 +132,12 @@ hangman_acquire(struct hangman_actor *a,
 
 	if (a->a_waiting != l) {
 		spinlock_release(&hangman_lock);
-		panic("hangman_acquire: not waiting for lock %s (%p)\n",
-		      l->l_name, l);
+		panic("hangman_acquire: not waiting for lock %s (%p)\n", l->l_name, l);
 	}
 	if (l->l_holding != NULL) {
 		spinlock_release(&hangman_lock);
 		panic("hangman_acquire: lock %s (%p) still held by %s (%p)\n",
-		      l->l_name, l, a->a_name, a);
+			  l->l_name, l, a->a_name, a);
 	}
 
 	l->l_holding = a;
@@ -156,10 +146,7 @@ hangman_acquire(struct hangman_actor *a,
 	spinlock_release(&hangman_lock);
 }
 
-void
-hangman_release(struct hangman_actor *a,
-		struct hangman_lockable *l)
-{
+void hangman_release(struct hangman_actor *a, struct hangman_lockable *l) {
 	if (l == &hangman_lock.splk_hangman) {
 		/* don't recurse */
 		return;

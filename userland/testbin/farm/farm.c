@@ -40,66 +40,46 @@
 #include <unistd.h>
 #include <err.h>
 
-static char *hargv[2] = { (char *)"hog", NULL };
-static char *cargv[3] = { (char *)"cat", (char *)"catfile", NULL };
+static char *hargv[2] = {(char *)"hog", NULL};
+static char *cargv[3] = {(char *)"cat", (char *)"catfile", NULL};
 
-#define MAXPROCS  6
+#define MAXPROCS 6
 static int pids[MAXPROCS], npids;
 
-static
-void
-spawnv(const char *prog, char **argv)
-{
+static void spawnv(const char *prog, char **argv) {
 	int pid = fork();
 	switch (pid) {
-	    case -1:
+	case -1:
 		err(1, "fork");
-	    case 0:
+	case 0:
 		/* child */
 		execv(prog, argv);
 		err(1, "%s", prog);
-	    default:
+	default:
 		/* parent */
 		pids[npids++] = pid;
 		break;
 	}
 }
 
-static
-void
-waitall(void)
-{
+static void waitall(void) {
 	int i, status;
-	for (i=0; i<npids; i++) {
-		if (waitpid(pids[i], &status, 0)<0) {
+	for (i = 0; i < npids; i++) {
+		if (waitpid(pids[i], &status, 0) < 0) {
 			warn("waitpid for %d", pids[i]);
-		}
-		else if (WIFSIGNALED(status)) {
+		} else if (WIFSIGNALED(status)) {
 			warnx("pid %d: signal %d", pids[i], WTERMSIG(status));
-		}
-		else if (WEXITSTATUS(status) != 0) {
+		} else if (WEXITSTATUS(status) != 0) {
 			warnx("pid %d: exit %d", pids[i], WEXITSTATUS(status));
 		}
 	}
 }
 
-static
-void
-hog(void)
-{
-	spawnv("/testbin/hog", hargv);
-}
+static void hog(void) { spawnv("/testbin/hog", hargv); }
 
-static
-void
-cat(void)
-{
-	spawnv("/bin/cat", cargv);
-}
+static void cat(void) { spawnv("/bin/cat", cargv); }
 
-int
-main(void)
-{
+int main(void) {
 	hog();
 	hog();
 	hog();

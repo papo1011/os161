@@ -61,20 +61,12 @@
 static unsigned waiters_running = 0;
 static struct spinlock waiters_lock = SPINLOCK_INITIALIZER;
 
-static
-void
-ok(void)
-{
-	kprintf("Test passed; now cleaning up.\n");
-}
+static void ok(void) { kprintf("Test passed; now cleaning up.\n"); }
 
 /*
  * Wrapper for sem_create when we aren't explicitly tweaking it.
  */
-static
-struct semaphore *
-makesem(unsigned count)
-{
+static struct semaphore *makesem(unsigned count) {
 	struct semaphore *sem;
 
 	sem = sem_create(NAMESTRING, count);
@@ -87,10 +79,7 @@ makesem(unsigned count)
 /*
  * A thread that just waits on a semaphore.
  */
-static
-void
-waiter(void *vsem, unsigned long junk)
-{
+static void waiter(void *vsem, unsigned long junk) {
 	struct semaphore *sem = vsem;
 	(void)junk;
 
@@ -105,10 +94,7 @@ waiter(void *vsem, unsigned long junk)
 /*
  * Set up a waiter.
  */
-static
-void
-makewaiter(struct semaphore *sem)
-{
+static void makewaiter(struct semaphore *sem) {
 	int result;
 
 	spinlock_acquire(&waiters_lock);
@@ -133,10 +119,7 @@ makewaiter(struct semaphore *sem)
  * we're checking it, or the check wouldn't be reliable; and, provided
  * clocksleep works, nobody can.
  */
-static
-bool
-spinlock_not_held(struct spinlock *splk)
-{
+static bool spinlock_not_held(struct spinlock *splk) {
 	return splk->splk_holder == NULL;
 }
 
@@ -151,13 +134,12 @@ spinlock_not_held(struct spinlock *splk)
  *     - sem_lock is not held and has no owner
  *     - sem_count is the passed-in count
  */
-int
-semu1(int nargs, char **args)
-{
+int semu1(int nargs, char **args) {
 	struct semaphore *sem;
 	const char *name = NAMESTRING;
 
-	(void)nargs; (void)args;
+	(void)nargs;
+	(void)args;
 
 	sem = sem_create(name, 56);
 	if (sem == NULL) {
@@ -178,12 +160,11 @@ semu1(int nargs, char **args)
 /*
  * 2. Passing a null name to sem_create asserts or crashes.
  */
-int
-semu2(int nargs, char **args)
-{
+int semu2(int nargs, char **args) {
 	struct semaphore *sem;
 
-	(void)nargs; (void)args;
+	(void)nargs;
+	(void)args;
 
 	kprintf("This should crash with a kernel null dereference\n");
 	sem = sem_create(NULL, 44);
@@ -195,26 +176,23 @@ semu2(int nargs, char **args)
 /*
  * 3. Passing a null semaphore to sem_destroy asserts or crashes.
  */
-int
-semu3(int nargs, char **args)
-{
-	(void)nargs; (void)args;
+int semu3(int nargs, char **args) {
+	(void)nargs;
+	(void)args;
 
 	kprintf("This should assert that sem != NULL\n");
 	sem_destroy(NULL);
 	panic("semu3: sem_destroy accepted a null semaphore\n");
 }
 
-
 /*
  * 4. sem_count is an unsigned type.
  */
-int
-semu4(int nargs, char **args)
-{
+int semu4(int nargs, char **args) {
 	struct semaphore *sem;
 
-	(void)nargs; (void)args;
+	(void)nargs;
+	(void)args;
 
 	/* Create a semaphore with count 0. */
 	sem = makesem(0);
@@ -233,12 +211,11 @@ semu4(int nargs, char **args)
  * 5. A semaphore can be successfully initialized with a count of at
  * least 0xf0000000.
  */
-int
-semu5(int nargs, char **args)
-{
+int semu5(int nargs, char **args) {
 	struct semaphore *sem;
 
-	(void)nargs; (void)args;
+	(void)nargs;
+	(void)args;
 
 	sem = sem_create(NAMESTRING, 0xf0000000U);
 	if (sem == NULL) {
@@ -257,12 +234,11 @@ semu5(int nargs, char **args)
  * 6. Passing a semaphore with a waiting thread to sem_destroy asserts
  * (in the wchan code).
  */
-int
-semu6(int nargs, char **args)
-{
+int semu6(int nargs, char **args) {
 	struct semaphore *sem;
 
-	(void)nargs; (void)args;
+	(void)nargs;
+	(void)args;
 
 	sem = makesem(0);
 	makewaiter(sem);
@@ -276,13 +252,12 @@ semu6(int nargs, char **args)
  * 7. Calling V on a semaphore does not block the caller, regardless
  * of the semaphore count.
  */
-int
-semu7(int nargs, char **args)
-{
+int semu7(int nargs, char **args) {
 	struct semaphore *sem;
 	struct spinlock lk;
 
-	(void)nargs; (void)args;
+	(void)nargs;
+	(void)args;
 
 	sem = makesem(0);
 
@@ -315,10 +290,7 @@ semu7(int nargs, char **args)
  *
  * This is true even if we are in an interrupt handler.
  */
-static
-void
-do_semu89(bool interrupthandler)
-{
+static void do_semu89(bool interrupthandler) {
 	struct semaphore *sem;
 	struct wchan *wchan;
 	const char *name;
@@ -363,19 +335,17 @@ do_semu89(bool interrupthandler)
 	sem_destroy(sem);
 }
 
-int
-semu8(int nargs, char **args)
-{
-	(void)nargs; (void)args;
+int semu8(int nargs, char **args) {
+	(void)nargs;
+	(void)args;
 
 	do_semu89(false /*interrupthandler*/);
 	return 0;
 }
 
-int
-semu9(int nargs, char **args)
-{
-	(void)nargs; (void)args;
+int semu9(int nargs, char **args) {
+	(void)nargs;
+	(void)args;
 
 	do_semu89(true /*interrupthandler*/);
 	return 0;
@@ -392,10 +362,7 @@ semu9(int nargs, char **args)
  *
  * This is true even if we are in an interrupt handler.
  */
-static
-int
-do_semu1011(bool interrupthandler)
-{
+static int do_semu1011(bool interrupthandler) {
 	struct semaphore *sem;
 	struct wchan *wchan;
 	const char *name;
@@ -442,27 +409,23 @@ do_semu1011(bool interrupthandler)
 	ok();
 	sem_destroy(sem);
 	return 0;
-
 }
 
-int
-semu10(int nargs, char **args)
-{
-	(void)nargs; (void)args;
+int semu10(int nargs, char **args) {
+	(void)nargs;
+	(void)args;
 
 	do_semu1011(false /*interrupthandler*/);
 	return 0;
 }
 
-int
-semu11(int nargs, char **args)
-{
-	(void)nargs; (void)args;
+int semu11(int nargs, char **args) {
+	(void)nargs;
+	(void)args;
 
 	do_semu1011(true /*interrupthandler*/);
 	return 0;
 }
-
 
 /*
  * 12/13. After calling V on a semaphore with two threads waiting, and
@@ -474,10 +437,7 @@ semu11(int nargs, char **args)
  *    - one of the other threads does in fact run
  *    - the other one does not
  */
-static
-void
-semu1213(bool interrupthandler)
-{
+static void semu1213(bool interrupthandler) {
 	struct semaphore *sem;
 	struct wchan *wchan;
 	const char *name;
@@ -532,19 +492,17 @@ semu1213(bool interrupthandler)
 	sem_destroy(sem);
 }
 
-int
-semu12(int nargs, char **args)
-{
-	(void)nargs; (void)args;
+int semu12(int nargs, char **args) {
+	(void)nargs;
+	(void)args;
 
 	semu1213(false /*interrupthandler*/);
 	return 0;
 }
 
-int
-semu13(int nargs, char **args)
-{
-	(void)nargs; (void)args;
+int semu13(int nargs, char **args) {
+	(void)nargs;
+	(void)args;
 
 	semu1213(true /*interrupthandler*/);
 	return 0;
@@ -554,12 +512,11 @@ semu13(int nargs, char **args)
  * 14. Calling V on a semaphore whose count is the maximum allowed value
  * asserts.
  */
-int
-semu14(int nargs, char **args)
-{
+int semu14(int nargs, char **args) {
 	struct semaphore *sem;
 
-	(void)nargs; (void)args;
+	(void)nargs;
+	(void)args;
 
 	kprintf("This should assert that sem_count is > 0.\n");
 	sem = makesem(0);
@@ -578,10 +535,9 @@ semu14(int nargs, char **args)
 /*
  * 15. Calling V on a null semaphore asserts.
  */
-int
-semu15(int nargs, char **args)
-{
-	(void)nargs; (void)args;
+int semu15(int nargs, char **args) {
+	(void)nargs;
+	(void)args;
 
 	kprintf("This should assert that the semaphore isn't null.\n");
 	V(NULL);
@@ -592,13 +548,12 @@ semu15(int nargs, char **args)
 /*
  * 16. Calling P on a semaphore with count > 0 does not block the caller.
  */
-int
-semu16(int nargs, char **args)
-{
+int semu16(int nargs, char **args) {
 	struct semaphore *sem;
 	struct spinlock lk;
 
-	(void)nargs; (void)args;
+	(void)nargs;
+	(void)args;
 
 	sem = makesem(1);
 
@@ -621,10 +576,7 @@ semu16(int nargs, char **args)
 
 static struct thread *semu17_thread;
 
-static
-void
-semu17_sub(void *semv, unsigned long junk)
-{
+static void semu17_sub(void *semv, unsigned long junk) {
 	struct semaphore *sem = semv;
 
 	(void)junk;
@@ -637,13 +589,12 @@ semu17_sub(void *semv, unsigned long junk)
 	P(sem);
 }
 
-int
-semu17(int nargs, char **args)
-{
+int semu17(int nargs, char **args) {
 	struct semaphore *sem;
 	int result;
 
-	(void)nargs; (void)args;
+	(void)nargs;
+	(void)args;
 
 	semu17_thread = NULL;
 
@@ -675,14 +626,13 @@ semu17(int nargs, char **args)
  *    - sem_lock is unheld and has no owner
  *    - sem_count is one less
  */
-int
-semu18(int nargs, char **args)
-{
+int semu18(int nargs, char **args) {
 	struct semaphore *sem;
 	struct wchan *wchan;
 	const char *name;
 
-	(void)nargs; (void)args;
+	(void)nargs;
+	(void)args;
 
 	sem = makesem(1);
 
@@ -694,7 +644,7 @@ semu18(int nargs, char **args)
 	KASSERT(sem->sem_count == 1);
 
 	P(sem);
-	
+
 	/* postconditions */
 	KASSERT(name == sem->sem_name);
 	KASSERT(!strcmp(name, NAMESTRING));
@@ -714,10 +664,7 @@ semu18(int nargs, char **args)
  *    - sem_count is still 0
  */
 
-static
-void
-semu19_sub(void *semv,  unsigned long junk)
-{
+static void semu19_sub(void *semv, unsigned long junk) {
 	struct semaphore *sem = semv;
 
 	(void)junk;
@@ -732,15 +679,14 @@ semu19_sub(void *semv,  unsigned long junk)
 	V(sem);
 }
 
-int
-semu19(int nargs, char **args)
-{
+int semu19(int nargs, char **args) {
 	struct semaphore *sem;
 	struct wchan *wchan;
 	const char *name;
 	int result;
 
-	(void)nargs; (void)args;
+	(void)nargs;
+	(void)args;
 
 	sem = makesem(0);
 	result = thread_fork("semu19_sub", NULL, semu19_sub, sem, 0);
@@ -771,12 +717,11 @@ semu19(int nargs, char **args)
  * 20/21. Calling P in an interrupt handler asserts, regardless of the
  * count.
  */
-int
-semu20(int nargs, char **args)
-{
+int semu20(int nargs, char **args) {
 	struct semaphore *sem;
 
-	(void)nargs; (void)args;
+	(void)nargs;
+	(void)args;
 
 	kprintf("This should assert that we aren't in an interrupt\n");
 
@@ -788,12 +733,11 @@ semu20(int nargs, char **args)
 	return 0;
 }
 
-int
-semu21(int nargs, char **args)
-{
+int semu21(int nargs, char **args) {
 	struct semaphore *sem;
 
-	(void)nargs; (void)args;
+	(void)nargs;
+	(void)args;
 
 	kprintf("This should assert that we aren't in an interrupt\n");
 
@@ -808,10 +752,9 @@ semu21(int nargs, char **args)
 /*
  * 22. Calling P on a null semaphore asserts.
  */
-int
-semu22(int nargs, char **args)
-{
-	(void)nargs; (void)args;
+int semu22(int nargs, char **args) {
+	(void)nargs;
+	(void)args;
 
 	kprintf("This should assert that the semaphore isn't null.\n");
 	P(NULL);

@@ -54,9 +54,7 @@ struct dir {
 
 static int checkmode;
 
-void
-setcheckmode(int mode)
-{
+void setcheckmode(int mode) {
 	checkmode = mode;
 	if (checkmode) {
 		check_setup();
@@ -69,30 +67,24 @@ setcheckmode(int mode)
 #define MAXDIRS 32
 DECLPOOL(dir, MAXDIRS);
 
-struct dir *
-op_opendir(unsigned name)
-{
+struct dir *op_opendir(unsigned name) {
 	struct dir *ret;
 
 	ret = POOLALLOC(dir);
 	ret->name = name;
 	if (checkmode) {
 		ret->handle = -1;
-	}
-	else {
+	} else {
 		ret->handle = do_opendir(name);
 	}
 	return ret;
 }
 
-void
-op_closedir(struct dir *d)
-{
+void op_closedir(struct dir *d) {
 	if (checkmode) {
 		/* nothing */
 		(void)d;
-	}
-	else {
+	} else {
 		do_closedir(d->handle, d->name);
 	}
 	POOLFREE(dir, d);
@@ -104,21 +96,18 @@ op_closedir(struct dir *d)
 #define MAXFILES 32
 DECLPOOL(file, MAXFILES);
 
-struct file *
-op_open(unsigned testcode, unsigned name, unsigned openflags)
-{
+struct file *op_open(unsigned testcode, unsigned name, unsigned openflags) {
 	struct file *ret;
 	int dotrunc;
 
 	if (openflags == O_TRUNC) {
 		openflags = 0;
 		dotrunc = 1;
-	}
-	else {
+	} else {
 		dotrunc = 0;
 	}
 
-	assert(openflags == 0 || openflags == (O_CREAT|O_EXCL));
+	assert(openflags == 0 || openflags == (O_CREAT | O_EXCL));
 
 	ret = POOLALLOC(file);
 	ret->name = name;
@@ -127,17 +116,14 @@ op_open(unsigned testcode, unsigned name, unsigned openflags)
 	if (checkmode) {
 		if (openflags) {
 			ret->handle = check_createfile(name);
-		}
-		else {
+		} else {
 			ret->handle = check_openfile(name);
 		}
-	}
-	else {
+	} else {
 		if (openflags) {
 			assert(dotrunc == 0);
 			ret->handle = do_createfile(name);
-		}
-		else {
+		} else {
 			/*
 			 * XXX: as of 2013 OS/161 doesn't provide a
 			 * truncate call - neither truncate() nor
@@ -153,21 +139,16 @@ op_open(unsigned testcode, unsigned name, unsigned openflags)
 	return ret;
 }
 
-void
-op_close(struct file *f)
-{
+void op_close(struct file *f) {
 	if (checkmode) {
 		check_closefile(f->handle, f->name);
-	}
-	else {
+	} else {
 		do_closefile(f->handle, f->name);
 	}
 	POOLFREE(file, f);
 }
 
-void
-op_write(struct file *f, off_t pos, off_t len)
-{
+void op_write(struct file *f, off_t pos, off_t len) {
 	off_t amount;
 
 	while (len > 0) {
@@ -177,12 +158,9 @@ op_write(struct file *f, off_t pos, off_t len)
 		}
 
 		if (checkmode) {
-			check_write(f->handle, f->name, f->testcode, f->seq,
-				    pos, amount);
-		}
-		else {
-			do_write(f->handle, f->name, f->testcode, f->seq,
-				 pos, amount);
+			check_write(f->handle, f->name, f->testcode, f->seq, pos, amount);
+		} else {
+			do_write(f->handle, f->name, f->testcode, f->seq, pos, amount);
 		}
 		f->seq++;
 		pos += amount;
@@ -190,13 +168,10 @@ op_write(struct file *f, off_t pos, off_t len)
 	}
 }
 
-void
-op_truncate(struct file *f, off_t len)
-{
+void op_truncate(struct file *f, off_t len) {
 	if (checkmode) {
 		check_truncate(f->handle, f->name, len);
-	}
-	else {
+	} else {
 		do_truncate(f->handle, f->name, len);
 	}
 }
@@ -204,90 +179,66 @@ op_truncate(struct file *f, off_t len)
 ////////////////////////////////////////////////////////////
 // dirops
 
-void
-op_mkdir(unsigned name)
-{
+void op_mkdir(unsigned name) {
 	if (checkmode) {
 		check_mkdir(name);
-	}
-	else {
+	} else {
 		do_mkdir(name);
 	}
 }
 
-void
-op_rmdir(unsigned name)
-{
+void op_rmdir(unsigned name) {
 	if (checkmode) {
 		check_rmdir(name);
-	}
-	else {
+	} else {
 		do_rmdir(name);
 	}
 }
 
-void
-op_unlink(unsigned name)
-{
+void op_unlink(unsigned name) {
 	if (checkmode) {
 		check_unlink(name);
-	}
-	else {
+	} else {
 		do_unlink(name);
 	}
 }
 
-void
-op_link(unsigned from, unsigned to)
-{
+void op_link(unsigned from, unsigned to) {
 	if (checkmode) {
 		check_link(from, to);
-	}
-	else {
+	} else {
 		do_link(from, to);
 	}
 }
 
-void
-op_rename(unsigned from, unsigned to)
-{
+void op_rename(unsigned from, unsigned to) {
 	if (checkmode) {
 		check_rename(from, to);
-	}
-	else {
+	} else {
 		do_rename(from, to);
 	}
 }
 
-void
-op_renamexd(unsigned fromdir, unsigned from, unsigned todir, unsigned to)
-{
+void op_renamexd(unsigned fromdir, unsigned from, unsigned todir, unsigned to) {
 	if (checkmode) {
 		check_renamexd(fromdir, from, todir, to);
-	}
-	else {
+	} else {
 		do_renamexd(fromdir, from, todir, to);
 	}
 }
 
-void
-op_chdir(unsigned name)
-{
+void op_chdir(unsigned name) {
 	if (checkmode) {
 		check_chdir(name);
-	}
-	else {
+	} else {
 		do_chdir(name);
 	}
 }
 
-void
-op_chdirup(void)
-{
+void op_chdirup(void) {
 	if (checkmode) {
 		check_chdirup();
-	}
-	else {
+	} else {
 		do_chdirup();
 	}
 }
@@ -295,20 +246,15 @@ op_chdirup(void)
 ////////////////////////////////////////////////////////////
 // other
 
-void
-op_sync(void)
-{
+void op_sync(void) {
 	if (checkmode) {
 		check_sync();
-	}
-	else {
+	} else {
 		do_sync();
 	}
 }
 
-void
-complete(void)
-{
+void complete(void) {
 	if (checkmode) {
 		checkfs();
 	}

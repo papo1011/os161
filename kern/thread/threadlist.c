@@ -36,9 +36,7 @@
 #include <thread.h>
 #include <threadlist.h>
 
-void
-threadlistnode_init(struct threadlistnode *tln, struct thread *t)
-{
+void threadlistnode_init(struct threadlistnode *tln, struct thread *t) {
 	DEBUGASSERT(tln != NULL);
 	KASSERT(t != NULL);
 
@@ -47,9 +45,7 @@ threadlistnode_init(struct threadlistnode *tln, struct thread *t)
 	tln->tln_self = t;
 }
 
-void
-threadlistnode_cleanup(struct threadlistnode *tln)
-{
+void threadlistnode_cleanup(struct threadlistnode *tln) {
 	DEBUGASSERT(tln != NULL);
 
 	KASSERT(tln->tln_next == NULL);
@@ -57,9 +53,7 @@ threadlistnode_cleanup(struct threadlistnode *tln)
 	KASSERT(tln->tln_self != NULL);
 }
 
-void
-threadlist_init(struct threadlist *tl)
-{
+void threadlist_init(struct threadlist *tl) {
 	DEBUGASSERT(tl != NULL);
 
 	tl->tl_head.tln_next = &tl->tl_tail;
@@ -71,9 +65,7 @@ threadlist_init(struct threadlist *tl)
 	tl->tl_count = 0;
 }
 
-void
-threadlist_cleanup(struct threadlist *tl)
-{
+void threadlist_cleanup(struct threadlist *tl) {
 	DEBUGASSERT(tl != NULL);
 	DEBUGASSERT(tl->tl_head.tln_next == &tl->tl_tail);
 	DEBUGASSERT(tl->tl_head.tln_prev == NULL);
@@ -88,9 +80,7 @@ threadlist_cleanup(struct threadlist *tl)
 	/* nothing (else) to do */
 }
 
-bool
-threadlist_isempty(struct threadlist *tl)
-{
+bool threadlist_isempty(struct threadlist *tl) {
 	DEBUGASSERT(tl != NULL);
 
 	return (tl->tl_count == 0);
@@ -102,10 +92,8 @@ threadlist_isempty(struct threadlist *tl)
 /*
  * Do insertion. Doesn't update tl_count.
  */
-static
-void
-threadlist_insertafternode(struct threadlistnode *onlist, struct thread *t)
-{
+static void threadlist_insertafternode(struct threadlistnode *onlist,
+									   struct thread *t) {
 	struct threadlistnode *addee;
 
 	addee = &t->t_listnode;
@@ -122,10 +110,8 @@ threadlist_insertafternode(struct threadlistnode *onlist, struct thread *t)
 /*
  * Do insertion. Doesn't update tl_count.
  */
-static
-void
-threadlist_insertbeforenode(struct thread *t, struct threadlistnode *onlist)
-{
+static void threadlist_insertbeforenode(struct thread *t,
+										struct threadlistnode *onlist) {
 	struct threadlistnode *addee;
 
 	addee = &t->t_listnode;
@@ -142,10 +128,7 @@ threadlist_insertbeforenode(struct thread *t, struct threadlistnode *onlist)
 /*
  * Do removal. Doesn't update tl_count.
  */
-static
-void
-threadlist_removenode(struct threadlistnode *tln)
-{
+static void threadlist_removenode(struct threadlistnode *tln) {
 	DEBUGASSERT(tln != NULL);
 	DEBUGASSERT(tln->tln_prev != NULL);
 	DEBUGASSERT(tln->tln_next != NULL);
@@ -159,9 +142,7 @@ threadlist_removenode(struct threadlistnode *tln)
 ////////////////////////////////////////////////////////////
 // public
 
-void
-threadlist_addhead(struct threadlist *tl, struct thread *t)
-{
+void threadlist_addhead(struct threadlist *tl, struct thread *t) {
 	DEBUGASSERT(tl != NULL);
 	DEBUGASSERT(t != NULL);
 
@@ -169,9 +150,7 @@ threadlist_addhead(struct threadlist *tl, struct thread *t)
 	tl->tl_count++;
 }
 
-void
-threadlist_addtail(struct threadlist *tl, struct thread *t)
-{
+void threadlist_addtail(struct threadlist *tl, struct thread *t) {
 	DEBUGASSERT(tl != NULL);
 	DEBUGASSERT(t != NULL);
 
@@ -179,9 +158,7 @@ threadlist_addtail(struct threadlist *tl, struct thread *t)
 	tl->tl_count++;
 }
 
-struct thread *
-threadlist_remhead(struct threadlist *tl)
-{
+struct thread *threadlist_remhead(struct threadlist *tl) {
 	struct threadlistnode *tln;
 
 	DEBUGASSERT(tl != NULL);
@@ -197,9 +174,7 @@ threadlist_remhead(struct threadlist *tl)
 	return tln->tln_self;
 }
 
-struct thread *
-threadlist_remtail(struct threadlist *tl)
-{
+struct thread *threadlist_remtail(struct threadlist *tl) {
 	struct threadlistnode *tln;
 
 	DEBUGASSERT(tl != NULL);
@@ -215,25 +190,19 @@ threadlist_remtail(struct threadlist *tl)
 	return tln->tln_self;
 }
 
-void
-threadlist_insertafter(struct threadlist *tl,
-		       struct thread *onlist, struct thread *addee)
-{
+void threadlist_insertafter(struct threadlist *tl, struct thread *onlist,
+							struct thread *addee) {
 	threadlist_insertafternode(&onlist->t_listnode, addee);
 	tl->tl_count++;
 }
 
-void
-threadlist_insertbefore(struct threadlist *tl,
-			struct thread *addee, struct thread *onlist)
-{
+void threadlist_insertbefore(struct threadlist *tl, struct thread *addee,
+							 struct thread *onlist) {
 	threadlist_insertbeforenode(addee, &onlist->t_listnode);
 	tl->tl_count++;
 }
 
-void
-threadlist_remove(struct threadlist *tl, struct thread *t)
-{
+void threadlist_remove(struct threadlist *tl, struct thread *t) {
 	threadlist_removenode(&t->t_listnode);
 	DEBUGASSERT(tl->tl_count > 0);
 	tl->tl_count--;

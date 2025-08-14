@@ -53,10 +53,10 @@
 #define RANDOM_MAX RAND_MAX
 #endif
 
-#define PATH_KEYS    "sortkeys"
-#define PATH_SORTED  "output"
+#define PATH_KEYS "sortkeys"
+#define PATH_SORTED "output"
 #define PATH_TESTDIR "psortdir"
-#define PATH_RANDOM  "rand:"
+#define PATH_RANDOM "rand:"
 
 /*
  * Workload sizing.
@@ -106,9 +106,9 @@
  */
 
 /* Set the workload size. */
-#define WORKNUM      (96*1024)
+#define WORKNUM (96 * 1024)
 static int numprocs = 4;
-static int numkeys = 128*1024;
+static int numkeys = 128 * 1024;
 
 /* Per-process work buffer */
 static int workspace[WORKNUM];
@@ -127,10 +127,7 @@ static const char *progname;
 
 ////////////////////////////////////////////////////////////
 
-static
-void
-sortints(int *v, int num)
-{
+static void sortints(int *v, int num) {
 	int pivotval, pivotpoint, pivotcount;
 	int frontpos, readpos, endpos, i, j;
 	int tmp;
@@ -139,7 +136,7 @@ sortints(int *v, int num)
 		return;
 	}
 
-	pivotpoint = num/2;
+	pivotpoint = num / 2;
 	pivotval = v[pivotpoint];
 	pivotcount = 0;
 
@@ -149,12 +146,10 @@ sortints(int *v, int num)
 	while (readpos < endpos) {
 		if (v[readpos] < pivotval) {
 			v[frontpos++] = v[readpos++];
-		}
-		else if (v[readpos] == pivotval) {
+		} else if (v[readpos] == pivotval) {
 			readpos++;
 			pivotcount++;
-		}
-		else {
+		} else {
 			tmp = v[--endpos];
 			v[endpos] = v[readpos];
 			v[readpos] = tmp;
@@ -163,69 +158,57 @@ sortints(int *v, int num)
 	assert(readpos == endpos);
 	assert(frontpos + pivotcount == readpos);
 
-	for (i=frontpos; i<endpos; i++) {
+	for (i = frontpos; i < endpos; i++) {
 		v[i] = pivotval;
 	}
 
-	for (i=endpos, j=num-1; i<j; i++,j--) {
+	for (i = endpos, j = num - 1; i < j; i++, j--) {
 		tmp = v[i];
 		v[i] = v[j];
 		v[j] = tmp;
 	}
 
 	sortints(v, frontpos);
-	sortints(&v[endpos], num-endpos);
+	sortints(&v[endpos], num - endpos);
 }
 
 ////////////////////////////////////////////////////////////
 
-static
-void
-initprogname(const char *av0)
-{
+static void initprogname(const char *av0) {
 	if (av0) {
 		progname = strrchr(av0, '/');
 		if (progname) {
 			progname++;
-		}
-		else {
+		} else {
 			progname = av0;
 		}
-	}
-	else {
+	} else {
 		progname = "psort";
 	}
 }
 
-static
-void
-vscomplain(char *buf, size_t len, const char *fmt, va_list ap, int err)
-{
+static void vscomplain(char *buf, size_t len, const char *fmt, va_list ap,
+					   int err) {
 	size_t pos;
 
 	if (me >= 0) {
 		snprintf(buf, len, "%s: proc %d: ", progname, me);
-	}
-	else {
+	} else {
 		snprintf(buf, len, "%s: ", progname);
 	}
 	pos = strlen(buf);
 
-	vsnprintf(buf+pos, len-pos, fmt, ap);
+	vsnprintf(buf + pos, len - pos, fmt, ap);
 	pos = strlen(buf);
 
 	if (err >= 0) {
-		snprintf(buf+pos, len-pos, ": %s\n", strerror(err));
-	}
-	else {
-		snprintf(buf+pos, len-pos, "\n");
+		snprintf(buf + pos, len - pos, ": %s\n", strerror(err));
+	} else {
+		snprintf(buf + pos, len - pos, "\n");
 	}
 }
 
-static
-void
-complainx(const char *fmt, ...)
-{
+static void complainx(const char *fmt, ...) {
 	char buf[256];
 	va_list ap;
 	ssize_t junk;
@@ -244,10 +227,7 @@ complainx(const char *fmt, ...)
 	(void)junk;
 }
 
-static
-void
-complain(const char *fmt, ...)
-{
+static void complain(const char *fmt, ...) {
 	char buf[256];
 	va_list ap;
 	ssize_t junk;
@@ -269,44 +249,32 @@ complain(const char *fmt, ...)
 
 ////////////////////////////////////////////////////////////
 
-static
-int
-doopen(const char *path, int flags, int mode)
-{
+static int doopen(const char *path, int flags, int mode) {
 	int fd;
 
 	fd = open(path, flags, mode);
-	if (fd<0) {
+	if (fd < 0) {
 		complain("%s", path);
 		exit(1);
 	}
 	return fd;
 }
 
-static
-void
-doclose(const char *path, int fd)
-{
+static void doclose(const char *path, int fd) {
 	if (close(fd)) {
 		complain("%s: close", path);
 		exit(1);
 	}
 }
 
-static
-void
-docreate(const char *path)
-{
+static void docreate(const char *path) {
 	int fd;
 
-	fd = doopen(path, O_WRONLY|O_CREAT|O_TRUNC, 0664);
+	fd = doopen(path, O_WRONLY | O_CREAT | O_TRUNC, 0664);
 	doclose(path, fd);
 }
 
-static
-void
-doremove(const char *path)
-{
+static void doremove(const char *path) {
 	static int noremove;
 
 	if (noremove) {
@@ -322,10 +290,7 @@ doremove(const char *path)
 	}
 }
 
-static
-off_t
-getsize(const char *path)
-{
+static off_t getsize(const char *path) {
 	struct stat buf;
 	int fd;
 	static int no_stat, no_fstat;
@@ -368,10 +333,7 @@ getsize(const char *path)
 	exit(1);
 }
 
-static
-size_t
-doread(const char *path, int fd, void *buf, size_t len)
-{
+static size_t doread(const char *path, int fd, void *buf, size_t len) {
 	int result;
 
 	result = read(fd, buf, len);
@@ -379,13 +341,10 @@ doread(const char *path, int fd, void *buf, size_t len)
 		complain("%s: read", path);
 		exit(1);
 	}
-	return (size_t) result;
+	return (size_t)result;
 }
 
-static
-void
-doexactread(const char *path, int fd, void *buf, size_t len)
-{
+static void doexactread(const char *path, int fd, void *buf, size_t len) {
 	size_t result;
 
 	result = doread(path, fd, buf, len);
@@ -395,10 +354,7 @@ doexactread(const char *path, int fd, void *buf, size_t len)
 	}
 }
 
-static
-void
-dowrite(const char *path, int fd, const void *buf, size_t len)
-{
+static void dowrite(const char *path, int fd, const void *buf, size_t len) {
 	int result;
 
 	result = write(fd, buf, len);
@@ -406,23 +362,20 @@ dowrite(const char *path, int fd, const void *buf, size_t len)
 		complain("%s: write", path);
 		exit(1);
 	}
-	if ((size_t) result != len) {
+	if ((size_t)result != len) {
 		complainx("%s: write: short count", path);
 		exit(1);
 	}
 }
 
-static
-void
-dolseek(const char *name, int fd, off_t offset, int whence)
-{
+static void dolseek(const char *name, int fd, off_t offset, int whence) {
 	if (lseek(fd, offset, whence) < 0) {
 		complain("%s: lseek", name);
 		exit(1);
 	}
 }
 
-#if 0 /* let's not require subdirs */
+#if 0  /* let's not require subdirs */
 static
 void
 dochdir(const char *path)
@@ -444,10 +397,7 @@ domkdir(const char *path, int mode)
 }
 #endif /* 0 */
 
-static
-pid_t
-dofork(void)
-{
+static pid_t dofork(void) {
 	pid_t pid;
 
 	pid = fork();
@@ -461,10 +411,7 @@ dofork(void)
 
 ////////////////////////////////////////////////////////////
 
-static
-int
-dowait(int guy, pid_t pid)
-{
+static int dowait(int guy, pid_t pid) {
 	int status, result;
 
 	result = waitpid(pid, &status, 0);
@@ -485,19 +432,15 @@ dowait(int guy, pid_t pid)
 	return 0;
 }
 
-static
-void
-doforkall(const char *phasename, void (*func)(void))
-{
+static void doforkall(const char *phasename, void (*func)(void)) {
 	int i, bad = 0;
 	pid_t pids[numprocs];
 
-	for (i=0; i<numprocs; i++) {
+	for (i = 0; i < numprocs; i++) {
 		pids[i] = dofork();
 		if (pids[i] < 0) {
 			bad = 1;
-		}
-		else if (pids[i] == 0) {
+		} else if (pids[i] == 0) {
 			/* child */
 			me = i;
 			func();
@@ -505,7 +448,7 @@ doforkall(const char *phasename, void (*func)(void))
 		}
 	}
 
-	for (i=0; i<numprocs; i++) {
+	for (i = 0; i < numprocs; i++) {
 		if (pids[i] > 0 && dowait(i, pids[i])) {
 			bad = 1;
 		}
@@ -517,39 +460,30 @@ doforkall(const char *phasename, void (*func)(void))
 	}
 }
 
-static
-void
-seekmyplace(const char *name, int fd)
-{
+static void seekmyplace(const char *name, int fd) {
 	int keys_per, myfirst;
 	off_t offset;
 
 	keys_per = numkeys / numprocs;
-	myfirst = me*keys_per;
+	myfirst = me * keys_per;
 	offset = myfirst * sizeof(int);
 
 	dolseek(name, fd, offset, SEEK_SET);
 }
 
-static
-int
-getmykeys(void)
-{
+static int getmykeys(void) {
 	int keys_per, myfirst, mykeys;
 
 	keys_per = numkeys / numprocs;
-	myfirst = me*keys_per;
-	mykeys = (me < numprocs-1) ? keys_per : numkeys - myfirst;
+	myfirst = me * keys_per;
+	mykeys = (me < numprocs - 1) ? keys_per : numkeys - myfirst;
 
 	return mykeys;
 }
 
 ////////////////////////////////////////////////////////////
 
-static
-unsigned long
-checksum_file(const char *path)
-{
+static unsigned long checksum_file(const char *path) {
 	int fd;
 	char buf[512];
 	size_t count, i;
@@ -558,8 +492,8 @@ checksum_file(const char *path)
 	fd = doopen(path, O_RDONLY, 0);
 
 	while ((count = doread(path, fd, buf, sizeof(buf))) > 0) {
-		for (i=0; i<count; i++) {
-			sum += (unsigned char) buf[i];
+		for (i = 0; i < count; i++) {
+			sum += (unsigned char)buf[i];
 		}
 	}
 
@@ -572,10 +506,7 @@ checksum_file(const char *path)
 
 static long *seeds;
 
-static
-void
-genkeys_sub(void)
-{
+static void genkeys_sub(void) {
 	int fd, i, mykeys, keys_done, keys_to_do, value;
 
 	fd = doopen(PATH_KEYS, O_WRONLY, 0);
@@ -591,7 +522,7 @@ genkeys_sub(void)
 			keys_to_do = WORKNUM;
 		}
 
-		for (i=0; i<keys_to_do; i++) {
+		for (i = 0; i < keys_to_do; i++) {
 			value = random();
 
 			// check bounds of value
@@ -606,17 +537,14 @@ genkeys_sub(void)
 			workspace[i] = value;
 		}
 
-		dowrite(PATH_KEYS, fd, workspace, keys_to_do*sizeof(int));
+		dowrite(PATH_KEYS, fd, workspace, keys_to_do * sizeof(int));
 		keys_done += keys_to_do;
 	}
 
 	doclose(PATH_KEYS, fd);
 }
 
-static
-void
-genkeys(void)
-{
+static void genkeys(void) {
 	long seedspace[numprocs];
 	int i;
 
@@ -625,7 +553,7 @@ genkeys(void)
 
 	/* Generate random seeds for each subprocess. */
 	srandom(randomseed);
-	for (i=0; i<numprocs; i++) {
+	for (i = 0; i < numprocs; i++) {
 		seedspace[i] = random();
 	}
 
@@ -649,28 +577,19 @@ genkeys(void)
 
 ////////////////////////////////////////////////////////////
 
-static
-const char *
-binname(int a, int b)
-{
+static const char *binname(int a, int b) {
 	static char rv[32];
 	snprintf(rv, sizeof(rv), "bin-%d-%d", a, b);
 	return rv;
 }
 
-static
-const char *
-mergedname(int a)
-{
+static const char *mergedname(int a) {
 	static char rv[32];
 	snprintf(rv, sizeof(rv), "merged-%d", a);
 	return rv;
 }
 
-static
-void
-bin(void)
-{
+static void bin(void) {
 	int infd, outfds[numprocs];
 	const char *name;
 	int i, mykeys, keys_done, keys_to_do;
@@ -681,9 +600,9 @@ bin(void)
 	mykeys = getmykeys();
 	seekmyplace(PATH_KEYS, infd);
 
-	for (i=0; i<numprocs; i++) {
+	for (i = 0; i < numprocs; i++) {
 		name = binname(me, i);
-		outfds[i] = doopen(name, O_WRONLY|O_CREAT|O_TRUNC, 0664);
+		outfds[i] = doopen(name, O_WRONLY | O_CREAT | O_TRUNC, 0664);
 	}
 
 	pivot = (RANDOM_MAX / numprocs);
@@ -695,10 +614,9 @@ bin(void)
 			keys_to_do = WORKNUM;
 		}
 
-		doexactread(PATH_KEYS, infd, workspace,
-			    keys_to_do * sizeof(int));
+		doexactread(PATH_KEYS, infd, workspace, keys_to_do * sizeof(int));
 
-		for (i=0; i<keys_to_do; i++) {
+		for (i = 0; i < keys_to_do; i++) {
 			key = workspace[i];
 
 			binnum = key / pivot;
@@ -715,28 +633,24 @@ bin(void)
 	}
 	doclose(PATH_KEYS, infd);
 
-	for (i=0; i<numprocs; i++) {
+	for (i = 0; i < numprocs; i++) {
 		doclose(binname(me, i), outfds[i]);
 	}
 }
 
-static
-void
-sortbins(void)
-{
+static void sortbins(void) {
 	const char *name;
 	int i, fd;
 	off_t binsize;
 
-	for (i=0; i<numprocs; i++) {
+	for (i = 0; i < numprocs; i++) {
 		name = binname(me, i);
 		binsize = getsize(name);
 		if (binsize % sizeof(int) != 0) {
-			complainx("%s: bin size %ld no good", name,
-				  (long) binsize);
+			complainx("%s: bin size %ld no good", name, (long)binsize);
 			exit(1);
 		}
-		if (binsize > (off_t) sizeof(workspace)) {
+		if (binsize > (off_t)sizeof(workspace)) {
 			complainx("proc %d: %s: bin too large", me, name);
 			exit(1);
 		}
@@ -744,7 +658,7 @@ sortbins(void)
 		fd = doopen(name, O_RDWR, 0);
 		doexactread(name, fd, workspace, binsize);
 
-		sortints(workspace, binsize/sizeof(int));
+		sortints(workspace, binsize / sizeof(int));
 
 		dolseek(name, fd, 0, SEEK_SET);
 		dowrite(name, fd, workspace, binsize);
@@ -752,10 +666,7 @@ sortbins(void)
 	}
 }
 
-static
-void
-mergebins(void)
-{
+static void mergebins(void) {
 	int infds[numprocs], outfd;
 	int values[numprocs], ready[numprocs];
 	const char *name, *outname;
@@ -763,9 +674,9 @@ mergebins(void)
 	int numready, place, val, worknum;
 
 	outname = mergedname(me);
-	outfd = doopen(outname, O_WRONLY|O_CREAT|O_TRUNC, 0664);
+	outfd = doopen(outname, O_WRONLY | O_CREAT | O_TRUNC, 0664);
 
-	for (i=0; i<numprocs; i++) {
+	for (i = 0; i < numprocs; i++) {
 		name = binname(i, me);
 		infds[i] = doopen(name, O_RDONLY, 0);
 		values[i] = 0;
@@ -776,22 +687,20 @@ mergebins(void)
 
 	while (1) {
 		numready = 0;
-		for (i=0; i<numprocs; i++) {
+		for (i = 0; i < numprocs; i++) {
 			if (infds[i] < 0) {
 				continue;
 			}
 
 			if (!ready[i]) {
-				result = doread("bin", infds[i],
-						&val, sizeof(int));
+				result = doread("bin", infds[i], &val, sizeof(int));
 				if (result == 0) {
 					doclose("bin", infds[i]);
 					infds[i] = -1;
 					continue;
 				}
-				if ((size_t) result != sizeof(int)) {
-					complainx("%s: read: short count",
-						  binname(i, me));
+				if ((size_t)result != sizeof(int)) {
+					complainx("%s: read: short count", binname(i, me));
 					exit(1);
 				}
 				values[i] = val;
@@ -805,7 +714,7 @@ mergebins(void)
 
 		/* find the smallest */
 		place = -1;
-		for (i=0; i<numprocs; i++) {
+		for (i = 0; i < numprocs; i++) {
 			if (!ready[i]) {
 				continue;
 			}
@@ -819,8 +728,7 @@ mergebins(void)
 		workspace[worknum++] = val;
 		if (worknum >= WORKNUM) {
 			assert(worknum == WORKNUM);
-			dowrite(outname, outfd, workspace,
-				worknum * sizeof(int));
+			dowrite(outname, outfd, workspace, worknum * sizeof(int));
 			worknum = 0;
 		}
 		ready[place] = 0;
@@ -829,21 +737,18 @@ mergebins(void)
 	dowrite(outname, outfd, workspace, worknum * sizeof(int));
 	doclose(outname, outfd);
 
-	for (i=0; i<numprocs; i++) {
+	for (i = 0; i < numprocs; i++) {
 		assert(infds[i] < 0);
 	}
 }
 
-static
-void
-assemble(void)
-{
+static void assemble(void) {
 	off_t mypos;
 	int i, fd;
 	const char *args[3];
 
 	mypos = 0;
-	for (i=0; i<me; i++) {
+	for (i = 0; i < me; i++) {
 		mypos += getsize(mergedname(i));
 	}
 
@@ -860,80 +765,69 @@ assemble(void)
 	args[0] = "cat";
 	args[1] = mergedname(me);
 	args[2] = NULL;
-	execv("/bin/cat", (char **) args);
+	execv("/bin/cat", (char **)args);
 	complain("/bin/cat: exec");
 	exit(1);
 }
 
-static
-void
-checksize_bins(void)
-{
+static void checksize_bins(void) {
 	off_t totsize;
 	int i, j;
 
 	totsize = 0;
-	for (i=0; i<numprocs; i++) {
-		for (j=0; j<numprocs; j++) {
+	for (i = 0; i < numprocs; i++) {
+		for (j = 0; j < numprocs; j++) {
 			totsize += getsize(binname(i, j));
 		}
 	}
 	if (totsize != correctsize) {
 		complain("Sum of bin sizes is wrong (%ld, should be %ld)",
-			 (long) totsize, (long) correctsize);
+				 (long)totsize, (long)correctsize);
 		exit(1);
 	}
 }
 
-static
-void
-checksize_merge(void)
-{
+static void checksize_merge(void) {
 	off_t totsize;
 	int i;
 
 	totsize = 0;
-	for (i=0; i<numprocs; i++) {
+	for (i = 0; i < numprocs; i++) {
 		totsize += getsize(mergedname(i));
 	}
 	if (totsize != correctsize) {
 		complain("Sum of merged sizes is wrong (%ld, should be %ld)",
-			 (long) totsize, (long) correctsize);
+				 (long)totsize, (long)correctsize);
 		exit(1);
 	}
 }
 
-static
-void
-sort(void)
-{
+static void sort(void) {
 	unsigned long sortedsum;
 	int i, j;
 
 	/* Step 1. Toss into bins. */
-	complainx("Tossing into %d bins using %d procs",
-		  numprocs*numprocs, numprocs);
+	complainx("Tossing into %d bins using %d procs", numprocs * numprocs,
+			  numprocs);
 	doforkall("Tossing", bin);
 	checksize_bins();
 	complainx("Done tossing into bins.");
 
 	/* Step 2: Sort the bins. */
-	complainx("Sorting %d bins using %d procs",
-		  numprocs*numprocs, numprocs);
+	complainx("Sorting %d bins using %d procs", numprocs * numprocs, numprocs);
 	doforkall("Sorting", sortbins);
 	checksize_bins();
 	complainx("Done sorting the bins.");
 
 	/* Step 3: Merge corresponding bins. */
-	complainx("Merging %d bins using %d procs",
-		  numprocs*numprocs, numprocs);
+	complainx("Merging %d bins using %d procs", numprocs * numprocs, numprocs);
 	doforkall("Merging", mergebins);
 	checksize_merge();
 	complainx("Done merging the bins.");
 
 	/* Step 3a: delete the bins */
-	for (i=0; i<numprocs; i++) {
-		for (j=0; j<numprocs; j++) {
+	for (i = 0; i < numprocs; i++) {
+		for (j = 0; j < numprocs; j++) {
 			doremove(binname(i, j));
 		}
 	}
@@ -948,7 +842,7 @@ sort(void)
 	}
 
 	/* Step 4a: delete the merged bins */
-	for (i=0; i<numprocs; i++) {
+	for (i = 0; i < numprocs; i++) {
 		doremove(mergedname(i));
 	}
 
@@ -965,40 +859,31 @@ sort(void)
 
 ////////////////////////////////////////////////////////////
 
-static
-const char *
-validname(int a)
-{
+static const char *validname(int a) {
 	static char rv[32];
 	snprintf(rv, sizeof(rv), "valid-%d", a);
 	return rv;
 }
 
-static
-void
-checksize_valid(void)
-{
+static void checksize_valid(void) {
 	off_t totvsize, correctvsize;
 	int i;
 
-	correctvsize = (off_t) numprocs*2*sizeof(int);
+	correctvsize = (off_t)numprocs * 2 * sizeof(int);
 
 	totvsize = 0;
-	for (i=0; i<numprocs; i++) {
+	for (i = 0; i < numprocs; i++) {
 		totvsize += getsize(validname(i));
 	}
 	if (totvsize != correctvsize) {
 		complainx("Sum of validation sizes is wrong "
-			  "(%ld, should be %ld)",
-			  (long) totvsize, (long) correctvsize);
+				  "(%ld, should be %ld)",
+				  (long)totvsize, (long)correctvsize);
 		exit(1);
 	}
 }
 
-static
-void
-dovalidate(void)
-{
+static void dovalidate(void) {
 	const char *name;
 	int fd, i, mykeys, keys_done, keys_to_do;
 	int key, smallest, largest;
@@ -1021,7 +906,7 @@ dovalidate(void)
 
 		doexactread(name, fd, workspace, keys_to_do * sizeof(int));
 
-		for (i=0; i<keys_to_do; i++) {
+		for (i = 0; i < keys_to_do; i++) {
 			key = workspace[i];
 
 			if (key < 0) {
@@ -1050,16 +935,13 @@ dovalidate(void)
 	doclose(name, fd);
 
 	name = validname(me);
-	fd = doopen(name, O_WRONLY|O_CREAT|O_TRUNC, 0664);
+	fd = doopen(name, O_WRONLY | O_CREAT | O_TRUNC, 0664);
 	dowrite(name, fd, &smallest, sizeof(smallest));
 	dowrite(name, fd, &largest, sizeof(largest));
 	doclose(name, fd);
 }
 
-static
-void
-validate(void)
-{
+static void validate(void) {
 	int smallest, largest, prev_largest;
 	int i, fd;
 	const char *name;
@@ -1070,7 +952,7 @@ validate(void)
 
 	prev_largest = 1;
 
-	for (i=0; i<numprocs; i++) {
+	for (i = 0; i < numprocs; i++) {
 		name = validname(i);
 		fd = doopen(name, O_RDONLY, 0);
 
@@ -1086,46 +968,36 @@ validate(void)
 			exit(1);
 		}
 		if (smallest > largest) {
-			complainx("Validation: block %d: SMALLEST > LARGEST",
-				  i);
+			complainx("Validation: block %d: SMALLEST > LARGEST", i);
 			exit(1);
 		}
 
 		if (smallest < prev_largest) {
-			complain("Validation: block %d smallest key %d",
-				 i, smallest);
-			complain("Validation: previous block largest key %d",
-				 prev_largest);
+			complain("Validation: block %d smallest key %d", i, smallest);
+			complain("Validation: previous block largest key %d", prev_largest);
 			complain("Validation failed");
 			exit(1);
 		}
 	}
 
-
-	for (i=0; i<numprocs; i++) {
+	for (i = 0; i < numprocs; i++) {
 		doremove(validname(i));
 	}
 }
 
 ////////////////////////////////////////////////////////////
 
-static
-void
-setdir(void)
-{
-#if 0 /* let's not require subdirs */
+static void setdir(void) {
+#if 0  /* let's not require subdirs */
 	domkdir(PATH_TESTDIR, 0775);
 	dochdir(PATH_TESTDIR);
 #endif /* 0 */
 }
 
-static
-void
-unsetdir(void)
-{
+static void unsetdir(void) {
 	doremove(PATH_KEYS);
 	doremove(PATH_SORTED);
-#if 0 /* let's not require subdirs */
+#if 0  /* let's not require subdirs */
 	dochdir("..");
 
 	if (rmdir(PATH_TESTDIR) < 0) {
@@ -1137,10 +1009,7 @@ unsetdir(void)
 
 ////////////////////////////////////////////////////////////
 
-static
-void
-randomize(void)
-{
+static void randomize(void) {
 	int fd;
 
 	fd = doopen(PATH_RANDOM, O_RDONLY, 0);
@@ -1148,69 +1017,82 @@ randomize(void)
 	doclose(PATH_RANDOM, fd);
 }
 
-static
-void
-usage(void)
-{
+static void usage(void) {
 	complain("Usage: %s [-p procs] [-k keys] [-s seed] [-r]", progname);
 	exit(1);
 }
 
-static
-void
-doargs(int argc, char *argv[])
-{
+static void doargs(int argc, char *argv[]) {
 	int i, ch, val, arg;
 
-	for (i=1; i<argc; i++) {
+	for (i = 1; i < argc; i++) {
 		if (argv[i][0] != '-') {
 			usage();
 			return;
 		}
 		ch = argv[i][1];
 		switch (ch) {
-		    case 'p': arg = 1; break;
-		    case 'k': arg = 1; break;
-		    case 's': arg = 1; break;
-		    case 'r': arg = 0; break;
-		    default: usage(); return;
+		case 'p':
+			arg = 1;
+			break;
+		case 'k':
+			arg = 1;
+			break;
+		case 's':
+			arg = 1;
+			break;
+		case 'r':
+			arg = 0;
+			break;
+		default:
+			usage();
+			return;
 		}
 		if (arg) {
 			if (argv[i][2]) {
-				val = atoi(argv[i]+2);
-			}
-			else {
+				val = atoi(argv[i] + 2);
+			} else {
 				i++;
 				if (!argv[i]) {
 					complain("Option -%c requires an "
-						 "argument", ch);
+							 "argument",
+							 ch);
 					exit(1);
 				}
 				val = atoi(argv[i]);
 			}
 			switch (ch) {
-			    case 'p': numprocs = val; break;
-			    case 'k': numkeys = val; break;
-			    case 's': randomseed = val; break;
-			    default: assert(0); break;
+			case 'p':
+				numprocs = val;
+				break;
+			case 'k':
+				numkeys = val;
+				break;
+			case 's':
+				randomseed = val;
+				break;
+			default:
+				assert(0);
+				break;
 			}
-		}
-		else {
+		} else {
 			switch (ch) {
-			    case 'r': randomize(); break;
-			    default: assert(0); break;
+			case 'r':
+				randomize();
+				break;
+			default:
+				assert(0);
+				break;
 			}
 		}
 	}
 }
 
-int
-main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
 	initprogname(argc > 0 ? argv[0] : NULL);
 
 	doargs(argc, argv);
-	correctsize = (off_t) (numkeys*sizeof(int));
+	correctsize = (off_t)(numkeys * sizeof(int));
 
 	setdir();
 

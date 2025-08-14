@@ -45,10 +45,8 @@
  * file. If DOALLOC is set, and no such block exists, one will be
  * allocated.
  */
-int
-sfs_bmap(struct sfs_vnode *sv, uint32_t fileblock, bool doalloc,
-	 daddr_t *diskblock)
-{
+int sfs_bmap(struct sfs_vnode *sv, uint32_t fileblock, bool doalloc,
+			 daddr_t *diskblock) {
 	/*
 	 * I/O buffer for handling indirect blocks.
 	 *
@@ -64,7 +62,7 @@ sfs_bmap(struct sfs_vnode *sv, uint32_t fileblock, bool doalloc,
 	uint32_t idnum, idoff;
 	int result;
 
-	KASSERT(sizeof(idbuf)==SFS_BLOCKSIZE);
+	KASSERT(sizeof(idbuf) == SFS_BLOCKSIZE);
 
 	/* Since we're using a static buffer, we'd better be locked. */
 	KASSERT(vfs_biglock_do_i_hold());
@@ -81,7 +79,7 @@ sfs_bmap(struct sfs_vnode *sv, uint32_t fileblock, bool doalloc,
 		/*
 		 * Do we need to allocate?
 		 */
-		if (block==0 && doalloc) {
+		if (block == 0 && doalloc) {
 			result = sfs_balloc(sfs, &block);
 			if (result) {
 				return result;
@@ -97,8 +95,8 @@ sfs_bmap(struct sfs_vnode *sv, uint32_t fileblock, bool doalloc,
 		 */
 		if (block != 0 && !sfs_bused(sfs, block)) {
 			panic("sfs: %s: Data block %u (block %u of file %u) "
-			      "marked free\n", sfs->sfs_sb.sb_volname,
-			      block, fileblock, sv->sv_ino);
+				  "marked free\n",
+				  sfs->sfs_sb.sb_volname, block, fileblock, sv->sv_ino);
 		}
 		*diskblock = block;
 		return 0;
@@ -127,7 +125,7 @@ sfs_bmap(struct sfs_vnode *sv, uint32_t fileblock, bool doalloc,
 	/* Get the disk block number of the indirect block. */
 	idblock = sv->sv_i.sfi_indirect;
 
-	if (idblock==0 && !doalloc) {
+	if (idblock == 0 && !doalloc) {
 		/*
 		 * There's no indirect block allocated. We weren't
 		 * asked to allocate anything, so pretend the indirect
@@ -135,8 +133,7 @@ sfs_bmap(struct sfs_vnode *sv, uint32_t fileblock, bool doalloc,
 		 */
 		*diskblock = 0;
 		return 0;
-	}
-	else if (idblock==0) {
+	} else if (idblock == 0) {
 		/*
 		 * There's no indirect block allocated, but we need to
 		 * allocate a block whose number needs to be stored in
@@ -156,8 +153,7 @@ sfs_bmap(struct sfs_vnode *sv, uint32_t fileblock, bool doalloc,
 
 		/* Clear the indirect block buffer */
 		bzero(idbuf, sizeof(idbuf));
-	}
-	else {
+	} else {
 		/*
 		 * We already have an indirect block allocated; load it.
 		 */
@@ -171,7 +167,7 @@ sfs_bmap(struct sfs_vnode *sv, uint32_t fileblock, bool doalloc,
 	block = idbuf[idoff];
 
 	/* If there's no block there, allocate one */
-	if (block==0 && doalloc) {
+	if (block == 0 && doalloc) {
 		result = sfs_balloc(sfs, &block);
 		if (result) {
 			return result;
@@ -190,8 +186,8 @@ sfs_bmap(struct sfs_vnode *sv, uint32_t fileblock, bool doalloc,
 	/* Hand back the result and return. */
 	if (block != 0 && !sfs_bused(sfs, block)) {
 		panic("sfs: %s: Data block %u (block %u of file %u) "
-		      "marked free\n", sfs->sfs_sb.sb_volname,
-		      block, fileblock, sv->sv_ino);
+			  "marked free\n",
+			  sfs->sfs_sb.sb_volname, block, fileblock, sv->sv_ino);
 	}
 	*diskblock = block;
 	return 0;
@@ -200,9 +196,7 @@ sfs_bmap(struct sfs_vnode *sv, uint32_t fileblock, bool doalloc,
 /*
  * Called for ftruncate() and from sfs_reclaim.
  */
-int
-sfs_itrunc(struct sfs_vnode *sv, off_t len)
-{
+int sfs_itrunc(struct sfs_vnode *sv, off_t len) {
 	/*
 	 * I/O buffer for handling the indirect block.
 	 *
@@ -223,7 +217,7 @@ sfs_itrunc(struct sfs_vnode *sv, off_t len)
 	int result;
 	int hasnonzero, iddirty;
 
-	KASSERT(sizeof(idbuf)==SFS_BLOCKSIZE);
+	KASSERT(sizeof(idbuf) == SFS_BLOCKSIZE);
 
 	vfs_biglock_acquire();
 
@@ -231,7 +225,7 @@ sfs_itrunc(struct sfs_vnode *sv, off_t len)
 	 * Go through the direct blocks. Discard any that are
 	 * past the limit we're truncating to.
 	 */
-	for (i=0; i<SFS_NDIRECT; i++) {
+	for (i = 0; i < SFS_NDIRECT; i++) {
 		block = sv->sv_i.sfi_direct[i];
 		if (i >= blocklen && block != 0) {
 			sfs_bfree(sfs, block);
@@ -261,16 +255,16 @@ sfs_itrunc(struct sfs_vnode *sv, off_t len)
 
 		hasnonzero = 0;
 		iddirty = 0;
-		for (j=0; j<SFS_DBPERIDB; j++) {
+		for (j = 0; j < SFS_DBPERIDB; j++) {
 			/* Discard any blocks that are past the new EOF */
-			if (blocklen < baseblock+j && idbuf[j] != 0) {
+			if (blocklen < baseblock + j && idbuf[j] != 0) {
 				sfs_bfree(sfs, idbuf[j]);
 				idbuf[j] = 0;
 				iddirty = 1;
 			}
 			/* Remember if we see any nonzero blocks in here */
-			if (idbuf[j]!=0) {
-				hasnonzero=1;
+			if (idbuf[j] != 0) {
+				hasnonzero = 1;
 			}
 		}
 
@@ -279,11 +273,9 @@ sfs_itrunc(struct sfs_vnode *sv, off_t len)
 			sfs_bfree(sfs, idblock);
 			sv->sv_i.sfi_indirect = 0;
 			sv->sv_dirty = true;
-		}
-		else if (iddirty) {
+		} else if (iddirty) {
 			/* The indirect block is dirty; write it back */
-			result = sfs_writeblock(sfs, idblock, idbuf,
-						sizeof(idbuf));
+			result = sfs_writeblock(sfs, idblock, idbuf, sizeof(idbuf));
 			if (result) {
 				vfs_biglock_release();
 				return result;
@@ -300,4 +292,3 @@ sfs_itrunc(struct sfs_vnode *sv, off_t len)
 	vfs_biglock_release();
 	return 0;
 }
-

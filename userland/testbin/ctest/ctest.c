@@ -44,8 +44,8 @@
  * DEFAULT is the default stride.
  * Note that SIZE and DEFAULT should be relatively prime.
  */
-#define SIZE      (1024*1024/sizeof(struct entry))
-#define DEFAULT   477
+#define SIZE (1024 * 1024 / sizeof(struct entry))
+#define DEFAULT 477
 
 struct entry {
 	struct entry *e;
@@ -53,9 +53,7 @@ struct entry {
 
 struct entry array[SIZE];
 
-int
-main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
 	volatile struct entry *e;
 	unsigned i, stride;
 
@@ -78,8 +76,8 @@ main(int argc, char **argv)
 	 * list. Otherwise you will get multiple disjoint lists. (All
 	 * these lists will be circular.)
 	 */
-	for (i=0; i<SIZE; i++) {
-		array[i].e = &array[(i+stride) % SIZE];
+	for (i = 0; i < SIZE; i++) {
+		array[i].e = &array[(i + stride) % SIZE];
 	}
 
 	/*
@@ -89,7 +87,7 @@ main(int argc, char **argv)
 	 * once and others not at all.)
 	 */
 	e = &array[0];
-	for (i=0; i<SIZE; i++) {
+	for (i = 0; i < SIZE; i++) {
 		if (i % stride == 0) {
 			putchar('.');
 		}

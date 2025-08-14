@@ -34,9 +34,7 @@
  * true - succeed.
  */
 
-int
-main(void)
-{
+int main(void) {
 	/* Just exit with success. */
 	exit(0);
 }

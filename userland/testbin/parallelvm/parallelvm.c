@@ -46,37 +46,17 @@
 #include <unistd.h>
 #include <err.h>
 
-#define NJOBS    24
+#define NJOBS 24
 
-#define DIM      35
-#define NMATS    11
-#define JOBSIZE  ((NMATS+1)*DIM*DIM*sizeof(int))
+#define DIM 35
+#define NMATS 11
+#define JOBSIZE ((NMATS + 1) * DIM * DIM * sizeof(int))
 
 static const int right_answers[NJOBS] = {
-        -1337312809,
-	356204544,
-	-537881911,
-	-65406976,
-	1952063315,
-	-843894784,
-	1597000869,
-	-993925120,
-	838840559,
-        -1616928768,
-	-182386335,
-	-364554240,
-	251084843,
-	-61403136,
-	295326333,
-	1488013312,
-	1901440647,
-	0,
-        -1901440647,
-        -1488013312,
-	-295326333,
-	61403136,
-	-251084843,
-	364554240,
+	-1337312809, 356204544,	  -537881911, -65406976,   1952063315, -843894784,
+	1597000869,	 -993925120,  838840559,  -1616928768, -182386335, -364554240,
+	251084843,	 -61403136,	  295326333,  1488013312,  1901440647, 0,
+	-1901440647, -1488013312, -295326333, 61403136,	   -251084843, 364554240,
 };
 
 ////////////////////////////////////////////////////////////
@@ -91,10 +71,7 @@ struct matrix {
  * Use this instead of just calling printf so we know each printout
  * is atomic; this prevents the lines from getting intermingled.
  */
-static
-void
-say(const char *fmt, ...)
-{
+static void say(const char *fmt, ...) {
 	char buf[256];
 	va_list ap;
 	va_start(ap, fmt);
@@ -105,41 +82,33 @@ say(const char *fmt, ...)
 
 ////////////////////////////////////////////////////////////
 
-static
-void
-multiply(struct matrix *res, const struct matrix *m1, const struct matrix *m2)
-{
+static void multiply(struct matrix *res, const struct matrix *m1,
+					 const struct matrix *m2) {
 	int i, j, k;
 
-	for (i=0; i<DIM; i++) {
-		for (j=0; j<DIM; j++) {
-			int val=0;
-			for (k=0; k<DIM; k++) {
-				val += m1->m_data[i][k]*m2->m_data[k][j];
+	for (i = 0; i < DIM; i++) {
+		for (j = 0; j < DIM; j++) {
+			int val = 0;
+			for (k = 0; k < DIM; k++) {
+				val += m1->m_data[i][k] * m2->m_data[k][j];
 			}
 			res->m_data[i][j] = val;
 		}
 	}
 }
 
-static
-void
-addeq(struct matrix *m1, const struct matrix *m2)
-{
+static void addeq(struct matrix *m1, const struct matrix *m2) {
 	int i, j;
-	for (i=0; i<DIM; i++) {
-		for (j=0; j<DIM; j++) {
+	for (i = 0; i < DIM; i++) {
+		for (j = 0; j < DIM; j++) {
 			m1->m_data[i][j] += m2->m_data[i][j];
 		}
 	}
 }
 
-static
-int
-trace(const struct matrix *m1)
-{
-	int i, t=0;
-	for (i=0; i<DIM; i++) {
+static int trace(const struct matrix *m1) {
+	int i, t = 0;
+	for (i = 0; i < DIM; i++) {
 		t += m1->m_data[i][i];
 	}
 	return t;
@@ -149,67 +118,49 @@ trace(const struct matrix *m1)
 
 static struct matrix mats[NMATS];
 
-static
-void
-populate_initial_matrixes(int mynum)
-{
-	int i,j;
+static void populate_initial_matrixes(int mynum) {
+	int i, j;
 	struct matrix *m = &mats[0];
-	for (i=0; i<DIM; i++) {
-		for (j=0; j<DIM; j++) {
-			m->m_data[i][j] = mynum+i-2*j;
+	for (i = 0; i < DIM; i++) {
+		for (j = 0; j < DIM; j++) {
+			m->m_data[i][j] = mynum + i - 2 * j;
 		}
 	}
 
 	multiply(&mats[1], &mats[0], &mats[0]);
 }
 
-static
-void
-compute(int n)
-{
+static void compute(int n) {
 	struct matrix tmp;
 	int i, j;
 
-	for (i=0,j=n-1; i<j; i++,j--) {
+	for (i = 0, j = n - 1; i < j; i++, j--) {
 		multiply(&tmp, &mats[i], &mats[j]);
 		addeq(&mats[n], &tmp);
 	}
 }
 
-static
-void
-computeall(int mynum)
-{
+static void computeall(int mynum) {
 	int i;
 	populate_initial_matrixes(mynum);
-	for (i=2; i<NMATS; i++) {
+	for (i = 2; i < NMATS; i++) {
 		compute(i);
 	}
 }
 
-static
-int
-answer(void)
-{
-	return trace(&mats[NMATS-1]);
-}
+static int answer(void) { return trace(&mats[NMATS - 1]); }
 
-static
-void
-go(int mynum)
-{
+static void go(int mynum) {
 	int r;
 
-	say("Process %d (pid %d) starting computation...\n", mynum,
-	    (int) getpid());
+	say("Process %d (pid %d) starting computation...\n", mynum, (int)getpid());
 
 	computeall(mynum);
 	r = answer();
 
 	if (r != right_answers[mynum]) {
-		say("Process %d answer %d: FAILED, should be %d\n",
-		    mynum, r, right_answers[mynum]);
+		say("Process %d answer %d: FAILED, should be %d\n", mynum, r,
+			right_answers[mynum]);
 		exit(1);
 	}
 	say("Process %d answer %d: passed\n", mynum, r);
@@ -239,50 +190,31 @@ struct usem {
 	int fd;
 };
 
-static
-void
-semcreate(const char *tag, struct usem *sem)
-{
+static void semcreate(const char *tag, struct usem *sem) {
 	int fd;
 
-	snprintf(sem->name, sizeof(sem->name), "sem:parallelvm.%s.%d",
-		 tag, (int)getpid());
+	snprintf(sem->name, sizeof(sem->name), "sem:parallelvm.%s.%d", tag,
+			 (int)getpid());
 
-	fd = open(sem->name, O_WRONLY|O_CREAT|O_TRUNC, 0664);
+	fd = open(sem->name, O_WRONLY | O_CREAT | O_TRUNC, 0664);
 	if (fd < 0) {
 		err(1, "%s: create", sem->name);
 	}
 	close(fd);
 }
 
-static
-void
-semopen(struct usem *sem)
-{
+static void semopen(struct usem *sem) {
 	sem->fd = open(sem->name, O_RDWR, 0664);
 	if (sem->fd < 0) {
 		err(1, "%s: open", sem->name);
 	}
 }
 
-static
-void
-semclose(struct usem *sem)
-{
-	close(sem->fd);
-}
+static void semclose(struct usem *sem) { close(sem->fd); }
 
-static
-void
-semdestroy(struct usem *sem)
-{
-	remove(sem->name);
-}
+static void semdestroy(struct usem *sem) { remove(sem->name); }
 
-static
-void
-semP(struct usem *sem, size_t num)
-{
+static void semP(struct usem *sem, size_t num) {
 	char c[num];
 
 	if (read(sem->fd, c, num) < 0) {
@@ -291,10 +223,7 @@ semP(struct usem *sem, size_t num)
 	(void)c;
 }
 
-static
-void
-semV(struct usem *sem, size_t num)
-{
+static void semV(struct usem *sem, size_t num) {
 	char c[num];
 
 	/* semfs does not use these values, but be conservative */
@@ -308,10 +237,7 @@ semV(struct usem *sem, size_t num)
 ////////////////////////////////////////////////////////////
 // driver
 
-static
-int
-status_is_failure(int status)
-{
+static int status_is_failure(int status) {
 	/* Proper interpretation of Unix exit status */
 	if (WIFSIGNALED(status)) {
 		return 1;
@@ -324,10 +250,7 @@ status_is_failure(int status)
 	return status != 0;
 }
 
-static
-void
-makeprocs(bool dowait)
-{
+static void makeprocs(bool dowait) {
 	int i, status, failcount;
 	struct usem s1, s2;
 	pid_t pids[NJOBS];
@@ -337,13 +260,13 @@ makeprocs(bool dowait)
 		semcreate("2", &s2);
 	}
 
-	printf("Job size approximately %lu bytes\n", (unsigned long) JOBSIZE);
+	printf("Job size approximately %lu bytes\n", (unsigned long)JOBSIZE);
 	printf("Forking %d jobs; total load %luk\n", NJOBS,
-	       (unsigned long) (NJOBS * JOBSIZE)/1024);
+		   (unsigned long)(NJOBS * JOBSIZE) / 1024);
 
-	for (i=0; i<NJOBS; i++) {
+	for (i = 0; i < NJOBS; i++) {
 		pids[i] = fork();
-		if (pids[i]<0) {
+		if (pids[i] < 0) {
 			warn("fork (process %d)", i);
 			if (dowait) {
 				semopen(&s1);
@@ -351,7 +274,7 @@ makeprocs(bool dowait)
 				semclose(&s1);
 			}
 		}
-		if (pids[i]==0) {
+		if (pids[i] == 0) {
 			/* child */
 			if (dowait) {
 				say("Process %d forked\n", i);
@@ -375,13 +298,12 @@ makeprocs(bool dowait)
 		semV(&s2, NJOBS);
 	}
 
-	failcount=0;
-	for (i=0; i<NJOBS; i++) {
-		if (pids[i]<0) {
+	failcount = 0;
+	for (i = 0; i < NJOBS; i++) {
+		if (pids[i] < 0) {
 			failcount++;
-		}
-		else {
-			if (waitpid(pids[i], &status, 0)<0) {
+		} else {
+			if (waitpid(pids[i], &status, 0) < 0) {
 				err(1, "waitpid");
 			}
 			if (status_is_failure(status)) {
@@ -390,7 +312,7 @@ makeprocs(bool dowait)
 		}
 	}
 
-	if (failcount>0) {
+	if (failcount > 0) {
 		printf("%d subprocesses failed\n", failcount);
 		exit(1);
 	}
@@ -402,21 +324,16 @@ makeprocs(bool dowait)
 	semdestroy(&s2);
 }
 
-int
-main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
 	bool dowait = false;
 
 	if (argc == 0) {
 		/* broken/unimplemented argv handling; do nothing */
-	}
-	else if (argc == 1) {
+	} else if (argc == 1) {
 		/* nothing */
-	}
-	else if (argc == 2 && !strcmp(argv[1], "-w")) {
+	} else if (argc == 2 && !strcmp(argv[1], "-w")) {
 		dowait = true;
-	}
-	else {
+	} else {
 		printf("Usage: parallelvm [-w]\n");
 		return 1;
 	}

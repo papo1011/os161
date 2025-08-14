@@ -41,9 +41,7 @@
  * Divide two signed long longs.
  * ??? if -1/2 should produce -1 on this machine, this code is wrong
  */
-long long
-__divdi3(long long a, long long b)
-{
+long long __divdi3(long long a, long long b) {
 	unsigned long long ua, ub, uq;
 	int neg = 0;
 
@@ -57,6 +55,6 @@ __divdi3(long long a, long long b)
 
 	uq = __qdivrem(ua, ub, NULL);
 	if (neg)
-		uq = - uq;
+		uq = -uq;
 	return uq;
 }

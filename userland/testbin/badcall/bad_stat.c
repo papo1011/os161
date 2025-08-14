@@ -45,32 +45,14 @@
 
 ////////////////////////////////////////////////////////////
 
-static
-int
-badbuf_fstat(struct stat *sb)
-{
-	return fstat(STDIN_FILENO, sb);
-}
+static int badbuf_fstat(struct stat *sb) { return fstat(STDIN_FILENO, sb); }
 
-static
-int
-badbuf_lstat(struct stat *sb)
-{
-	return lstat("null:", sb);
-}
+static int badbuf_lstat(struct stat *sb) { return lstat("null:", sb); }
 
-static
-int
-badbuf_stat(struct stat *sb)
-{
-	return stat("null:", sb);
-}
+static int badbuf_stat(struct stat *sb) { return stat("null:", sb); }
 
-static
-void
-common_badbuf(int (*statfunc)(struct stat *), void *ptr,
-	      const char *call, const char *ptrdesc)
-{
+static void common_badbuf(int (*statfunc)(struct stat *), void *ptr,
+						  const char *call, const char *ptrdesc) {
 	int rv;
 
 	report_begin("%s with %s buf", call, ptrdesc);
@@ -78,10 +60,7 @@ common_badbuf(int (*statfunc)(struct stat *), void *ptr,
 	report_check(rv, errno, EFAULT);
 }
 
-static
-void
-any_badbuf(int (*statfunc)(struct stat *), const char *call)
-{
+static void any_badbuf(int (*statfunc)(struct stat *), const char *call) {
 	common_badbuf(statfunc, NULL, call, "NULL");
 	common_badbuf(statfunc, INVAL_PTR, call, "invalid pointer");
 	common_badbuf(statfunc, KERN_PTR, call, "kernel pointer");
@@ -89,10 +68,8 @@ any_badbuf(int (*statfunc)(struct stat *), const char *call)
 
 ////////////////////////////////////////////////////////////
 
-static
-void
-any_empty(int (*statfunc)(const char *, struct stat *), const char *call)
-{
+static void any_empty(int (*statfunc)(const char *, struct stat *),
+					  const char *call) {
 	struct stat sb;
 	int rv;
 
@@ -103,26 +80,19 @@ any_empty(int (*statfunc)(const char *, struct stat *), const char *call)
 
 ////////////////////////////////////////////////////////////
 
-void
-test_fstat(void)
-{
+void test_fstat(void) {
 	test_fstat_fd();
 	any_badbuf(badbuf_fstat, "fstat");
 }
 
-void
-test_lstat(void)
-{
+void test_lstat(void) {
 	test_lstat_path();
 	any_empty(lstat, "lstat");
 	any_badbuf(badbuf_lstat, "lstat");
 }
 
-void
-test_stat(void)
-{
+void test_stat(void) {
 	test_stat_path();
 	any_empty(stat, "stat");
 	any_badbuf(badbuf_stat, "stat");
 }
-

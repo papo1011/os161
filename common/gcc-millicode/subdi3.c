@@ -42,9 +42,7 @@
  * carry from a single unsigned int difference x-y occurs if and only
  * if (x-y) > x.
  */
-long long
-__subdi3(long long a, long long b)
-{
+long long __subdi3(long long a, long long b) {
 	union uu aa, bb, diff;
 
 	aa.ll = a;

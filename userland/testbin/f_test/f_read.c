@@ -41,14 +41,14 @@
  *
  */
 
-#define SectorSize   512
+#define SectorSize 512
 
-#define TMULT        50
-#define FSIZE        ((SectorSize + 1) * TMULT)
+#define TMULT 50
+#define FSIZE ((SectorSize + 1) * TMULT)
 
-#define FNAME        "f-testfile"
-#define READCHAR     'r'
-#define WRITECHAR    'w'
+#define FNAME "f-testfile"
+#define READCHAR 'r'
+#define WRITECHAR 'w'
 
 #include <stdio.h>
 #include <unistd.h>
@@ -57,10 +57,7 @@
 
 static char buffer[SectorSize + 1];
 
-static
-void
-check_buffer(void)
-{
+static void check_buffer(void) {
 	int i;
 	char ch = buffer[0];
 
@@ -73,9 +70,7 @@ check_buffer(void)
 	putchar(ch);
 }
 
-void
-subproc_read(void)
-{
+void subproc_read(void) {
 	int fd;
 	int i, res;
 
@@ -86,7 +81,7 @@ subproc_read(void)
 		err(1, "%s: open", FNAME);
 	}
 
-	for (i=0; i<TMULT; i++) {
+	for (i = 0; i < TMULT; i++) {
 		res = read(fd, buffer, SectorSize + 1);
 		if (res < 0) {
 			err(1, "%s: read", FNAME);

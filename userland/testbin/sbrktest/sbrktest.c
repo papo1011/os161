@@ -36,7 +36,7 @@
 #include <err.h>
 #include <errno.h>
 
-#define _PATH_RANDOM   "random:"
+#define _PATH_RANDOM "random:"
 
 /*
  * Caution: OS/161 doesn't provide any way to get this properly from
@@ -48,44 +48,35 @@
 ////////////////////////////////////////////////////////////
 // support code
 
-static
-int
-geti(void)
-{
-	int val=0;
-	int ch, digits=0;
+static int geti(void) {
+	int val = 0;
+	int ch, digits = 0;
 
 	while (1) {
 		ch = getchar();
-		if (ch=='\n' || ch=='\r') {
+		if (ch == '\n' || ch == '\r') {
 			putchar('\n');
 			break;
-		}
-		else if ((ch=='\b' || ch==127) && digits>0) {
+		} else if ((ch == '\b' || ch == 127) && digits > 0) {
 			printf("\b \b");
-			val = val/10;
+			val = val / 10;
 			digits--;
-		}
-		else if (ch>='0' && ch<='9') {
+		} else if (ch >= '0' && ch <= '9') {
 			putchar(ch);
-			val = val*10 + (ch-'0');
+			val = val * 10 + (ch - '0');
 			digits++;
-		}
-		else {
+		} else {
 			putchar('\a');
 		}
 	}
 
-	if (digits==0) {
+	if (digits == 0) {
 		return -1;
 	}
 	return val;
 }
 
-static
-unsigned long
-getseed(void)
-{
+static unsigned long getseed(void) {
 	int fd, len;
 	unsigned long seed;
 
@@ -96,8 +87,7 @@ getseed(void)
 	len = read(fd, &seed, sizeof(seed));
 	if (len < 0) {
 		err(1, "%s", _PATH_RANDOM);
-	}
-	else if (len < (int)sizeof(seed)) {
+	} else if (len < (int)sizeof(seed)) {
 		errx(1, "%s: Short read", _PATH_RANDOM);
 	}
 	close(fd);
@@ -105,10 +95,7 @@ getseed(void)
 	return seed;
 }
 
-static
-pid_t
-dofork(void)
-{
+static pid_t dofork(void) {
 	pid_t pid;
 
 	pid = fork();
@@ -118,10 +105,7 @@ dofork(void)
 	return pid;
 }
 
-static
-void
-dowait(pid_t pid)
-{
+static void dowait(pid_t pid) {
 	int status;
 	int result;
 
@@ -137,10 +121,7 @@ dowait(pid_t pid)
 	}
 }
 
-static
-void
-say(const char *msg)
-{
+static void say(const char *msg) {
 	/* Use one write so it's atomic (printf usually won't be) */
 	write(STDOUT_FILENO, msg, strlen(msg));
 }
@@ -151,10 +132,7 @@ say(const char *msg)
 /*
  * Fill a page of memory with a test pattern.
  */
-static
-void
-markpage(volatile void *baseptr, unsigned pageoffset)
-{
+static void markpage(volatile void *baseptr, unsigned pageoffset) {
 	volatile char *pageptr;
 	size_t n, i;
 	volatile unsigned long *pl;
@@ -166,7 +144,7 @@ markpage(volatile void *baseptr, unsigned pageoffset)
 	pl = (volatile unsigned long *)pageptr;
 	n = PAGE_SIZE / sizeof(unsigned long);
 
-	for (i=0; i<n; i++) {
+	for (i = 0; i < n; i++) {
 		val = ((unsigned long)i ^ (unsigned long)pageoffset);
 		pl[i] = val;
 	}
@@ -175,10 +153,7 @@ markpage(volatile void *baseptr, unsigned pageoffset)
 /*
  * Check a page marked with markblock()
  */
-static
-int
-checkpage(volatile void *baseptr, unsigned pageoffset, bool neednl)
-{
+static int checkpage(volatile void *baseptr, unsigned pageoffset, bool neednl) {
 	volatile char *pageptr;
 	size_t n, i;
 	volatile unsigned long *pl;
@@ -190,17 +165,16 @@ checkpage(volatile void *baseptr, unsigned pageoffset, bool neednl)
 	pl = (volatile unsigned long *)pageptr;
 	n = PAGE_SIZE / sizeof(unsigned long);
 
-	for (i=0; i<n; i++) {
+	for (i = 0; i < n; i++) {
 		val = ((unsigned long)i ^ (unsigned long)pageoffset);
 		if (pl[i] != val) {
 			if (neednl) {
 				printf("\n");
 			}
 			printf("FAILED: data mismatch at offset %lu of page "
-			       "at 0x%lx: %lu vs. %lu\n",
-			       (unsigned long) (i*sizeof(unsigned long)),
-			       (unsigned long)(uintptr_t)pl,
-			       pl[i], val);
+				   "at 0x%lx: %lu vs. %lu\n",
+				   (unsigned long)(i * sizeof(unsigned long)),
+				   (unsigned long)(uintptr_t)pl, pl[i], val);
 			return -1;
 		}
 	}
@@ -211,10 +185,7 @@ checkpage(volatile void *baseptr, unsigned pageoffset, bool neednl)
 /*
  * Light version; touches just the first word of a page.
  */
-static
-void
-markpagelight(volatile void *baseptr, unsigned pageoffset)
-{
+static void markpagelight(volatile void *baseptr, unsigned pageoffset) {
 	volatile char *pageptr;
 	volatile unsigned long *pl;
 
@@ -228,10 +199,8 @@ markpagelight(volatile void *baseptr, unsigned pageoffset)
 /*
  * Light version; checks just the first word of a page.
  */
-static
-int
-checkpagelight(volatile void *baseptr, unsigned pageoffset, bool neednl)
-{
+static int checkpagelight(volatile void *baseptr, unsigned pageoffset,
+						  bool neednl) {
 	volatile char *pageptr;
 	volatile unsigned long *pl;
 
@@ -244,9 +213,8 @@ checkpagelight(volatile void *baseptr, unsigned pageoffset, bool neednl)
 			printf("\n");
 		}
 		printf("FAILED: data mismatch at offset 0 of page "
-		       "at 0x%lx: %lu vs. %u\n",
-		       (unsigned long)(uintptr_t)pl,
-		       pl[0], pageoffset);
+			   "at 0x%lx: %lu vs. %u\n",
+			   (unsigned long)(uintptr_t)pl, pl[0], pageoffset);
 		return -1;
 	}
 	return 0;
@@ -255,10 +223,7 @@ checkpagelight(volatile void *baseptr, unsigned pageoffset, bool neednl)
 ////////////////////////////////////////////////////////////
 // error wrapper
 
-static
-void *
-dosbrk(ssize_t size)
-{
+static void *dosbrk(ssize_t size) {
 	void *p;
 
 	p = sbrk(size);
@@ -274,10 +239,7 @@ dosbrk(ssize_t size)
 ////////////////////////////////////////////////////////////
 // align the heap
 
-static
-void
-setup(void)
-{
+static void setup(void) {
 	void *op;
 	uintptr_t opx;
 	size_t amount;
@@ -291,8 +253,7 @@ setup(void)
 		if (sbrk(amount) == (void *)-1) {
 			error = errno;
 			warnx("Initial heap was not page aligned");
-			warnx("...and trying to align it gave: %s",
-			      strerror(error));
+			warnx("...and trying to align it gave: %s", strerror(error));
 		}
 	}
 
@@ -311,10 +272,7 @@ setup(void)
 /*
  * Allocate one page, check that it holds data, and leak it.
  */
-static
-void
-test1(void)
-{
+static void test1(void) {
 	void *p;
 
 	printf("Allocating a page...\n");
@@ -330,10 +288,7 @@ test1(void)
 /*
  * Allocate one page, check that it holds data, and free it.
  */
-static
-void
-test2(void)
-{
+static void test2(void) {
 	void *op, *p, *q;
 
 	op = dosbrk(0);
@@ -341,8 +296,10 @@ test2(void)
 	printf("Allocating a page...\n");
 	p = dosbrk(PAGE_SIZE);
 	if (p != op) {
-		errx(1, "FAILED: sbrk grow didn't return the old break "
-		    "(got %p, expected %p", p, op);
+		errx(1,
+			 "FAILED: sbrk grow didn't return the old break "
+			 "(got %p, expected %p",
+			 p, op);
 	}
 	markpage(p, 0);
 	if (checkpage(p, 0, false)) {
@@ -354,13 +311,17 @@ test2(void)
 	printf("Freeing the page...\n");
 	q = dosbrk(-PAGE_SIZE);
 	if (q != p) {
-		errx(1, "FAILED: sbrk shrink didn't return the old break "
-		     "(got %p, expected %p", q, p);
+		errx(1,
+			 "FAILED: sbrk shrink didn't return the old break "
+			 "(got %p, expected %p",
+			 q, p);
 	}
 	q = dosbrk(0);
 	if (q != op) {
-		errx(1, "FAILED: sbrk shrink didn't restore the heap "
-		     "(got %p, expected %p", q, op);
+		errx(1,
+			 "FAILED: sbrk shrink didn't restore the heap "
+			 "(got %p, expected %p",
+			 q, op);
 	}
 
 	printf("Passed sbrk test 2.\n");
@@ -370,10 +331,7 @@ test2(void)
  * Allocate six pages, check that they hold data and that the
  * pages don't get mixed up, and free them.
  */
-static
-void
-test3(void)
-{
+static void test3(void) {
 	const unsigned num = 6;
 
 	void *op, *p, *q;
@@ -385,12 +343,14 @@ test3(void)
 	printf("Allocating %u pages...\n", num);
 	p = dosbrk(PAGE_SIZE * num);
 	if (p != op) {
-		errx(1, "FAILED: sbrk grow didn't return the old break "
-		     "(got %p, expected %p", p, op);
+		errx(1,
+			 "FAILED: sbrk grow didn't return the old break "
+			 "(got %p, expected %p",
+			 p, op);
 	}
 
 	bad = false;
-	for (i=0; i<num; i++) {
+	for (i = 0; i < num; i++) {
 		markpage(p, i);
 		if (checkpage(p, i, false)) {
 			warnx("FAILED: data corrupt on page %u", i);
@@ -406,13 +366,17 @@ test3(void)
 	printf("Freeing the pages...\n");
 	q = dosbrk(-PAGE_SIZE * num);
 	if (q != p) {
-		errx(1, "FAILED: sbrk shrink didn't return the old break "
-		     "(got %p, expected %p", q, p);
+		errx(1,
+			 "FAILED: sbrk shrink didn't return the old break "
+			 "(got %p, expected %p",
+			 q, p);
 	}
 	q = dosbrk(0);
 	if (q != op) {
-		errx(1, "FAILED: sbrk shrink didn't restore the heap "
-		     "(got %p, expected %p", q, op);
+		errx(1,
+			 "FAILED: sbrk shrink didn't restore the heap "
+			 "(got %p, expected %p",
+			 q, op);
 	}
 
 	printf("Passed sbrk test 3.\n");
@@ -423,10 +387,7 @@ test3(void)
  * don't get mixed up, and free them one at a time, repeating the
  * check after each free.
  */
-static
-void
-test4(void)
-{
+static void test4(void) {
 	const unsigned num = 6;
 
 	void *op, *p, *q;
@@ -438,12 +399,14 @@ test4(void)
 	printf("Allocating %u pages...\n", num);
 	p = dosbrk(PAGE_SIZE * num);
 	if (p != op) {
-		errx(1, "FAILED: sbrk grow didn't return the old break "
-		     "(got %p, expected %p", p, op);
+		errx(1,
+			 "FAILED: sbrk grow didn't return the old break "
+			 "(got %p, expected %p",
+			 p, op);
 	}
 
 	bad = false;
-	for (i=0; i<num; i++) {
+	for (i = 0; i < num; i++) {
 		markpage(p, i);
 		if (checkpage(p, i, false)) {
 			warnx("FAILED: data corrupt on page %u", i);
@@ -455,12 +418,13 @@ test4(void)
 	}
 
 	printf("Freeing the pages one at a time...\n");
-	for (i=num; i-- > 0; ) {
+	for (i = num; i-- > 0;) {
 		(void)dosbrk(-PAGE_SIZE);
-		for (j=0; j<i; j++) {
+		for (j = 0; j < i; j++) {
 			if (checkpage(p, j, false)) {
 				warnx("FAILED: data corrupt on page %u "
-				      "after freeing %u pages", j, i);
+					  "after freeing %u pages",
+					  j, i);
 				bad = true;
 			}
 		}
@@ -471,8 +435,10 @@ test4(void)
 
 	q = dosbrk(0);
 	if (q != op) {
-		errx(1, "FAILED: sbrk shrink didn't restore the heap "
-		     "(got %p, expected %p", q, op);
+		errx(1,
+			 "FAILED: sbrk shrink didn't restore the heap "
+			 "(got %p, expected %p",
+			 q, op);
 	}
 
 	printf("Passed sbrk test 4.\n");
@@ -485,10 +451,7 @@ test4(void)
  * Checks that the page past end of the heap as we got it is not
  * valid. (Crashes when successful.)
  */
-static
-void
-test5(void)
-{
+static void test5(void) {
 	void *p;
 
 	p = dosbrk(0);
@@ -501,10 +464,7 @@ test5(void)
  * Allocates a page and checks that the next page past it is not
  * valid. (Crashes when successful.)
  */
-static
-void
-test6(void)
-{
+static void test6(void) {
 	void *p;
 
 	(void)dosbrk(PAGE_SIZE);
@@ -518,10 +478,7 @@ test6(void)
  * Allocates and frees a page and checks that the page freed is no
  * longer valid. (Crashes when successful.)
  */
-static
-void
-test7(void)
-{
+static void test7(void) {
 	void *p;
 
 	(void)dosbrk(PAGE_SIZE);
@@ -537,10 +494,7 @@ test7(void)
  * past the new end of the heap is no longer valid. (Crashes when
  * successful.)
  */
-static
-void
-test8(void)
-{
+static void test8(void) {
 	void *p;
 
 	(void)dosbrk(PAGE_SIZE * 12);
@@ -577,28 +531,25 @@ test8(void)
  * that you end up needing a huge swap disk even to run relatively
  * small workloads, and then this test takes forever to run.
  */
-static
-void
-test9(void)
-{
+static void test9(void) {
 	size_t size;
 	unsigned i, pages, dot;
 	void *p;
 	bool bad;
 
-#define HUGESIZE (1024 * 1024 * 1024)	/* 1G */
+#define HUGESIZE (1024 * 1024 * 1024) /* 1G */
 
 	printf("Checking how much memory we can allocate:\n");
-	for (size = HUGESIZE; (p = sbrk(size)) == (void *)-1; size = size/2) {
-		printf("  %9lu bytes: failed\n", (unsigned long) size);
+	for (size = HUGESIZE; (p = sbrk(size)) == (void *)-1; size = size / 2) {
+		printf("  %9lu bytes: failed\n", (unsigned long)size);
 	}
-	printf("  %9lu bytes: succeeded\n", (unsigned long) size);
+	printf("  %9lu bytes: succeeded\n", (unsigned long)size);
 	printf("Passed sbrk test 9 (part 1/5)\n");
 
 	printf("Touching each page.\n");
 	pages = size / PAGE_SIZE;
 	dot = pages / 64;
-	for (i=0; i<pages; i++) {
+	for (i = 0; i < pages; i++) {
 		markpagelight(p, i);
 		if (dot > 0 && i % dot == 0) {
 			printf(".");
@@ -610,7 +561,7 @@ test9(void)
 
 	printf("Testing each page.\n");
 	bad = false;
-	for (i=0; i<pages; i++) {
+	for (i = 0; i < pages; i++) {
 		if (checkpagelight(p, i, dot > 0)) {
 			if (dot > 0) {
 				printf("\n");
@@ -647,10 +598,7 @@ test9(void)
  * Allocate all of memory one page at a time. The same restrictions
  * and considerations apply as above.
  */
-static
-void
-test10(void)
-{
+static void test10(void) {
 	void *p, *op;
 	unsigned i, n;
 	bool bad;
@@ -666,7 +614,7 @@ test10(void)
 
 	printf("Now freeing them.\n");
 	bad = false;
-	for (i=0; i<n; i++) {
+	for (i = 0; i < n; i++) {
 		if (checkpagelight(op, n - i - 1, false)) {
 			warnx("FAILED: data corrupt on page %u", i);
 			bad = true;
@@ -697,22 +645,18 @@ test10(void)
 ////////////////////////////////////////////////////////////
 // leaking and cleanup on exit
 
-static
-void
-test11(void)
-{
+static void test11(void) {
 	const unsigned num = 256;
 
 	void *p;
 	unsigned i;
 	bool bad;
 
-	printf("Allocating %u pages (%zu bytes).\n", num,
-	       (size_t)PAGE_SIZE * num);
+	printf("Allocating %u pages (%zu bytes).\n", num, (size_t)PAGE_SIZE * num);
 	p = dosbrk(num * PAGE_SIZE);
 
 	printf("Touching the pages.\n");
-	for (i=0; i<num; i++) {
+	for (i = 0; i < num; i++) {
 		markpagelight(p, i);
 		if (i % 4 == 0) {
 			printf(".");
@@ -722,7 +666,7 @@ test11(void)
 
 	printf("Checking the pages.\n");
 	bad = false;
-	for (i=0; i<num; i++) {
+	for (i = 0; i < num; i++) {
 		if (checkpagelight(p, i, true)) {
 			warnx("FAILED: data corrupt");
 			bad = true;
@@ -749,10 +693,7 @@ test11(void)
  * parent and child running concurrently -- that should probably be
  * its own test program.
  */
-static
-void
-test12(void)
-{
+static void test12(void) {
 	pid_t pid;
 	void *p;
 
@@ -784,10 +725,7 @@ test12(void)
 /*
  * Allocate and then fork, in case fork doesn't preserve the heap.
  */
-static
-void
-test13(void)
-{
+static void test13(void) {
 	pid_t pid;
 	void *p;
 
@@ -817,10 +755,7 @@ test13(void)
 /*
  * Allocate, then fork, then free the allocated page in the child.
  */
-static
-void
-test14(void)
-{
+static void test14(void) {
 	pid_t pid;
 	void *p;
 
@@ -853,10 +788,7 @@ test14(void)
  * Allocate and free in both the parent and the child, and do more
  * than one page.
  */
-static
-void
-test15(void)
-{
+static void test15(void) {
 	unsigned num = 12;
 
 	pid_t pid;
@@ -865,10 +797,10 @@ test15(void)
 
 	printf("Allocating %u pages...\n", num);
 	p = dosbrk(PAGE_SIZE * num);
-	for (i=0; i<num; i++) {
+	for (i = 0; i < num; i++) {
 		markpage(p, i);
 	}
-	for (i=0; i<num; i++) {
+	for (i = 0; i < num; i++) {
 		if (checkpage(p, i, false)) {
 			errx(1, "FAILED: data corrupt before forking");
 		}
@@ -877,7 +809,7 @@ test15(void)
 	printf("Freeing one page...\n");
 	(void)dosbrk(-PAGE_SIZE);
 	num--;
-	for (i=0; i<num; i++) {
+	for (i = 0; i < num; i++) {
 		if (checkpage(p, i, false)) {
 			errx(1, "FAILED: data corrupt before forking (2)");
 		}
@@ -887,7 +819,7 @@ test15(void)
 	(void)dosbrk(PAGE_SIZE * 2);
 	markpage(p, num++);
 	markpage(p, num++);
-	for (i=0; i<num; i++) {
+	for (i = 0; i < num; i++) {
 		if (checkpage(p, i, false)) {
 			errx(1, "FAILED: data corrupt before forking (3)");
 		}
@@ -897,7 +829,7 @@ test15(void)
 	pid = dofork();
 	if (pid == 0) {
 		/* child */
-		for (i=0; i<num; i++) {
+		for (i = 0; i < num; i++) {
 			if (checkpage(p, i, false)) {
 				errx(1, "FAILED: data corrupt in child");
 			}
@@ -906,7 +838,7 @@ test15(void)
 		say("Child: freeing three pages\n");
 		dosbrk(-PAGE_SIZE * 3);
 		num -= 3;
-		for (i=0; i<num; i++) {
+		for (i = 0; i < num; i++) {
 			if (checkpage(p, i, false)) {
 				errx(1, "FAILED: data corrupt in child (2)");
 			}
@@ -916,7 +848,7 @@ test15(void)
 		dosbrk(PAGE_SIZE * 2);
 		markpage(p, num++);
 		markpage(p, num++);
-		for (i=0; i<num; i++) {
+		for (i = 0; i < num; i++) {
 			if (checkpage(p, i, false)) {
 				errx(1, "FAILED: data corrupt in child (3)");
 			}
@@ -928,10 +860,10 @@ test15(void)
 	}
 	say("Parent: allocating four pages\n");
 	dosbrk(PAGE_SIZE * 4);
-	for (i=0; i<4; i++) {
+	for (i = 0; i < 4; i++) {
 		markpage(p, num++);
 	}
-	for (i=0; i<num; i++) {
+	for (i = 0; i < num; i++) {
 		if (checkpage(p, i, false)) {
 			errx(1, "FAILED: data corrupt in parent");
 		}
@@ -940,7 +872,7 @@ test15(void)
 	say("Parent: waiting\n");
 	dowait(pid);
 
-	for (i=0; i<num; i++) {
+	for (i = 0; i < num; i++) {
 		if (checkpage(p, i, false)) {
 			errx(1, "FAILED: data corrupt after waiting");
 		}
@@ -953,10 +885,7 @@ test15(void)
 ////////////////////////////////////////////////////////////
 // stress testing
 
-static
-void
-stresstest(unsigned long seed, bool large)
-{
+static void stresstest(unsigned long seed, bool large) {
 	const unsigned loops = 10000;
 	const unsigned dot = 200;
 
@@ -973,7 +902,7 @@ stresstest(unsigned long seed, bool large)
 
 	bad = false;
 	num = 0;
-	for (i=0; i<loops; i++) {
+	for (i = 0; i < loops; i++) {
 		/*
 		 * The goal of this test is not to stress the VM system
 		 * by thrashing swap (other tests do that) but by running
@@ -989,15 +918,14 @@ stresstest(unsigned long seed, bool large)
 		if (neg) {
 			dosbrk(-(pages * PAGE_SIZE));
 			num -= pages;
-		}
-		else {
+		} else {
 			dosbrk(pages * PAGE_SIZE);
-			for (j=0; j<pages; j++) {
+			for (j = 0; j < pages; j++) {
 				markpagelight(op, num + j);
 			}
 			num += pages;
 		}
-		for (j=0; j<num; j++) {
+		for (j = 0; j < num; j++) {
 			if (checkpagelight(op, j, true)) {
 				printf("\n");
 				warnx("FAILED: data corrupt on page %u", j);
@@ -1018,46 +946,20 @@ stresstest(unsigned long seed, bool large)
 	printf("Passed sbrk %s stress test.\n", large ? "large" : "small");
 }
 
-static
-void
-test16(void)
-{
-	stresstest(0, false);
-}
+static void test16(void) { stresstest(0, false); }
 
-static
-void
-test17(void)
-{
-	stresstest(getseed(), false);
-}
+static void test17(void) { stresstest(getseed(), false); }
 
-static
-void
-test18(void)
-{
+static void test18(void) {
 	printf("Enter random seed: ");
 	stresstest(geti(), false);
 }
 
-static
-void
-test19(void)
-{
-	stresstest(0, true);
-}
+static void test19(void) { stresstest(0, true); }
 
-static
-void
-test20(void)
-{
-	stresstest(getseed(), true);
-}
+static void test20(void) { stresstest(getseed(), true); }
 
-static
-void
-test21(void)
-{
+static void test21(void) {
 	printf("Enter random seed: ");
 	stresstest(geti(), true);
 }
@@ -1070,37 +972,34 @@ static const struct {
 	const char *desc;
 	void (*func)(void);
 } tests[] = {
-	{ 1, "Allocate one page", test1 },
-	{ 2, "Allocate and free one page", test2 },
-	{ 3, "Allocate and free several pages", test3 },
-	{ 4, "Allocate several pages and free them one at a time", test4 },
-	{ 5, "Check the heap end (crashes)", test5 },
-	{ 6, "Allocate and check the heap end (crashes)", test6 },
-	{ 7, "Allocate and free and check the heap end (crashes)", test7 },
-	{ 8, "Allocate several, free some, check heap end (crashes)", test8 },
-	{ 9, "Allocate all memory in a big chunk", test9 },
-	{ 10, "Allocate all memory a page at a time", test10 },
-	{ 11, "Allocate a lot and intentionally leak it", test11 },
-	{ 12, "Fork and then allocate", test12 },
-	{ 13, "Allocate and then fork", test13 },
-	{ 14, "Allocate and then fork and free", test14 },
-	{ 15, "Allocate, fork, allocate more, and free (and spam)", test15 },
-	{ 16, "Small stress test", test16 },
-	{ 17, "Randomized small stress test", test17 },
-	{ 18, "Small stress test with particular seed", test18 },
-	{ 19, "Large stress test", test19 },
-	{ 20, "Randomized large stress test", test20 },
-	{ 21, "Large stress test with particular seed", test21 },
+	{1, "Allocate one page", test1},
+	{2, "Allocate and free one page", test2},
+	{3, "Allocate and free several pages", test3},
+	{4, "Allocate several pages and free them one at a time", test4},
+	{5, "Check the heap end (crashes)", test5},
+	{6, "Allocate and check the heap end (crashes)", test6},
+	{7, "Allocate and free and check the heap end (crashes)", test7},
+	{8, "Allocate several, free some, check heap end (crashes)", test8},
+	{9, "Allocate all memory in a big chunk", test9},
+	{10, "Allocate all memory a page at a time", test10},
+	{11, "Allocate a lot and intentionally leak it", test11},
+	{12, "Fork and then allocate", test12},
+	{13, "Allocate and then fork", test13},
+	{14, "Allocate and then fork and free", test14},
+	{15, "Allocate, fork, allocate more, and free (and spam)", test15},
+	{16, "Small stress test", test16},
+	{17, "Randomized small stress test", test17},
+	{18, "Small stress test with particular seed", test18},
+	{19, "Large stress test", test19},
+	{20, "Randomized large stress test", test20},
+	{21, "Large stress test with particular seed", test21},
 };
 static const unsigned numtests = sizeof(tests) / sizeof(tests[0]);
 
-static
-int
-dotest(int tn)
-{
+static int dotest(int tn) {
 	unsigned i;
 
-	for (i=0; i<numtests; i++) {
+	for (i = 0; i < numtests; i++) {
 		if (tests[i].num == tn) {
 			tests[i].func();
 			return 0;
@@ -1109,9 +1008,7 @@ dotest(int tn)
 	return -1;
 }
 
-int
-main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
 	int i, tn;
 	unsigned j;
 	bool menu = true;
@@ -1119,7 +1016,7 @@ main(int argc, char *argv[])
 	setup();
 
 	if (argc > 1) {
-		for (i=1; i<argc; i++) {
+		for (i = 1; i < argc; i++) {
 			dotest(atoi(argv[i]));
 		}
 		return 0;
@@ -1127,9 +1024,8 @@ main(int argc, char *argv[])
 
 	while (1) {
 		if (menu) {
-			for (j=0; j<numtests; j++) {
-				printf("  %2d  %s\n", tests[j].num,
-				       tests[j].desc);
+			for (j = 0; j < numtests; j++) {
+				printf("  %2d  %s\n", tests[j].num, tests[j].desc);
 			}
 			menu = false;
 		}

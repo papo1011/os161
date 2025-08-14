@@ -44,10 +44,7 @@
 #include "config.h"
 #include "test.h"
 
-static
-void
-dup2_fd2(int fd, const char *desc)
-{
+static void dup2_fd2(int fd, const char *desc) {
 	int rv;
 
 	report_begin("%s", desc);
@@ -55,14 +52,11 @@ dup2_fd2(int fd, const char *desc)
 	report_check(rv, errno, EBADF);
 
 	if (rv != -1) {
-		close(fd);	/* just in case */
+		close(fd); /* just in case */
 	}
 }
 
-static
-void
-dup2_self(void)
-{
+static void dup2_self(void) {
 	struct stat sb;
 	int rv;
 	int testfd;
@@ -83,12 +77,10 @@ dup2_self(void)
 	rv = dup2(testfd, testfd);
 	if (rv == testfd) {
 		report_passed();
-	}
-	else if (rv<0) {
+	} else if (rv < 0) {
 		report_result(rv, errno);
 		report_failure();
-	}
-	else {
+	} else {
 		report_warnx("returned %d instead", rv);
 		report_failure();
 	}
@@ -99,22 +91,19 @@ dup2_self(void)
 		report_saw_enosys();
 	}
 	report_result(rv, errno);
-	if (rv==0) {
+	if (rv == 0) {
 		report_passed();
-	}
-	else if (errno != ENOSYS) {
+	} else if (errno != ENOSYS) {
 		report_failure();
-	}
-	else {
+	} else {
 		report_skipped();
 		/* no support for fstat; try lseek */
 		report_begin("lseek fd after dup2 to itself");
 		rv = lseek(testfd, 0, SEEK_CUR);
 		report_result(rv, errno);
-		if (rv==0 || (rv==-1 && errno==ESPIPE)) {
+		if (rv == 0 || (rv == -1 && errno == ESPIPE)) {
 			report_passed();
-		}
-		else {
+		} else {
 			report_failure();
 		}
 	}
@@ -122,9 +111,7 @@ dup2_self(void)
 	close(testfd);
 }
 
-void
-test_dup2(void)
-{
+void test_dup2(void) {
 	/* This does the first fd. */
 	test_dup2_fd();
 

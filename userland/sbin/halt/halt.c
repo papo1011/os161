@@ -36,9 +36,7 @@
  * Just calls reboot() with the RB_HALT flag.
  */
 
-int
-main(void)
-{
+int main(void) {
 	reboot(RB_HALT);
 	return 0;
 }

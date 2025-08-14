@@ -46,18 +46,16 @@
 #include <string.h>
 #include <err.h>
 
-#define MAXLEVELS       5
+#define MAXLEVELS 5
 
-int
-main(void)
-{
+int main(void) {
 	int i;
 	const char *onename = "testdir";
 	char dirname[512];
 
 	strcpy(dirname, onename);
 
-	for (i=0; i<MAXLEVELS; i++) {
+	for (i = 0; i < MAXLEVELS; i++) {
 		printf("Creating directory: %s\n", dirname);
 
 		if (mkdir(dirname, 0755)) {
@@ -70,7 +68,7 @@ main(void)
 
 	printf("Passed directory creation test.\n");
 
-	for (i=0; i<MAXLEVELS; i++) {
+	for (i = 0; i < MAXLEVELS; i++) {
 		dirname[strlen(dirname) - strlen(onename) - 1] = 0;
 
 		printf("Removing directory: %s\n", dirname);
@@ -83,4 +81,3 @@ main(void)
 
 	return 0;
 }
-

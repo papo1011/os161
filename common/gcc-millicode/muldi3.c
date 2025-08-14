@@ -96,16 +96,14 @@
  */
 static long long __lmulq(unsigned int, unsigned int);
 
-long long
-__muldi3(long long a, long long b)
-{
+long long __muldi3(long long a, long long b) {
 	union uu u, v, low, prod;
 	unsigned int high, mid, udiff, vdiff;
 	int negall, negmid;
-#define	u1	u.ui[H]
-#define	u0	u.ui[L]
-#define	v1	v.ui[H]
-#define	v0	v.ui[L]
+#define u1 u.ui[H]
+#define u0 u.ui[L]
+#define v1 v.ui[H]
+#define v0 v.ui[L]
 
 	/*
 	 * Get u and v such that u, v >= 0.  When this is finished,
@@ -152,8 +150,7 @@ __muldi3(long long a, long long b)
 		/*
 		 * Assemble the final product.
 		 */
-		prod.ui[H] = high + (negmid ? -mid : mid) + low.ui[L] +
-		    low.ui[H];
+		prod.ui[H] = high + (negmid ? -mid : mid) + low.ui[L] + low.ui[H];
 		prod.ui[L] = low.ui[L];
 	}
 	return (negall ? -prod.ll : prod.ll);
@@ -180,9 +177,7 @@ __muldi3(long long a, long long b)
  *
  * splits into high and low ints as HHALF(l) and LHUP(l) respectively.
  */
-static long long
-__lmulq(unsigned int u, unsigned int v)
-{
+static long long __lmulq(unsigned int u, unsigned int v) {
 	unsigned int u1, u0, v1, v0, udiff, vdiff, high, mid, low;
 	unsigned int prodh, prodl, was;
 	union uu prod;

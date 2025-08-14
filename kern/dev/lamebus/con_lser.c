@@ -38,15 +38,13 @@
 #include <lamebus/lser.h>
 #include "autoconf.h"
 
-struct con_softc *
-attach_con_to_lser(int consno, struct lser_softc *ls)
-{
+struct con_softc *attach_con_to_lser(int consno, struct lser_softc *ls) {
 	struct con_softc *cs = kmalloc(sizeof(struct con_softc));
-	if (cs==NULL) {
+	if (cs == NULL) {
 		return NULL;
 	}
 
-	(void)consno;  // unused
+	(void)consno; // unused
 
 	cs->cs_devdata = ls;
 	cs->cs_send = lser_write;
@@ -58,4 +56,3 @@ attach_con_to_lser(int consno, struct lser_softc *ls)
 
 	return cs;
 }
-

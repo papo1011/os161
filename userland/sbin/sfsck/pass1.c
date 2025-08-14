@@ -47,18 +47,18 @@
 #include "passes.h"
 #include "main.h"
 
-static unsigned long count_dirs=0, count_files=0;
+static unsigned long count_dirs = 0, count_files = 0;
 
 /*
  * State for checking indirect blocks.
  */
 struct ibstate {
-	uint32_t ino;		/* inode we're doing (constant) */
+	uint32_t ino;			/* inode we're doing (constant) */
 	uint32_t curfileblock;	/* current block offset in the file */
 	uint32_t fileblocks;	/* file size in blocks (constant) */
-	uint32_t volblocks;	/* volume size in blocks (constant) */
+	uint32_t volblocks;		/* volume size in blocks (constant) */
 	unsigned pasteofcount;	/* number of blocks found past eof */
-	blockusage_t usagetype;	/* how to call freemap_blockinuse() */
+	blockusage_t usagetype; /* how to call freemap_blockinuse() */
 };
 
 /*
@@ -76,11 +76,8 @@ struct ibstate {
  * scanning. IECHANGEDP should be set to 1 if *IENTRY is changed.
  * INDIRECTION is the indirection level of this block (1, 2, or 3).
  */
-static
-void
-check_indirect_block(struct ibstate *ibs, uint32_t *ientry, int *iechangedp,
-		     int indirection)
-{
+static void check_indirect_block(struct ibstate *ibs, uint32_t *ientry,
+								 int *iechangedp, int indirection) {
 	uint32_t entries[SFS_DBPERIDB];
 	uint32_t i, ct;
 	uint32_t coveredblocks;
@@ -90,21 +87,19 @@ check_indirect_block(struct ibstate *ibs, uint32_t *ientry, int *iechangedp,
 	if (*ientry > 0 && *ientry < ibs->volblocks) {
 		sfs_readindirect(*ientry, entries);
 		freemap_blockinuse(*ientry, B_IBLOCK, ibs->ino);
-	}
-	else {
+	} else {
 		if (*ientry >= ibs->volblocks) {
 			setbadness(EXIT_RECOV);
 			warnx("Inode %lu: indirect block pointer (level %d) "
-			      "for block %lu outside of volume: %lu "
-			      "(cleared)\n",
-			      (unsigned long)ibs->ino, indirection,
-			      (unsigned long)ibs->curfileblock,
-			      (unsigned long)*ientry);
+				  "for block %lu outside of volume: %lu "
+				  "(cleared)\n",
+				  (unsigned long)ibs->ino, indirection,
+				  (unsigned long)ibs->curfileblock, (unsigned long)*ientry);
 			*ientry = 0;
 			*iechangedp = 1;
 		}
 		coveredblocks = 1;
-		for (j=0; j<indirection; j++) {
+		for (j = 0; j < indirection; j++) {
 			coveredblocks *= SFS_DBPERIDB;
 		}
 		ibs->curfileblock += coveredblocks;
@@ -112,33 +107,27 @@ check_indirect_block(struct ibstate *ibs, uint32_t *ientry, int *iechangedp,
 	}
 
 	if (indirection > 1) {
-		for (i=0; i<SFS_DBPERIDB; i++) {
+		for (i = 0; i < SFS_DBPERIDB; i++) {
 			check_indirect_block(ibs, &entries[i], &localchanged,
-					     indirection-1);
+								 indirection - 1);
 		}
-	}
-	else {
-		assert(indirection==1);
+	} else {
+		assert(indirection == 1);
 
-		for (i=0; i<SFS_DBPERIDB; i++) {
+		for (i = 0; i < SFS_DBPERIDB; i++) {
 			if (entries[i] >= ibs->volblocks) {
 				setbadness(EXIT_RECOV);
 				warnx("Inode %lu: direct block pointer for "
-				      "block %lu outside of volume: %lu "
-				      "(cleared)\n",
-				      (unsigned long)ibs->ino,
-				      (unsigned long)ibs->curfileblock,
-				      (unsigned long)entries[i]);
+					  "block %lu outside of volume: %lu "
+					  "(cleared)\n",
+					  (unsigned long)ibs->ino, (unsigned long)ibs->curfileblock,
+					  (unsigned long)entries[i]);
 				entries[i] = 0;
 				localchanged = 1;
-			}
-			else if (entries[i] != 0) {
+			} else if (entries[i] != 0) {
 				if (ibs->curfileblock < ibs->fileblocks) {
-					freemap_blockinuse(entries[i],
-							  ibs->usagetype,
-							  ibs->ino);
-				}
-				else {
+					freemap_blockinuse(entries[i], ibs->usagetype, ibs->ino);
+				} else {
 					setbadness(EXIT_RECOV);
 					ibs->pasteofcount++;
 					freemap_blockfree(entries[i]);
@@ -150,11 +139,12 @@ check_indirect_block(struct ibstate *ibs, uint32_t *ientry, int *iechangedp,
 		}
 	}
 
-	ct=0;
-	for (i=ct=0; i<SFS_DBPERIDB; i++) {
-		if (entries[i]!=0) ct++;
+	ct = 0;
+	for (i = ct = 0; i < SFS_DBPERIDB; i++) {
+		if (entries[i] != 0)
+			ct++;
 	}
-	if (ct==0) {
+	if (ct == 0) {
 		if (*ientry != 0) {
 			setbadness(EXIT_RECOV);
 			/* this is not necessarily correct */
@@ -163,8 +153,7 @@ check_indirect_block(struct ibstate *ibs, uint32_t *ientry, int *iechangedp,
 			freemap_blockfree(*ientry);
 			*ientry = 0;
 		}
-	}
-	else {
+	} else {
 		assert(*ientry != 0);
 		if (localchanged) {
 			sfs_writeindirect(*ientry, entries);
@@ -180,10 +169,7 @@ check_indirect_block(struct ibstate *ibs, uint32_t *ientry, int *iechangedp,
  * Returns nonzero if SFI has been modified and needs to be written
  * back.
  */
-static
-int
-check_inode_blocks(uint32_t ino, struct sfs_dinode *sfi, int isdir)
-{
+static int check_inode_blocks(uint32_t ino, struct sfs_dinode *sfi, int isdir) {
 	struct ibstate ibs;
 	uint32_t size, datablock;
 	int changed;
@@ -193,32 +179,28 @@ check_inode_blocks(uint32_t ino, struct sfs_dinode *sfi, int isdir)
 
 	ibs.ino = ino;
 	/*ibs.curfileblock = 0;*/
-	ibs.fileblocks = size/SFS_BLOCKSIZE;
+	ibs.fileblocks = size / SFS_BLOCKSIZE;
 	ibs.volblocks = sb_totalblocks();
 	ibs.pasteofcount = 0;
 	ibs.usagetype = isdir ? B_DIRDATA : B_DATA;
 
 	changed = 0;
 
-	for (ibs.curfileblock=0; ibs.curfileblock<NUM_D; ibs.curfileblock++) {
+	for (ibs.curfileblock = 0; ibs.curfileblock < NUM_D; ibs.curfileblock++) {
 		datablock = GET_D(sfi, ibs.curfileblock);
 		if (datablock >= ibs.volblocks) {
 			setbadness(EXIT_RECOV);
 			warnx("Inode %lu: direct block pointer for "
-			      "block %lu outside of volume: %lu "
-			      "(cleared)\n",
-			      (unsigned long)ibs.ino,
-			      (unsigned long)ibs.curfileblock,
-			      (unsigned long)datablock);
+				  "block %lu outside of volume: %lu "
+				  "(cleared)\n",
+				  (unsigned long)ibs.ino, (unsigned long)ibs.curfileblock,
+				  (unsigned long)datablock);
 			SET_D(sfi, ibs.curfileblock) = 0;
 			changed = 1;
-		}
-		else if (datablock > 0) {
+		} else if (datablock > 0) {
 			if (ibs.curfileblock < ibs.fileblocks) {
-				freemap_blockinuse(datablock, ibs.usagetype,
-						   ibs.ino);
-			}
-			else {
+				freemap_blockinuse(datablock, ibs.usagetype, ibs.ino);
+			} else {
 				setbadness(EXIT_RECOV);
 				ibs.pasteofcount++;
 				changed = 1;
@@ -228,19 +210,19 @@ check_inode_blocks(uint32_t ino, struct sfs_dinode *sfi, int isdir)
 		}
 	}
 
-	for (i=0; i<NUM_I; i++) {
+	for (i = 0; i < NUM_I; i++) {
 		check_indirect_block(&ibs, &SET_I(sfi, i), &changed, 1);
 	}
-	for (i=0; i<NUM_II; i++) {
+	for (i = 0; i < NUM_II; i++) {
 		check_indirect_block(&ibs, &SET_II(sfi, i), &changed, 2);
 	}
-	for (i=0; i<NUM_III; i++) {
+	for (i = 0; i < NUM_III; i++) {
 		check_indirect_block(&ibs, &SET_III(sfi, i), &changed, 3);
 	}
 
 	if (ibs.pasteofcount > 0) {
-		warnx("Inode %lu: %u blocks after EOF (freed)",
-		     (unsigned long) ibs.ino, ibs.pasteofcount);
+		warnx("Inode %lu: %u blocks after EOF (freed)", (unsigned long)ibs.ino,
+			  ibs.pasteofcount);
 		setbadness(EXIT_RECOV);
 	}
 
@@ -255,10 +237,8 @@ check_inode_blocks(uint32_t ino, struct sfs_dinode *sfi, int isdir)
  * Returns nonzero if SFI has been modified and needs to be written
  * back.
  */
-static
-int
-pass1_inode(uint32_t ino, struct sfs_dinode *sfi, int alreadychanged)
-{
+static int pass1_inode(uint32_t ino, struct sfs_dinode *sfi,
+					   int alreadychanged) {
 	int changed = alreadychanged;
 	int isdir = sfi->sfi_type == SFS_TYPE_DIR;
 
@@ -272,7 +252,7 @@ pass1_inode(uint32_t ino, struct sfs_dinode *sfi, int alreadychanged)
 
 	if (checkzeroed(sfi->sfi_waste, sizeof(sfi->sfi_waste))) {
 		warnx("Inode %lu: sfi_waste section not zeroed (fixed)",
-		      (unsigned long) ino);
+			  (unsigned long)ino);
 		setbadness(EXIT_RECOV);
 		changed = 1;
 	}
@@ -291,10 +271,8 @@ pass1_inode(uint32_t ino, struct sfs_dinode *sfi, int alreadychanged)
  * Check the directory entry in SFD. INDEX is its offset, and PATH is
  * its name; these are used for printing messages.
  */
-static
-int
-pass1_direntry(const char *path, uint32_t index, struct sfs_direntry *sfd)
-{
+static int pass1_direntry(const char *path, uint32_t index,
+						  struct sfs_direntry *sfd) {
 	int dchanged = 0;
 	uint32_t nblocks;
 
@@ -303,47 +281,42 @@ pass1_direntry(const char *path, uint32_t index, struct sfs_direntry *sfd)
 	if (sfd->sfd_ino == SFS_NOINO) {
 		if (sfd->sfd_name[0] != 0) {
 			setbadness(EXIT_RECOV);
-			warnx("Directory %s entry %lu has name but no file",
-			      path, (unsigned long) index);
+			warnx("Directory %s entry %lu has name but no file", path,
+				  (unsigned long)index);
 			sfd->sfd_name[0] = 0;
 			dchanged = 1;
 		}
-	}
-	else if (sfd->sfd_ino >= nblocks) {
+	} else if (sfd->sfd_ino >= nblocks) {
 		setbadness(EXIT_RECOV);
 		warnx("Directory %s entry %lu has out of range "
-		      "inode (cleared)",
-		      path, (unsigned long) index);
+			  "inode (cleared)",
+			  path, (unsigned long)index);
 		sfd->sfd_ino = SFS_NOINO;
 		sfd->sfd_name[0] = 0;
 		dchanged = 1;
-	}
-	else {
+	} else {
 		if (sfd->sfd_name[0] == 0) {
 			/* XXX: what happens if FSCK.n.m already exists? */
-			snprintf(sfd->sfd_name, sizeof(sfd->sfd_name),
-				 "FSCK.%lu.%lu",
-				 (unsigned long) sfd->sfd_ino,
-				 (unsigned long) uniqueid());
+			snprintf(sfd->sfd_name, sizeof(sfd->sfd_name), "FSCK.%lu.%lu",
+					 (unsigned long)sfd->sfd_ino, (unsigned long)uniqueid());
 			setbadness(EXIT_RECOV);
 			warnx("Directory %s entry %lu has file but "
-			      "no name (fixed: %s)",
-			      path, (unsigned long) index,
-			      sfd->sfd_name);
+				  "no name (fixed: %s)",
+				  path, (unsigned long)index, sfd->sfd_name);
 			dchanged = 1;
 		}
 		if (checknullstring(sfd->sfd_name, sizeof(sfd->sfd_name))) {
 			setbadness(EXIT_RECOV);
 			warnx("Directory %s entry %lu not "
-			      "null-terminated (fixed)",
-			      path, (unsigned long) index);
+				  "null-terminated (fixed)",
+				  path, (unsigned long)index);
 			dchanged = 1;
 		}
 		if (checkbadstring(sfd->sfd_name)) {
 			setbadness(EXIT_RECOV);
 			warnx("Directory %s entry %lu contains invalid "
-			      "characters (fixed)",
-			      path, (unsigned long) index);
+				  "characters (fixed)",
+				  path, (unsigned long)index);
 			dchanged = 1;
 		}
 	}
@@ -355,23 +328,19 @@ pass1_direntry(const char *path, uint32_t index, struct sfs_direntry *sfd)
  * to this directory. This traverses the volume directory tree
  * recursively.
  */
-static
-void
-pass1_dir(uint32_t ino, const char *pathsofar)
-{
+static void pass1_dir(uint32_t ino, const char *pathsofar) {
 	struct sfs_dinode sfi;
 	struct sfs_direntry *direntries;
 	uint32_t ndirentries, i;
-	int ichanged=0, dchanged=0;
+	int ichanged = 0, dchanged = 0;
 
 	sfs_readinode(ino, &sfi);
 
 	if (sfi.sfi_size % sizeof(struct sfs_direntry) != 0) {
 		setbadness(EXIT_RECOV);
-		warnx("Directory %s has illegal size %lu (fixed)",
-		      pathsofar, (unsigned long) sfi.sfi_size);
-		sfi.sfi_size = SFS_ROUNDUP(sfi.sfi_size,
-					   sizeof(struct sfs_direntry));
+		warnx("Directory %s has illegal size %lu (fixed)", pathsofar,
+			  (unsigned long)sfi.sfi_size);
+		sfi.sfi_size = SFS_ROUNDUP(sfi.sfi_size, sizeof(struct sfs_direntry));
 		ichanged = 1;
 	}
 	count_dirs++;
@@ -381,52 +350,50 @@ pass1_dir(uint32_t ino, const char *pathsofar)
 		return;
 	}
 
-	ndirentries = sfi.sfi_size/sizeof(struct sfs_direntry);
+	ndirentries = sfi.sfi_size / sizeof(struct sfs_direntry);
 	direntries = domalloc(sfi.sfi_size);
 
 	sfs_readdir(&sfi, direntries, ndirentries);
 
-	for (i=0; i<ndirentries; i++) {
+	for (i = 0; i < ndirentries; i++) {
 		if (pass1_direntry(pathsofar, i, &direntries[i])) {
 			dchanged = 1;
 		}
 	}
 
-	for (i=0; i<ndirentries; i++) {
+	for (i = 0; i < ndirentries; i++) {
 		if (direntries[i].sfd_ino == SFS_NOINO) {
 			/* nothing */
-		}
-		else if (!strcmp(direntries[i].sfd_name, ".")) {
+		} else if (!strcmp(direntries[i].sfd_name, ".")) {
 			/* nothing */
-		}
-		else if (!strcmp(direntries[i].sfd_name, "..")) {
+		} else if (!strcmp(direntries[i].sfd_name, "..")) {
 			/* nothing */
-		}
-		else {
-			char path[strlen(pathsofar)+SFS_NAMELEN+1];
+		} else {
+			char path[strlen(pathsofar) + SFS_NAMELEN + 1];
 			struct sfs_dinode subsfi;
 			uint32_t subino;
 
 			subino = direntries[i].sfd_ino;
 			sfs_readinode(subino, &subsfi);
-			snprintf(path, sizeof(path), "%s/%s",
-				 pathsofar, direntries[i].sfd_name);
+			snprintf(path, sizeof(path), "%s/%s", pathsofar,
+					 direntries[i].sfd_name);
 
 			switch (subsfi.sfi_type) {
-			    case SFS_TYPE_FILE:
+			case SFS_TYPE_FILE:
 				if (pass1_inode(subino, &subsfi, 0)) {
 					/* been here before */
 					break;
 				}
 				count_files++;
 				break;
-			    case SFS_TYPE_DIR:
+			case SFS_TYPE_DIR:
 				pass1_dir(subino, path);
 				break;
-			    default:
+			default:
 				setbadness(EXIT_RECOV);
 				warnx("Object %s: Invalid inode type %u "
-				      "(removed)", path, subsfi.sfi_type);
+					  "(removed)",
+					  path, subsfi.sfi_type);
 				direntries[i].sfd_ino = SFS_NOINO;
 				direntries[i].sfd_name[0] = 0;
 				dchanged = 1;
@@ -445,25 +412,22 @@ pass1_dir(uint32_t ino, const char *pathsofar)
 /*
  * Check the root directory, and implicitly everything under it.
  */
-static
-void
-pass1_rootdir(void)
-{
+static void pass1_rootdir(void) {
 	struct sfs_dinode sfi;
 	char path[SFS_VOLNAME_SIZE + 2];
 
 	sfs_readinode(SFS_ROOTDIR_INO, &sfi);
 
 	switch (sfi.sfi_type) {
-	    case SFS_TYPE_DIR:
+	case SFS_TYPE_DIR:
 		break;
-	    case SFS_TYPE_FILE:
+	case SFS_TYPE_FILE:
 		warnx("Root directory inode is a regular file (fixed)");
 		goto fix;
-	    default:
+	default:
 		warnx("Root directory inode has invalid type %lu (fixed)",
-		      (unsigned long) sfi.sfi_type);
-	    fix:
+			  (unsigned long)sfi.sfi_type);
+	fix:
 		setbadness(EXIT_RECOV);
 		sfi.sfi_type = SFS_TYPE_DIR;
 		sfs_writeinode(SFS_ROOTDIR_INO, &sfi);
@@ -477,20 +441,8 @@ pass1_rootdir(void)
 ////////////////////////////////////////////////////////////
 // public interface
 
-void
-pass1(void)
-{
-	pass1_rootdir();
-}
+void pass1(void) { pass1_rootdir(); }
 
-unsigned long
-pass1_founddirs(void)
-{
-	return count_dirs;
-}
+unsigned long pass1_founddirs(void) { return count_dirs; }
 
-unsigned long
-pass1_foundfiles(void)
-{
-	return count_files;
-}
+unsigned long pass1_foundfiles(void) { return count_files; }

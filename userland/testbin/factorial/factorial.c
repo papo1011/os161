@@ -57,16 +57,13 @@
 
 #define NUMSIZE 8191
 struct number {
-	char buf[NUMSIZE+1];	/* includes space for a null-terminator */
-	size_t first;		/* first valid digit */
+	char buf[NUMSIZE + 1]; /* includes space for a null-terminator */
+	size_t first;		   /* first valid digit */
 };
 
 static struct number scratch;
 
-static
-void
-number_init(struct number *n, const char *txt)
-{
+static void number_init(struct number *n, const char *txt) {
 	size_t len, i;
 
 	len = strlen(txt);
@@ -81,7 +78,7 @@ number_init(struct number *n, const char *txt)
 		n->buf[i] = '0';
 	}
 #endif
-	for (i=n->first; i<NUMSIZE; i++) {
+	for (i = n->first; i < NUMSIZE; i++) {
 		if (n->buf[i] < '0' || n->buf[i] > '9') {
 			warnx("%s", txt);
 			errx(1, "Number contained non-digit characters");
@@ -93,10 +90,7 @@ number_init(struct number *n, const char *txt)
 	}
 }
 
-static
-char *
-number_get(struct number *n)
-{
+static char *number_get(struct number *n) {
 	size_t pos;
 
 	pos = n->first;
@@ -110,11 +104,8 @@ number_get(struct number *n)
 	return &n->buf[pos];
 }
 
-static
-void
-finishcarry(struct number *r, const struct number *b, size_t pos,
-	    unsigned carry)
-{
+static void finishcarry(struct number *r, const struct number *b, size_t pos,
+						unsigned carry) {
 	if (carry > 0 && b->first == 0) {
 		/* if b->first is 0, pos may now be 2^32-1 */
 		errx(1, "Overflow");
@@ -129,15 +120,12 @@ finishcarry(struct number *r, const struct number *b, size_t pos,
 	r->first = pos + 1;
 }
 
-static
-void
-pluseq(struct number *r, const struct number *b)
-{
+static void pluseq(struct number *r, const struct number *b) {
 	size_t pos;
 	unsigned an, bn, rn, carry;
 
 	carry = 0;
-	for (pos = NUMSIZE; pos-- > b->first; ) {
+	for (pos = NUMSIZE; pos-- > b->first;) {
 		an = pos < r->first ? 0 : r->buf[pos] - '0';
 		bn = b->buf[pos] - '0';
 		rn = an + bn + carry;
@@ -147,17 +135,13 @@ pluseq(struct number *r, const struct number *b)
 	finishcarry(r, b, pos, carry);
 }
 
-static
-void
-dec(struct number *r)
-{
+static void dec(struct number *r) {
 	size_t pos;
 
-	for (pos = NUMSIZE; pos-- > r->first; ) {
+	for (pos = NUMSIZE; pos-- > r->first;) {
 		if (r->buf[pos] == '0') {
 			r->buf[pos] = '9';
-		}
-		else {
+		} else {
 			r->buf[pos]--;
 			return;
 		}
@@ -166,18 +150,16 @@ dec(struct number *r)
 	errx(1, "Underflow");
 }
 
-static
-void
-multc(struct number *r, const struct number *a, unsigned bn, size_t offset)
-{
+static void multc(struct number *r, const struct number *a, unsigned bn,
+				  size_t offset) {
 	size_t pos;
 	unsigned an, rn, carry;
 
-	for (pos = NUMSIZE; pos-- > NUMSIZE - offset; ) {
+	for (pos = NUMSIZE; pos-- > NUMSIZE - offset;) {
 		r->buf[pos] = '0';
 	}
 	carry = 0;
-	for (pos = NUMSIZE; pos-- > a->first; ) {
+	for (pos = NUMSIZE; pos-- > a->first;) {
 		an = a->buf[pos] - '0';
 		rn = an * bn + carry;
 		if (pos < offset) {
@@ -192,10 +174,8 @@ multc(struct number *r, const struct number *a, unsigned bn, size_t offset)
 	finishcarry(r, a, pos - offset, carry);
 }
 
-static
-void
-mult(struct number *r, const struct number *a, const struct number *b)
-{
+static void mult(struct number *r, const struct number *a,
+				 const struct number *b) {
 	unsigned offset;
 	size_t apos;
 
@@ -207,7 +187,7 @@ mult(struct number *r, const struct number *a, const struct number *b)
 
 	number_init(&scratch, "0");
 	offset = 0;
-	for (apos = NUMSIZE; apos-- > a->first; ) {
+	for (apos = NUMSIZE; apos-- > a->first;) {
 		multc(&scratch, b, a->buf[apos] - '0', offset);
 		pluseq(r, &scratch);
 		offset++;
@@ -217,10 +197,7 @@ mult(struct number *r, const struct number *a, const struct number *b)
 ////////////////////////////////////////////////////////////
 // argv logic
 
-static
-void
-self(const char *arg1, const char *arg2)
-{
+static void self(const char *arg1, const char *arg2) {
 	const char *args[4];
 
 	args[0] = _PATH_SELF;
@@ -233,21 +210,16 @@ self(const char *arg1, const char *arg2)
 
 static struct number n1, n2, multbuf;
 
-int
-main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
 	if (argc == 0) {
 		/* Assume we've just been run from the menu. */
 		self("404", "1");
-	}
-	else if (argc == 2) {
+	} else if (argc == 2) {
 		self(argv[1], "1");
-	}
-	else if (argc == 3) {
+	} else if (argc == 3) {
 		if (!strcmp(argv[1], "1") || !strcmp(argv[1], "0")) {
 			printf("%s\n", argv[2]);
-		}
-		else {
+		} else {
 			number_init(&n1, argv[1]);
 			number_init(&n2, argv[2]);
 			number_init(&multbuf, "0");
@@ -255,8 +227,7 @@ main(int argc, char *argv[])
 			dec(&n1);
 			self(number_get(&n1), number_get(&multbuf));
 		}
-	}
-	else {
+	} else {
 		warnx("Usage: factorial N");
 	}
 	return 0;

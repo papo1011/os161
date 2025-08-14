@@ -39,11 +39,9 @@
  */
 
 #define MAXCMDSIZE 2048
-#define MAXARGS    128
+#define MAXARGS 128
 
-int
-system(const char *cmd)
-{
+int system(const char *cmd) {
 	/*
 	 * Ordinarily, you call the shell to process the command.
 	 * But we don't know that the shell can do that. So, do it
@@ -51,8 +49,8 @@ system(const char *cmd)
 	 */
 
 	char tmp[MAXCMDSIZE];
-	char *argv[MAXARGS+1];
-	int nargs=0;
+	char *argv[MAXARGS + 1];
+	int nargs = 0;
 	char *s;
 	int pid, status;
 
@@ -65,8 +63,7 @@ system(const char *cmd)
 	for (s = strtok(tmp, " \t"); s; s = strtok(NULL, " \t")) {
 		if (nargs < MAXARGS) {
 			argv[nargs++] = s;
-		}
-		else {
+		} else {
 			errno = E2BIG;
 			return 1;
 		}
@@ -76,14 +73,14 @@ system(const char *cmd)
 
 	pid = fork();
 	switch (pid) {
-	    case -1:
+	case -1:
 		return -1;
-	    case 0:
+	case 0:
 		/* child */
 		execv(argv[0], argv);
 		/* exec only returns if it fails */
 		_exit(255);
-	    default:
+	default:
 		/* parent */
 		waitpid(pid, &status, 0);
 		return status;

@@ -55,20 +55,16 @@
 /*
  * Read or write a block, retrying I/O errors.
  */
-static
-int
-sfs_rwblock(struct sfs_fs *sfs, struct uio *uio)
-{
+static int sfs_rwblock(struct sfs_fs *sfs, struct uio *uio) {
 	int result;
-	int tries=0;
+	int tries = 0;
 
 	KASSERT(vfs_biglock_do_i_hold());
 
-	DEBUG(DB_SFS, "sfs: %s %llu\n",
-	      uio->uio_rw == UIO_READ ? "read" : "write",
-	      uio->uio_offset / SFS_BLOCKSIZE);
+	DEBUG(DB_SFS, "sfs: %s %llu\n", uio->uio_rw == UIO_READ ? "read" : "write",
+		  uio->uio_offset / SFS_BLOCKSIZE);
 
- retry:
+retry:
 	result = DEVOP_IO(sfs->sfs_device, uio);
 	if (result == EINVAL) {
 		/*
@@ -76,26 +72,22 @@ sfs_rwblock(struct sfs_fs *sfs, struct uio *uio)
 		 * or the seek address we gave wasn't sector-aligned,
 		 * or a couple of other things that are our fault.
 		 */
-		panic("sfs: %s: DEVOP_IO returned EINVAL\n",
-		      sfs->sfs_sb.sb_volname);
+		panic("sfs: %s: DEVOP_IO returned EINVAL\n", sfs->sfs_sb.sb_volname);
 	}
 	if (result == EIO) {
 		if (tries == 0) {
 			tries++;
 			kprintf("sfs: %s: block %llu I/O error, retrying\n",
-				sfs->sfs_sb.sb_volname,
-				uio->uio_offset / SFS_BLOCKSIZE);
+					sfs->sfs_sb.sb_volname, uio->uio_offset / SFS_BLOCKSIZE);
 			goto retry;
-		}
-		else if (tries < 10) {
+		} else if (tries < 10) {
 			tries++;
 			goto retry;
-		}
-		else {
+		} else {
 			kprintf("sfs: %s: block %llu I/O error, giving up "
-				"after %d retries\n",
-				sfs->sfs_sb.sb_volname,
-				uio->uio_offset / SFS_BLOCKSIZE, tries);
+					"after %d retries\n",
+					sfs->sfs_sb.sb_volname, uio->uio_offset / SFS_BLOCKSIZE,
+					tries);
 		}
 	}
 	return result;
@@ -104,9 +96,7 @@ sfs_rwblock(struct sfs_fs *sfs, struct uio *uio)
 /*
  * Read a block.
  */
-int
-sfs_readblock(struct sfs_fs *sfs, daddr_t block, void *data, size_t len)
-{
+int sfs_readblock(struct sfs_fs *sfs, daddr_t block, void *data, size_t len) {
 	struct iovec iov;
 	struct uio ku;
 
@@ -119,9 +109,7 @@ sfs_readblock(struct sfs_fs *sfs, daddr_t block, void *data, size_t len)
 /*
  * Write a block.
  */
-int
-sfs_writeblock(struct sfs_fs *sfs, daddr_t block, void *data, size_t len)
-{
+int sfs_writeblock(struct sfs_fs *sfs, daddr_t block, void *data, size_t len) {
 	struct iovec iov;
 	struct uio ku;
 
@@ -145,11 +133,8 @@ sfs_writeblock(struct sfs_fs *sfs, daddr_t block, void *data, size_t len)
  * the sector; LEN is the number of bytes to actually read or write.
  * UIO is the area to do the I/O into.
  */
-static
-int
-sfs_partialio(struct sfs_vnode *sv, struct uio *uio,
-	      uint32_t skipstart, uint32_t len)
-{
+static int sfs_partialio(struct sfs_vnode *sv, struct uio *uio,
+						 uint32_t skipstart, uint32_t len) {
 	/*
 	 * I/O buffer for handling partial sectors.
 	 *
@@ -165,7 +150,7 @@ sfs_partialio(struct sfs_vnode *sv, struct uio *uio,
 	int result;
 
 	/* Allocate missing blocks if and only if we're writing */
-	bool doalloc = (uio->uio_rw==UIO_WRITE);
+	bool doalloc = (uio->uio_rw == UIO_WRITE);
 
 	KASSERT(skipstart + len <= SFS_BLOCKSIZE);
 
@@ -188,8 +173,7 @@ sfs_partialio(struct sfs_vnode *sv, struct uio *uio,
 		 */
 		KASSERT(uio->uio_rw == UIO_READ);
 		bzero(iobuf, sizeof(iobuf));
-	}
-	else {
+	} else {
 		/*
 		 * Read the block.
 		 */
@@ -202,7 +186,7 @@ sfs_partialio(struct sfs_vnode *sv, struct uio *uio,
 	/*
 	 * Now perform the requested operation into/out of the buffer.
 	 */
-	result = uiomove(iobuf+skipstart, len, uio);
+	result = uiomove(iobuf + skipstart, len, uio);
 	if (result) {
 		return result;
 	}
@@ -223,15 +207,12 @@ sfs_partialio(struct sfs_vnode *sv, struct uio *uio,
 /*
  * Do I/O (either read or write) of a single whole block.
  */
-static
-int
-sfs_blockio(struct sfs_vnode *sv, struct uio *uio)
-{
+static int sfs_blockio(struct sfs_vnode *sv, struct uio *uio) {
 	struct sfs_fs *sfs = sv->sv_absvn.vn_fs->fs_data;
 	daddr_t diskblock;
 	uint32_t fileblock;
 	int result;
-	bool doalloc = (uio->uio_rw==UIO_WRITE);
+	bool doalloc = (uio->uio_rw == UIO_WRITE);
 	off_t saveoff;
 	off_t diskoff;
 	off_t saveres;
@@ -288,9 +269,7 @@ sfs_blockio(struct sfs_vnode *sv, struct uio *uio)
 /*
  * Do I/O of a whole region of data, whether or not it's block-aligned.
  */
-int
-sfs_io(struct sfs_vnode *sv, struct uio *uio)
-{
+int sfs_io(struct sfs_vnode *sv, struct uio *uio) {
 	uint32_t blkoff;
 	uint32_t nblocks, i;
 	int result = 0;
@@ -343,7 +322,7 @@ sfs_io(struct sfs_vnode *sv, struct uio *uio)
 	}
 
 	/* If we're done, quit. */
-	if (uio->uio_resid==0) {
+	if (uio->uio_resid == 0) {
 		goto out;
 	}
 
@@ -352,7 +331,7 @@ sfs_io(struct sfs_vnode *sv, struct uio *uio)
 	 */
 	KASSERT(uio->uio_offset % SFS_BLOCKSIZE == 0);
 	nblocks = uio->uio_resid / SFS_BLOCKSIZE;
-	for (i=0; i<nblocks; i++) {
+	for (i = 0; i < nblocks; i++) {
 		result = sfs_blockio(sv, uio);
 		if (result) {
 			goto out;
@@ -371,12 +350,11 @@ sfs_io(struct sfs_vnode *sv, struct uio *uio)
 		}
 	}
 
- out:
+out:
 
 	/* If writing and we did anything, adjust file length */
-	if (uio->uio_resid != origresid &&
-	    uio->uio_rw == UIO_WRITE &&
-	    uio->uio_offset > (off_t)sv->sv_i.sfi_size) {
+	if (uio->uio_resid != origresid && uio->uio_rw == UIO_WRITE &&
+		uio->uio_offset > (off_t)sv->sv_i.sfi_size) {
 		sv->sv_i.sfi_size = uio->uio_offset;
 		sv->sv_dirty = true;
 	}
@@ -402,10 +380,8 @@ sfs_io(struct sfs_vnode *sv, struct uio *uio)
  * more advanced things to handle metadata and user data I/O
  * differently.
  */
-int
-sfs_metaio(struct sfs_vnode *sv, off_t actualpos, void *data, size_t len,
-	   enum uio_rw rw)
-{
+int sfs_metaio(struct sfs_vnode *sv, off_t actualpos, void *data, size_t len,
+			   enum uio_rw rw) {
 	struct sfs_fs *sfs = sv->sv_absvn.vn_fs->fs_data;
 	off_t endpos;
 	uint32_t vnblock;
@@ -455,14 +431,12 @@ sfs_metaio(struct sfs_vnode *sv, off_t actualpos, void *data, size_t len,
 	if (rw == UIO_READ) {
 		/* Copy out the selected region */
 		memcpy(data, metaiobuf + blockoffset, len);
-	}
-	else {
+	} else {
 		/* Update the selected region */
 		memcpy(metaiobuf + blockoffset, data, len);
 
 		/* Write the block back */
-		result = sfs_writeblock(sfs, diskblock,
-					metaiobuf, sizeof(metaiobuf));
+		result = sfs_writeblock(sfs, diskblock, metaiobuf, sizeof(metaiobuf));
 		if (result) {
 			return result;
 		}

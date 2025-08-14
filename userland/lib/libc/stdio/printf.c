@@ -36,14 +36,10 @@
  * printf - C standard I/O function.
  */
 
-
 /*
  * Function passed to __vprintf to do the actual output.
  */
-static
-void
-__printf_send(void *mydata, const char *data, size_t len)
-{
+static void __printf_send(void *mydata, const char *data, size_t len) {
 	ssize_t ret;
 	int *err = mydata;
 
@@ -52,9 +48,7 @@ __printf_send(void *mydata, const char *data, size_t len)
 }
 
 /* printf: hand off to vprintf */
-int
-printf(const char *fmt, ...)
-{
+int printf(const char *fmt, ...) {
 	int chars;
 	va_list ap;
 
@@ -65,9 +59,7 @@ printf(const char *fmt, ...)
 }
 
 /* vprintf: call __vprintf to do the work. */
-int
-vprintf(const char *fmt, va_list ap)
-{
+int vprintf(const char *fmt, va_list ap) {
 	int chars, err;
 	chars = __vprintf(__printf_send, &err, fmt, ap);
 	if (err) {

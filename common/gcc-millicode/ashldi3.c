@@ -41,20 +41,17 @@
  * Shift a (signed) long long value left (arithmetic shift left).
  * This is the same as logical shift left!
  */
-long long
-__ashldi3(long long a, unsigned int shift)
-{
+long long __ashldi3(long long a, unsigned int shift) {
 	union uu aa;
 
 	if (shift == 0)
-		return(a);
+		return (a);
 	aa.ll = a;
 	if (shift >= INT_BITS) {
 		aa.ui[H] = aa.ui[L] << (shift - INT_BITS);
 		aa.ui[L] = 0;
 	} else {
-		aa.ui[H] = (aa.ui[H] << shift) |
-		    (aa.ui[L] >> (INT_BITS - shift));
+		aa.ui[H] = (aa.ui[H] << shift) | (aa.ui[L] >> (INT_BITS - shift));
 		aa.ui[L] <<= shift;
 	}
 	return (aa.ll);

@@ -40,9 +40,7 @@
 /*
  * Divide two unsigned long longs.
  */
-unsigned long long
-__udivdi3(unsigned long long a, unsigned long long b)
-{
+unsigned long long __udivdi3(unsigned long long a, unsigned long long b) {
 
 	return __qdivrem(a, b, NULL);
 }

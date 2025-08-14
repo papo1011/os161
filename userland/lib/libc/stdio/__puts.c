@@ -38,9 +38,7 @@
  * Returns the length of the string printed.
  */
 
-int
-__puts(const char *str)
-{
+int __puts(const char *str) {
 	size_t len;
 	ssize_t ret;
 

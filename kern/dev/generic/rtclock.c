@@ -49,22 +49,18 @@
 
 static struct rtclock_softc *the_clock = NULL;
 
-int
-config_rtclock(struct rtclock_softc *rtc, int unit)
-{
+int config_rtclock(struct rtclock_softc *rtc, int unit) {
 	/* We use only the first clock device. */
-	if (unit!=0) {
+	if (unit != 0) {
 		return ENODEV;
 	}
 
-	KASSERT(the_clock==NULL);
+	KASSERT(the_clock == NULL);
 	the_clock = rtc;
 	return 0;
 }
 
-void
-gettime(struct timespec *ts)
-{
-	KASSERT(the_clock!=NULL);
+void gettime(struct timespec *ts) {
+	KASSERT(the_clock != NULL);
 	the_clock->rtc_gettime(the_clock->rtc_devdata, ts);
 }

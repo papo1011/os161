@@ -33,8 +33,4 @@
 
 #include "test.h"
 
-void
-test_close(void)
-{
-	test_close_fd();
-}
+void test_close(void) { test_close_fd(); }

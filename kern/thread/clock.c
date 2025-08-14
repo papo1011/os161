@@ -50,8 +50,8 @@
  * Timing constants. These should be tuned along with any work done on
  * the scheduler.
  */
-#define SCHEDULE_HARDCLOCKS	4	/* Reschedule every 4 hardclocks. */
-#define MIGRATE_HARDCLOCKS	16	/* Migrate every 16 hardclocks. */
+#define SCHEDULE_HARDCLOCKS 4 /* Reschedule every 4 hardclocks. */
+#define MIGRATE_HARDCLOCKS 16 /* Migrate every 16 hardclocks. */
 
 /*
  * Once a second, everything waiting on lbolt is awakened by CPU 0.
@@ -62,9 +62,7 @@ static struct spinlock lbolt_lock;
 /*
  * Setup.
  */
-void
-hardclock_bootstrap(void)
-{
+void hardclock_bootstrap(void) {
 	spinlock_init(&lbolt_lock);
 	lbolt = wchan_create("lbolt");
 	if (lbolt == NULL) {
@@ -76,9 +74,7 @@ hardclock_bootstrap(void)
  * This is called once per second, on one processor, by the timer
  * code.
  */
-void
-timerclock(void)
-{
+void timerclock(void) {
 	/* Just broadcast on lbolt */
 	spinlock_acquire(&lbolt_lock);
 	wchan_wakeall(lbolt, &lbolt_lock);
@@ -89,9 +85,7 @@ timerclock(void)
  * This is called HZ times a second (on each processor) by the timer
  * code.
  */
-void
-hardclock(void)
-{
+void hardclock(void) {
 	/*
 	 * Collect statistics here as desired.
 	 */
@@ -109,9 +103,7 @@ hardclock(void)
 /*
  * Suspend execution for n seconds.
  */
-void
-clocksleep(int num_secs)
-{
+void clocksleep(int num_secs) {
 	spinlock_acquire(&lbolt_lock);
 	while (num_secs > 0) {
 		wchan_sleep(lbolt, &lbolt_lock);

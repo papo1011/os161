@@ -64,16 +64,16 @@
  */
 
 enum fschanges {
-	FC_NEWFS,		/* create the volume */
-	FC_TRUNCATE,		/* truncate a file */
-	FC_WRITE,		/* write to a file */
-	FC_CREAT,		/* create a file */
-	FC_MKDIR,		/* create a directory */
-	FC_RMDIR,		/* remove a directory */
-	FC_UNLINK,		/* remove a file */
-	FC_LINK,		/* hardlink a file */
-	FC_RENAMEFILE,		/* rename a file */
-	FC_RENAMEDIR,		/* rename a directory */
+	FC_NEWFS,	   /* create the volume */
+	FC_TRUNCATE,   /* truncate a file */
+	FC_WRITE,	   /* write to a file */
+	FC_CREAT,	   /* create a file */
+	FC_MKDIR,	   /* create a directory */
+	FC_RMDIR,	   /* remove a directory */
+	FC_UNLINK,	   /* remove a file */
+	FC_LINK,	   /* hardlink a file */
+	FC_RENAMEFILE, /* rename a file */
+	FC_RENAMEDIR,  /* rename a directory */
 };
 struct fschange {
 	/* all changes are kept in order on a doubly linked list */
@@ -228,34 +228,19 @@ struct fsobject {
  * unnecessary lossage on kernels where malloc doesn't work.
  */
 
-#define MAXCHANGES	16384
-#define MAXOBJECTS	16384
-#define MAXDIRENTS	16384
+#define MAXCHANGES 16384
+#define MAXOBJECTS 16384
+#define MAXDIRENTS 16384
 
 DECLPOOL(fschange, MAXCHANGES);
 DECLPOOL(fsobject, MAXOBJECTS);
 DECLPOOL(fsdirent, MAXDIRENTS);
 
-static
-struct fschange *
-getchange(void)
-{
-	return POOLALLOC(fschange);
-}
+static struct fschange *getchange(void) { return POOLALLOC(fschange); }
 
-static
-struct fsobject *
-getobject(void)
-{
-	return POOLALLOC(fsobject);
-}
+static struct fsobject *getobject(void) { return POOLALLOC(fsobject); }
 
-static
-struct fsdirent *
-getdirent(void)
-{
-	return POOLALLOC(fsdirent);
-}
+static struct fsdirent *getdirent(void) { return POOLALLOC(fsdirent); }
 
 #if 0
 static
@@ -266,27 +251,14 @@ putchange(struct fschange *fc)
 }
 #endif
 
-static
-void
-putobject(struct fsobject *obj)
-{
-	POOLFREE(fsobject, obj);
-}
+static void putobject(struct fsobject *obj) { POOLFREE(fsobject, obj); }
 
-static
-void
-putdirent(struct fsdirent *dirent)
-{
-	POOLFREE(fsdirent, dirent);
-}
+static void putdirent(struct fsdirent *dirent) { POOLFREE(fsdirent, dirent); }
 
 ////////////////////////////////////////////////////////////
 // record constructors for change records
 
-static
-struct fschange *
-fc_create(enum fschanges type)
-{
+static struct fschange *fc_create(enum fschanges type) {
 	struct fschange *fc;
 
 	fc = getchange();
@@ -297,10 +269,7 @@ fc_create(enum fschanges type)
 	return fc;
 }
 
-static
-struct fschange *
-fc_create_newfs(unsigned rootdirnum)
-{
+static struct fschange *fc_create_newfs(unsigned rootdirnum) {
 	struct fschange *fc;
 
 	fc = fc_create(FC_NEWFS);
@@ -308,10 +277,8 @@ fc_create_newfs(unsigned rootdirnum)
 	return fc;
 }
 
-static
-struct fschange *
-fc_create_truncate(struct fschange *prev_thisfile, unsigned file, off_t len)
-{
+static struct fschange *fc_create_truncate(struct fschange *prev_thisfile,
+										   unsigned file, off_t len) {
 	struct fschange *fc;
 
 	fc = fc_create(FC_TRUNCATE);
@@ -321,12 +288,10 @@ fc_create_truncate(struct fschange *prev_thisfile, unsigned file, off_t len)
 	return fc;
 }
 
-static
-struct fschange *
-fc_create_write(struct fschange *prev_thisfile, unsigned file,
-		off_t pos, off_t len, off_t oldfilesize,
-		unsigned code, unsigned seq)
-{
+static struct fschange *fc_create_write(struct fschange *prev_thisfile,
+										unsigned file, off_t pos, off_t len,
+										off_t oldfilesize, unsigned code,
+										unsigned seq) {
 	struct fschange *fc;
 
 	fc = fc_create(FC_WRITE);
@@ -340,11 +305,9 @@ fc_create_write(struct fschange *prev_thisfile, unsigned file,
 	return fc;
 }
 
-static
-struct fschange *
-fc_create_creat(struct fschange *prev_thisdir,
-		unsigned dir, unsigned name, unsigned newfile)
-{
+static struct fschange *fc_create_creat(struct fschange *prev_thisdir,
+										unsigned dir, unsigned name,
+										unsigned newfile) {
 	struct fschange *mdc;
 
 	mdc = fc_create(FC_CREAT);
@@ -355,11 +318,9 @@ fc_create_creat(struct fschange *prev_thisdir,
 	return mdc;
 }
 
-static
-struct fschange *
-fc_create_mkdir(struct fschange *prev_thisdir,
-		unsigned dir, unsigned name, unsigned newdir)
-{
+static struct fschange *fc_create_mkdir(struct fschange *prev_thisdir,
+										unsigned dir, unsigned name,
+										unsigned newdir) {
 	struct fschange *mdc;
 
 	mdc = fc_create(FC_MKDIR);
@@ -370,11 +331,10 @@ fc_create_mkdir(struct fschange *prev_thisdir,
 	return mdc;
 }
 
-static
-struct fschange *
-fc_create_rmdir(struct fschange *prev_thisdir, struct fschange *prev_victimdir,
-		unsigned dir, unsigned name, unsigned victimdir)
-{
+static struct fschange *fc_create_rmdir(struct fschange *prev_thisdir,
+										struct fschange *prev_victimdir,
+										unsigned dir, unsigned name,
+										unsigned victimdir) {
 	struct fschange *mdc;
 
 	mdc = fc_create(FC_RMDIR);
@@ -386,12 +346,10 @@ fc_create_rmdir(struct fschange *prev_thisdir, struct fschange *prev_victimdir,
 	return mdc;
 }
 
-static
-struct fschange *
-fc_create_unlink(struct fschange *prev_thisdir,
-		 struct fschange *prev_victimfile,
-		 unsigned dir, unsigned name, unsigned victimfile)
-{
+static struct fschange *fc_create_unlink(struct fschange *prev_thisdir,
+										 struct fschange *prev_victimfile,
+										 unsigned dir, unsigned name,
+										 unsigned victimfile) {
 	struct fschange *mdc;
 
 	mdc = fc_create(FC_UNLINK);
@@ -403,14 +361,12 @@ fc_create_unlink(struct fschange *prev_thisdir,
 	return mdc;
 }
 
-static
-struct fschange *
-fc_create_link(struct fschange *prev_fromdir, struct fschange *prev_todir,
-	       struct fschange *prev_thisfile,
-	       unsigned fromdir, unsigned fromname,
-	       unsigned todir, unsigned toname,
-	       unsigned file)
-{
+static struct fschange *fc_create_link(struct fschange *prev_fromdir,
+									   struct fschange *prev_todir,
+									   struct fschange *prev_thisfile,
+									   unsigned fromdir, unsigned fromname,
+									   unsigned todir, unsigned toname,
+									   unsigned file) {
 	struct fschange *mdc;
 
 	mdc = fc_create(FC_LINK);
@@ -425,15 +381,11 @@ fc_create_link(struct fschange *prev_fromdir, struct fschange *prev_todir,
 	return mdc;
 }
 
-static
-struct fschange *
-fc_create_renamefile(struct fschange *prev_fromdir,
-		     struct fschange *prev_todir,
-		     struct fschange *prev_movedfile,
-		     unsigned fromdir, unsigned fromname,
-		     unsigned todir, unsigned toname,
-		     unsigned movedfile)
-{
+static struct fschange *
+fc_create_renamefile(struct fschange *prev_fromdir, struct fschange *prev_todir,
+					 struct fschange *prev_movedfile, unsigned fromdir,
+					 unsigned fromname, unsigned todir, unsigned toname,
+					 unsigned movedfile) {
 	struct fschange *mdc;
 
 	mdc = fc_create(FC_RENAMEFILE);
@@ -448,15 +400,12 @@ fc_create_renamefile(struct fschange *prev_fromdir,
 	return mdc;
 }
 
-static
-struct fschange *
-fc_create_renamedir(struct fschange *prev_fromdir,
-		    struct fschange *prev_todir,
-		    struct fschange *prev_moveddir,
-		    unsigned fromdir, unsigned fromname,
-		    unsigned todir, unsigned toname,
-		    unsigned moveddir)
-{
+static struct fschange *fc_create_renamedir(struct fschange *prev_fromdir,
+											struct fschange *prev_todir,
+											struct fschange *prev_moveddir,
+											unsigned fromdir, unsigned fromname,
+											unsigned todir, unsigned toname,
+											unsigned moveddir) {
 	struct fschange *fc;
 
 	fc = fc_create(FC_RENAMEDIR);
@@ -474,10 +423,7 @@ fc_create_renamedir(struct fschange *prev_fromdir,
 ////////////////////////////////////////////////////////////
 // constructors/destructors for current state objects
 
-static
-struct fsdirent *
-fsdirent_create(unsigned name, struct fsobject *obj)
-{
+static struct fsdirent *fsdirent_create(unsigned name, struct fsobject *obj) {
 	struct fsdirent *ret;
 
 	ret = getdirent();
@@ -487,19 +433,13 @@ fsdirent_create(unsigned name, struct fsobject *obj)
 	return ret;
 }
 
-static
-void
-fsdirent_destroy(struct fsdirent *de)
-{
+static void fsdirent_destroy(struct fsdirent *de) {
 	assert(de->obj == NULL);
 	assert(de->next == NULL);
 	putdirent(de);
 }
 
-static
-struct fsobject *
-fsobject_create_file(unsigned id)
-{
+static struct fsobject *fsobject_create_file(unsigned id) {
 	struct fsobject *ret;
 
 	ret = getobject();
@@ -510,10 +450,8 @@ fsobject_create_file(unsigned id)
 	return ret;
 }
 
-static
-struct fsobject *
-fsobject_create_dir(unsigned id, struct fsobject *parent)
-{
+static struct fsobject *fsobject_create_dir(unsigned id,
+											struct fsobject *parent) {
 	struct fsobject *ret;
 
 	ret = getobject();
@@ -525,19 +463,13 @@ fsobject_create_dir(unsigned id, struct fsobject *parent)
 	return ret;
 }
 
-static
-void
-fsobject_incref(struct fsobject *obj)
-{
+static void fsobject_incref(struct fsobject *obj) {
 	assert(obj->refcount > 0);
 	obj->refcount++;
 	assert(obj->refcount > 0);
 }
 
-static
-void
-fsobject_decref(struct fsobject *obj)
-{
+static void fsobject_decref(struct fsobject *obj) {
 	assert(obj->refcount > 0);
 	obj->refcount--;
 	if (obj->refcount > 0) {
@@ -550,10 +482,7 @@ fsobject_decref(struct fsobject *obj)
 	putobject(obj);
 }
 
-static
-void
-fsobject_destroytree(struct fsobject *obj)
-{
+static void fsobject_destroytree(struct fsobject *obj) {
 	struct fsdirent *de;
 
 	if (obj->isdir) {
@@ -575,10 +504,7 @@ fsobject_destroytree(struct fsobject *obj)
 /*
  * Bail out if something's broken.
  */
-static
-void
-die(const char *fmt, ...)
-{
+static void die(const char *fmt, ...) {
 	char buf[256];
 	va_list ap;
 
@@ -606,17 +532,14 @@ fsdirent_count(struct fsdirent *de)
 /*
  * Add an entry to a directory.
  */
-static
-void
-fsdir_add_entry(struct fsobject *dir, struct fsdirent *nde)
-{
+static void fsdir_add_entry(struct fsobject *dir, struct fsdirent *nde) {
 	struct fsdirent *ode;
 
 	assert(dir->isdir);
 	for (ode = dir->obj_dir.entries; ode != NULL; ode = ode->next) {
 		if (ode->name == nde->name) {
-			die("In directory %u, %s already existed",
-			    dir->obj_dir.identity, name_get(nde->name));
+			die("In directory %u, %s already existed", dir->obj_dir.identity,
+				name_get(nde->name));
 		}
 	}
 	nde->next = dir->obj_dir.entries;
@@ -627,10 +550,8 @@ fsdir_add_entry(struct fsobject *dir, struct fsdirent *nde)
  * Find an entry in a directory by name. If CROAK is set, bail out if
  * it's not there.
  */
-static
-struct fsdirent *
-fsdir_find_entry(struct fsobject *dir, unsigned name, int croak)
-{
+static struct fsdirent *fsdir_find_entry(struct fsobject *dir, unsigned name,
+										 int croak) {
 	struct fsdirent *de;
 
 	assert(dir->isdir);
@@ -640,8 +561,8 @@ fsdir_find_entry(struct fsobject *dir, unsigned name, int croak)
 		}
 	}
 	if (croak) {
-		die("In directory %u, did not find %s",
-		    dir->obj_dir.identity, name_get(name));
+		die("In directory %u, did not find %s", dir->obj_dir.identity,
+			name_get(name));
 	}
 	return NULL;
 }
@@ -649,10 +570,8 @@ fsdir_find_entry(struct fsobject *dir, unsigned name, int croak)
 /*
  * Remove an entry from a directory.
  */
-static
-struct fsdirent *
-fsdir_remove_entry(struct fsobject *dir, unsigned name)
-{
+static struct fsdirent *fsdir_remove_entry(struct fsobject *dir,
+										   unsigned name) {
 	struct fsdirent *de, **prevptr;
 
 	assert(dir->isdir);
@@ -664,18 +583,16 @@ fsdir_remove_entry(struct fsobject *dir, unsigned name)
 			return de;
 		}
 	}
-	die("In directory %u, did not find %s",
-	    dir->obj_dir.identity, name_get(name));
+	die("In directory %u, did not find %s", dir->obj_dir.identity,
+		name_get(name));
 	return NULL;
 }
 
 ////////////////////////////////////////////////////////////
 // apply a change record to a current state
 
-static
-struct fsobject *
-findsub(struct fsobject *obj, unsigned isdir, unsigned id)
-{
+static struct fsobject *findsub(struct fsobject *obj, unsigned isdir,
+								unsigned id) {
 	struct fsobject *ret;
 	struct fsdirent *de;
 	unsigned objid;
@@ -715,20 +632,14 @@ findfile(struct fsobject *rootdir, unsigned id)
 }
 #endif
 
-static
-struct fsobject *
-findfile_maybe(struct fsobject *rootdir, unsigned id)
-{
-	return findsub(rootdir, 0/*!isdir*/, id);
+static struct fsobject *findfile_maybe(struct fsobject *rootdir, unsigned id) {
+	return findsub(rootdir, 0 /*!isdir*/, id);
 }
 
-static
-struct fsobject *
-finddir(struct fsobject *rootdir, unsigned id)
-{
+static struct fsobject *finddir(struct fsobject *rootdir, unsigned id) {
 	struct fsobject *ret;
 
-	ret = findsub(rootdir, 1/*isdir*/, id);
+	ret = findsub(rootdir, 1 /*isdir*/, id);
 	if (ret == NULL) {
 		die("Directory %u not found in current state", id);
 	}
@@ -738,10 +649,7 @@ finddir(struct fsobject *rootdir, unsigned id)
 /*
  * Apply change CHANGE to the volume state encoded in/under ROOTDIR.
  */
-static
-void
-apply_change(struct fsobject *rootdir, struct fschange *change)
-{
+static void apply_change(struct fsobject *rootdir, struct fschange *change) {
 	struct fsobject *obj1, *obj2;
 	struct fsdirent *de;
 	off_t endpos;
@@ -749,18 +657,17 @@ apply_change(struct fsobject *rootdir, struct fschange *change)
 	assert(rootdir->isdir);
 
 	switch (change->type) {
-	    case FC_NEWFS:
+	case FC_NEWFS:
 		/*
 		 * Creating the volume; crosscheck the root directory.
 		 */
 		assert(rootdir->isdir);
 		assert(rootdir->refcount == 1);
-		assert(rootdir->obj_dir.identity ==
-		       change->fc_newfs.rootdirnum);
+		assert(rootdir->obj_dir.identity == change->fc_newfs.rootdirnum);
 		assert(rootdir->obj_dir.entries == NULL);
 		assert(rootdir->obj_dir.parent == rootdir);
 		break;
-	    case FC_TRUNCATE:
+	case FC_TRUNCATE:
 		/*
 		 * Truncate a file. (Only files, not directories.)
 		 *
@@ -775,7 +682,7 @@ apply_change(struct fsobject *rootdir, struct fschange *change)
 			obj1->obj_file.len = change->fc_truncate.len;
 		}
 		break;
-	    case FC_WRITE:
+	case FC_WRITE:
 		/*
 		 * Write to a file. (Only files, not directories.)
 		 * All this actually does is update the file size if
@@ -791,7 +698,7 @@ apply_change(struct fsobject *rootdir, struct fschange *change)
 			}
 		}
 		break;
-	    case FC_CREAT:
+	case FC_CREAT:
 		/*
 		 * Create a file. This creates a new object and a
 		 * directory entry to hold it, then inserts the
@@ -802,7 +709,7 @@ apply_change(struct fsobject *rootdir, struct fschange *change)
 		de = fsdirent_create(change->fc_creat.name, obj2);
 		fsdir_add_entry(obj1, de);
 		break;
-	    case FC_MKDIR:
+	case FC_MKDIR:
 		/*
 		 * Create a directory. The same as creating a file,
 		 * except the new object is a directory.
@@ -812,7 +719,7 @@ apply_change(struct fsobject *rootdir, struct fschange *change)
 		de = fsdirent_create(change->fc_mkdir.name, obj2);
 		fsdir_add_entry(obj1, de);
 		break;
-	    case FC_RMDIR:
+	case FC_RMDIR:
 		/*
 		 * Remove a directory. First take out the directory
 		 * entry (by name); then examine the object found;
@@ -832,7 +739,7 @@ apply_change(struct fsobject *rootdir, struct fschange *change)
 		fsdirent_destroy(de);
 		fsobject_decref(obj2);
 		break;
-	    case FC_UNLINK:
+	case FC_UNLINK:
 		/*
 		 * Remove a file. Much the same as removing a directory.
 		 */
@@ -841,12 +748,11 @@ apply_change(struct fsobject *rootdir, struct fschange *change)
 		obj2 = de->obj;
 		de->obj = NULL;
 		assert(!obj2->isdir);
-		assert(obj2->obj_file.identity ==
-		       change->fc_unlink.victimfile);
+		assert(obj2->obj_file.identity == change->fc_unlink.victimfile);
 		fsdirent_destroy(de);
 		fsobject_decref(obj2);
 		break;
-	    case FC_LINK:
+	case FC_LINK:
 		/*
 		 * Hard-link a file.
 		 */
@@ -860,7 +766,7 @@ apply_change(struct fsobject *rootdir, struct fschange *change)
 		de = fsdirent_create(change->fc_link.toname, obj2);
 		fsdir_add_entry(obj1, de);
 		break;
-	    case FC_RENAMEFILE:
+	case FC_RENAMEFILE:
 		/*
 		 * Rename a file. XXX: this appears to do the wrong
 		 * thing if you rename one file over another.
@@ -869,13 +775,12 @@ apply_change(struct fsobject *rootdir, struct fschange *change)
 		de = fsdir_remove_entry(obj1, change->fc_renamefile.fromname);
 		obj2 = de->obj;
 		assert(!obj2->isdir);
-		assert(obj2->obj_file.identity ==
-		       change->fc_renamefile.movedfile);
+		assert(obj2->obj_file.identity == change->fc_renamefile.movedfile);
 		obj1 = finddir(rootdir, change->fc_renamefile.todir);
 		de->name = change->fc_renamefile.toname;
 		fsdir_add_entry(obj1, de);
 		break;
-	    case FC_RENAMEDIR:
+	case FC_RENAMEDIR:
 		/*
 		 * Rename a directory. Same as renaming a file, except
 		 * that we update the parent of the directory being
@@ -891,8 +796,7 @@ apply_change(struct fsobject *rootdir, struct fschange *change)
 		de = fsdir_remove_entry(obj1, change->fc_renamedir.fromname);
 		obj2 = de->obj;
 		assert(obj2->isdir);
-		assert(obj2->obj_dir.identity ==
-		       change->fc_renamedir.moveddir);
+		assert(obj2->obj_dir.identity == change->fc_renamedir.moveddir);
 		assert(obj2->obj_dir.parent == obj1);
 		obj1 = finddir(rootdir, change->fc_renamedir.todir);
 		de->name = change->fc_renamedir.toname;
@@ -935,10 +839,7 @@ static unsigned nextfilenum, nextdirnum;
  *
  * usage: fc_attach(newrecord);
  */
-static
-void
-fc_attach(struct fschange *new)
-{
+static void fc_attach(struct fschange *new) {
 	struct fschange *prev;
 
 	prev = changes;
@@ -957,10 +858,7 @@ fc_attach(struct fschange *new)
 /*
  * Rewind the volume state kept in the global STATE to the beginning.
  */
-static
-void
-rewindstate(void)
-{
+static void rewindstate(void) {
 	/* If we already have a state, throw it away. */
 	if (state != NULL) {
 		fsobject_destroytree(state);
@@ -977,10 +875,7 @@ rewindstate(void)
  * Roll the volume state kept in STATE forward to a specific change
  * entry.
  */
-static
-void
-advancestateto(struct fschange *targetchange)
-{
+static void advancestateto(struct fschange *targetchange) {
 	struct fschange *change;
 
 	for (change = firstchange; change != NULL; change = change->next) {
@@ -1007,50 +902,47 @@ advancestateto(struct fschange *targetchange)
  * records, so it can always just start from the most recent end
  * instead of from a specific place.
  */
-static
-struct fschange *
-changes_findprevfile(unsigned filenum)
-{
+static struct fschange *changes_findprevfile(unsigned filenum) {
 	struct fschange *here;
 
 	for (here = changes; here != NULL; here = here->prev) {
 		switch (here->type) {
-		    case FC_NEWFS:
+		case FC_NEWFS:
 			break;
-		    case FC_TRUNCATE:
+		case FC_TRUNCATE:
 			if (here->fc_truncate.file == filenum) {
 				return here;
 			}
 			break;
-		    case FC_WRITE:
+		case FC_WRITE:
 			if (here->fc_write.file == filenum) {
 				return here;
 			}
 			break;
-		    case FC_CREAT:
+		case FC_CREAT:
 			if (here->fc_creat.newfile == filenum) {
 				return here;
 			}
 			break;
-		    case FC_MKDIR:
-		    case FC_RMDIR:
+		case FC_MKDIR:
+		case FC_RMDIR:
 			break;
-		    case FC_UNLINK:
+		case FC_UNLINK:
 			if (here->fc_unlink.victimfile == filenum) {
 				return here;
 			}
 			break;
-		    case FC_LINK:
+		case FC_LINK:
 			if (here->fc_link.file == filenum) {
 				return here;
 			}
 			break;
-		    case FC_RENAMEFILE:
+		case FC_RENAMEFILE:
 			if (here->fc_renamefile.movedfile == filenum) {
 				return here;
 			}
 			break;
-		    case FC_RENAMEDIR:
+		case FC_RENAMEDIR:
 			break;
 		}
 	}
@@ -1063,60 +955,57 @@ changes_findprevfile(unsigned filenum)
  *
  * Likewise, if there isn't one, something's wrong.
  */
-static
-struct fschange *
-changes_findprevdir(unsigned dirnum)
-{
+static struct fschange *changes_findprevdir(unsigned dirnum) {
 	struct fschange *here;
 
 	for (here = changes; here != NULL; here = here->prev) {
 		switch (here->type) {
-		    case FC_NEWFS:
+		case FC_NEWFS:
 			if (here->fc_newfs.rootdirnum == dirnum) {
 				return here;
 			}
 			break;
-		    case FC_TRUNCATE:
-		    case FC_WRITE:
+		case FC_TRUNCATE:
+		case FC_WRITE:
 			break;
-		    case FC_CREAT:
+		case FC_CREAT:
 			if (here->fc_creat.dir == dirnum) {
 				return here;
 			}
 			break;
-		    case FC_MKDIR:
+		case FC_MKDIR:
 			if (here->fc_mkdir.dir == dirnum ||
-			    here->fc_mkdir.newdir == dirnum) {
+				here->fc_mkdir.newdir == dirnum) {
 				return here;
 			}
 			break;
-		    case FC_RMDIR:
+		case FC_RMDIR:
 			if (here->fc_rmdir.dir == dirnum ||
-			    here->fc_rmdir.victimdir == dirnum) {
+				here->fc_rmdir.victimdir == dirnum) {
 				return here;
 			}
 			break;
-		    case FC_UNLINK:
+		case FC_UNLINK:
 			if (here->fc_unlink.dir == dirnum) {
 				return here;
 			}
 			break;
-		    case FC_LINK:
+		case FC_LINK:
 			if (here->fc_link.fromdir == dirnum ||
-			    here->fc_link.todir == dirnum) {
+				here->fc_link.todir == dirnum) {
 				return here;
 			}
 			break;
-		    case FC_RENAMEFILE:
+		case FC_RENAMEFILE:
 			if (here->fc_renamefile.fromdir == dirnum ||
-			    here->fc_renamefile.todir == dirnum) {
+				here->fc_renamefile.todir == dirnum) {
 				return here;
 			}
 			break;
-		    case FC_RENAMEDIR:
+		case FC_RENAMEDIR:
 			if (here->fc_renamedir.fromdir == dirnum ||
-			    here->fc_renamedir.todir == dirnum ||
-			    here->fc_renamedir.moveddir == dirnum) {
+				here->fc_renamedir.todir == dirnum ||
+				here->fc_renamedir.moveddir == dirnum) {
 				return here;
 			}
 			break;
@@ -1468,18 +1357,14 @@ fs_findparent(unsigned dirnum)
  * Find a file by name and containing directory, by searching the
  * volume state.
  */
-static
-unsigned
-model_findfile(unsigned dirnum, unsigned name)
-{
+static unsigned model_findfile(unsigned dirnum, unsigned name) {
 	struct fsobject *obj;
 	struct fsdirent *de;
 
 	obj = finddir(state, dirnum);
 	de = fsdir_find_entry(obj, name, 1);
 	if (de->obj->isdir) {
-		die("In directory %u, %s was a directory",
-		    dirnum, name_get(name));
+		die("In directory %u, %s was a directory", dirnum, name_get(name));
 	}
 	return de->obj->obj_file.identity;
 }
@@ -1488,18 +1373,14 @@ model_findfile(unsigned dirnum, unsigned name)
  * Find a directory by name and containing directory, by searching the
  * volume state.
  */
-static
-unsigned
-model_finddir(unsigned dirnum, unsigned name)
-{
+static unsigned model_finddir(unsigned dirnum, unsigned name) {
 	struct fsobject *obj;
 	struct fsdirent *de;
 
 	obj = finddir(state, dirnum);
 	de = fsdir_find_entry(obj, name, 1);
 	if (!de->obj->isdir) {
-		die("In directory %u, %s was not a directory",
-		    dirnum, name_get(name));
+		die("In directory %u, %s was not a directory", dirnum, name_get(name));
 	}
 	return de->obj->obj_dir.identity;
 }
@@ -1508,10 +1389,7 @@ model_finddir(unsigned dirnum, unsigned name)
  * Find a directory's parent by object id, by searching the volume
  * state.
  */
-static
-unsigned
-model_findparent(unsigned dirnum)
-{
+static unsigned model_findparent(unsigned dirnum) {
 	struct fsobject *obj;
 
 	obj = finddir(state, dirnum);
@@ -1524,10 +1402,7 @@ model_findparent(unsigned dirnum)
  * Check if a name (in a specific containing directory) is a file, by
  * searching the volume state.
  */
-static
-unsigned
-model_isfile(unsigned dirnum, unsigned name)
-{
+static unsigned model_isfile(unsigned dirnum, unsigned name) {
 	struct fsobject *obj;
 	struct fsdirent *de;
 
@@ -1540,10 +1415,7 @@ model_isfile(unsigned dirnum, unsigned name)
  * Check if a name (in a specific containing directory) is a
  * directory, by searching the volume state.
  */
-static
-unsigned
-model_isdir(unsigned dirnum, unsigned name)
-{
+static unsigned model_isdir(unsigned dirnum, unsigned name) {
 	struct fsobject *obj;
 	struct fsdirent *de;
 
@@ -1555,10 +1427,7 @@ model_isdir(unsigned dirnum, unsigned name)
 /*
  * Get the current size of a file in the current volume state.
  */
-static
-off_t
-model_getfilesize(unsigned filenum)
-{
+static off_t model_getfilesize(unsigned filenum) {
 	struct fsobject *obj;
 
 	obj = findfile_maybe(state, filenum);
@@ -1581,9 +1450,7 @@ static unsigned cwd;
  * generate the newfs record, set up the volume state, initialize
  * the current directory.
  */
-void
-check_setup(void)
-{
+void check_setup(void) {
 	unsigned rootdir;
 
 	assert(firstchange == NULL);
@@ -1606,9 +1473,7 @@ check_setup(void)
 /*
  * Workload replay: create a file
  */
-int
-check_createfile(unsigned name)
-{
+int check_createfile(unsigned name) {
 	struct fschange *prevdir;
 	unsigned filenum;
 
@@ -1622,18 +1487,12 @@ check_createfile(unsigned name)
 /*
  * Workload replay: open a file
  */
-int
-check_openfile(unsigned name)
-{
-	return model_findfile(cwd, name);
-}
+int check_openfile(unsigned name) { return model_findfile(cwd, name); }
 
 /*
  * Workload replay: close a file
  */
-void
-check_closefile(int handle, unsigned name)
-{
+void check_closefile(int handle, unsigned name) {
 	/* don't need to do anything */
 	(void)handle;
 	(void)name;
@@ -1644,10 +1503,8 @@ check_closefile(int handle, unsigned name)
  *
  * CODE and SEQ encode the contents to be written.
  */
-void
-check_write(int handle, unsigned name, unsigned code, unsigned seq,
-	    off_t pos, off_t len)
-{
+void check_write(int handle, unsigned name, unsigned code, unsigned seq,
+				 off_t pos, off_t len) {
 	unsigned filenum;
 	struct fschange *prevfile;
 	off_t prevlen;
@@ -1659,16 +1516,13 @@ check_write(int handle, unsigned name, unsigned code, unsigned seq,
 	prevlen = model_getfilesize(filenum);
 
 	prevfile = changes_findprevfile(filenum);
-	fc_attach(fc_create_write(prevfile, filenum, pos, len, prevlen,
-				  code, seq));
+	fc_attach(fc_create_write(prevfile, filenum, pos, len, prevlen, code, seq));
 }
 
 /*
  * Workload replay: truncate a file
  */
-void
-check_truncate(int handle, unsigned name, off_t len)
-{
+void check_truncate(int handle, unsigned name, off_t len) {
 	unsigned filenum;
 	struct fschange *prevfile;
 
@@ -1683,9 +1537,7 @@ check_truncate(int handle, unsigned name, off_t len)
 /*
  * Workload replay: create a directory
  */
-void
-check_mkdir(unsigned name)
-{
+void check_mkdir(unsigned name) {
 	struct fschange *prevdir;
 	unsigned dirnum;
 
@@ -1697,9 +1549,7 @@ check_mkdir(unsigned name)
 /*
  * Workload replay: remove a directory
  */
-void
-check_rmdir(unsigned name)
-{
+void check_rmdir(unsigned name) {
 	struct fschange *prevdir, *prevvictim;
 	unsigned victim;
 
@@ -1713,9 +1563,7 @@ check_rmdir(unsigned name)
 /*
  * Workload replay: remove a file
  */
-void
-check_unlink(unsigned name)
-{
+void check_unlink(unsigned name) {
 	struct fschange *prevdir, *prevvictim;
 	unsigned victim;
 
@@ -1729,9 +1577,7 @@ check_unlink(unsigned name)
 /*
  * Workload replay: hard link a file
  */
-void
-check_link(unsigned fromname, unsigned toname)
-{
+void check_link(unsigned fromname, unsigned toname) {
 	struct fschange *prevdir, *prevfile;
 	unsigned filenum;
 
@@ -1739,18 +1585,15 @@ check_link(unsigned fromname, unsigned toname)
 	filenum = model_findfile(cwd, fromname);
 	prevfile = changes_findprevfile(filenum);
 
-	fc_attach(fc_create_link(prevdir, prevdir, prevfile,
-				 cwd, fromname, cwd, toname, filenum));
+	fc_attach(fc_create_link(prevdir, prevdir, prevfile, cwd, fromname, cwd,
+							 toname, filenum));
 }
 
 /*
  * Workload replay: rename something
  */
-static
-void
-common_rename(unsigned fromdirnum, unsigned fromname,
-	      unsigned todirnum, unsigned toname)
-{
+static void common_rename(unsigned fromdirnum, unsigned fromname,
+						  unsigned todirnum, unsigned toname) {
 	struct fschange *prevfromdir, *prevtodir, *prevfrom, *prevto;
 	unsigned fromnum, tonum;
 	struct fschange *fc;
@@ -1764,18 +1607,14 @@ common_rename(unsigned fromdirnum, unsigned fromname,
 		assert(model_isfile(fromdirnum, fromname));
 		tonum = model_findfile(todirnum, toname);
 		prevto = changes_findprevfile(tonum);
-		fc = fc_create_unlink(prevtodir, prevto,
-				      todirnum, toname, tonum);
-	}
-	else if (model_isdir(todirnum, toname)) {
+		fc = fc_create_unlink(prevtodir, prevto, todirnum, toname, tonum);
+	} else if (model_isdir(todirnum, toname)) {
 		isfile = 0;
 		assert(model_isdir(fromdirnum, fromname));
 		tonum = model_finddir(todirnum, toname);
 		prevto = changes_findprevdir(tonum);
-		fc = fc_create_rmdir(prevtodir, prevto,
-				     todirnum, toname, tonum);
-	}
-	else {
+		fc = fc_create_rmdir(prevtodir, prevto, todirnum, toname, tonum);
+	} else {
 		isfile = model_isfile(fromdirnum, fromname);
 		fc = NULL;
 	}
@@ -1788,16 +1627,13 @@ common_rename(unsigned fromdirnum, unsigned fromname,
 	if (isfile) {
 		fromnum = model_findfile(fromdirnum, fromname);
 		prevfrom = changes_findprevfile(fromnum);
-		fc = fc_create_renamefile(prevfromdir, prevtodir, prevfrom,
-					  fromdirnum, fromname,
-					  todirnum, toname, fromnum);
-	}
-	else {
+		fc = fc_create_renamefile(prevfromdir, prevtodir, prevfrom, fromdirnum,
+								  fromname, todirnum, toname, fromnum);
+	} else {
 		fromnum = model_finddir(fromdirnum, fromname);
 		prevfrom = changes_findprevdir(fromnum);
-		fc = fc_create_renamedir(prevfromdir, prevtodir, prevfrom,
-					 fromdirnum, fromname,
-					 todirnum, toname, fromnum);
+		fc = fc_create_renamedir(prevfromdir, prevtodir, prevfrom, fromdirnum,
+								 fromname, todirnum, toname, fromnum);
 	}
 	fc_attach(fc);
 }
@@ -1805,18 +1641,15 @@ common_rename(unsigned fromdirnum, unsigned fromname,
 /*
  * Workload replay: rename within the current directory
  */
-void
-check_rename(unsigned from, unsigned to)
-{
+void check_rename(unsigned from, unsigned to) {
 	common_rename(cwd, from, cwd, to);
 }
 
 /*
  * Workload replay: cross-directory rename
  */
-void
-check_renamexd(unsigned fromdir, unsigned from, unsigned todir, unsigned to)
-{
+void check_renamexd(unsigned fromdir, unsigned from, unsigned todir,
+					unsigned to) {
 	unsigned fromdirnum, todirnum;
 
 	/* fromdir/todir are names in cwd */
@@ -1829,29 +1662,17 @@ check_renamexd(unsigned fromdir, unsigned from, unsigned todir, unsigned to)
 /*
  * Workload replay: change directory
  */
-void
-check_chdir(unsigned name)
-{
-	cwd = model_finddir(cwd, name);
-}
+void check_chdir(unsigned name) { cwd = model_finddir(cwd, name); }
 
 /*
  * Workload replay: change directory to ..
  */
-void
-check_chdirup(void)
-{
-	cwd = model_findparent(cwd);
-}
+void check_chdirup(void) { cwd = model_findparent(cwd); }
 
 /*
  * Workload replay: sync
  */
-void
-check_sync(void)
-{
-	/* nothing */
-}
+void check_sync(void) { /* nothing */ }
 
 ////////////////////////////////////////////////////////////
 // inspection of the fs
@@ -1866,10 +1687,7 @@ static unsigned found_subdirs, found_files;
  * Wrapper. As of this writing OS/161 provides fstat but not stat...
  * grr
  */
-static
-int
-xstat(const char *path, struct stat *buf)
-{
+static int xstat(const char *path, struct stat *buf) {
 	int fd, ret, serrno;
 
 	fd = open(path, O_RDONLY);
@@ -1891,11 +1709,9 @@ xstat(const char *path, struct stat *buf)
  * improve the error reporting, and to allow checking .., and so
  * forth.
  */
-static
-struct fsobject *
-inspectdir(struct fsobject *parentobj, ino_t parentino, const char *dirnamestr)
-{
-	char subnamestr[NAME_MAX+1];
+static struct fsobject *inspectdir(struct fsobject *parentobj, ino_t parentino,
+								   const char *dirnamestr) {
+	char subnamestr[NAME_MAX + 1];
 	size_t subnamelen;
 	struct stat dirstat, dotstat, substat;
 	int dirfd;
@@ -1923,12 +1739,12 @@ inspectdir(struct fsobject *parentobj, ino_t parentino, const char *dirnamestr)
 		err(1, "In %s: .: stat", dirnamestr);
 	}
 	if (dotstat.st_dev != dirstat.st_dev) {
-		errx(1, "in %s: .: wrong volume id; found %u, expected %u",
-		     dirnamestr, dotstat.st_dev, dirstat.st_dev);
+		errx(1, "in %s: .: wrong volume id; found %u, expected %u", dirnamestr,
+			 dotstat.st_dev, dirstat.st_dev);
 	}
 	if (dotstat.st_ino != dirstat.st_ino) {
-		errx(1, "%s/.: wrong inode number; found %u, expected %u",
-		     dirnamestr, dotstat.st_ino, dirstat.st_ino);
+		errx(1, "%s/.: wrong inode number; found %u, expected %u", dirnamestr,
+			 dotstat.st_ino, dirstat.st_ino);
 	}
 
 	/*
@@ -1939,12 +1755,12 @@ inspectdir(struct fsobject *parentobj, ino_t parentino, const char *dirnamestr)
 		err(1, "In %s: ..: stat", dirnamestr);
 	}
 	if (dotstat.st_dev != dirstat.st_dev) {
-		errx(1, "In %s: ..: wrong volume id; found %u, expected %u",
-		     dirnamestr, dotstat.st_dev, dirstat.st_dev);
+		errx(1, "In %s: ..: wrong volume id; found %u, expected %u", dirnamestr,
+			 dotstat.st_dev, dirstat.st_dev);
 	}
 	if (dotstat.st_ino != parentino) {
 		errx(1, "In %s: ..: wrong inode number; found %u, expected %u",
-		     dirnamestr, dotstat.st_ino, parentino);
+			 dirnamestr, dotstat.st_ino, parentino);
 	}
 
 	/*
@@ -1965,8 +1781,7 @@ inspectdir(struct fsobject *parentobj, ino_t parentino, const char *dirnamestr)
 	 */
 	contents = NULL;
 	while (1) {
-		subnamelen = getdirentry(dirfd, subnamestr,
-					 sizeof(subnamestr)-1);
+		subnamelen = getdirentry(dirfd, subnamestr, sizeof(subnamestr) - 1);
 		if (subnamelen == 0) {
 			break;
 		}
@@ -1981,8 +1796,7 @@ inspectdir(struct fsobject *parentobj, ino_t parentino, const char *dirnamestr)
 		if (S_ISDIR(substat.st_mode)) {
 			subobj = inspectdir(ret, dirstat.st_ino, subnamestr);
 			found_subdirs++;
-		}
-		else {
+		} else {
 			subobj = fsobject_create_file(UNKNOWN_ID);
 			subobj->obj_file.len = substat.st_size;
 			found_files++;
@@ -2011,10 +1825,7 @@ inspectdir(struct fsobject *parentobj, ino_t parentino, const char *dirnamestr)
  * Inspect the whole volume by starting with "." -- we assume that we
  * were run in the root directory.
  */
-static
-void
-inspectfs(void)
-{
+static void inspectfs(void) {
 	struct stat st;
 
 	if (xstat(".", &st)) {
@@ -2029,10 +1840,7 @@ inspectfs(void)
 /*
  * Count the number of objects at and below a particular fsobject.
  */
-static
-unsigned
-count_subtree(struct fsobject *obj)
-{
+static unsigned count_subtree(struct fsobject *obj) {
 	struct fsdirent *de;
 	unsigned ret = 1;
 
@@ -2048,10 +1856,7 @@ count_subtree(struct fsobject *obj)
  * Compare two fsobjects. Return the matching score. (lower scores are
  * better matches)
  */
-static
-unsigned
-compare_objects(struct fsobject *obja, struct fsobject *objb)
-{
+static unsigned compare_objects(struct fsobject *obja, struct fsobject *objb) {
 	struct fsdirent *enta, *entb;
 	unsigned ret, found;
 
@@ -2097,8 +1902,7 @@ compare_objects(struct fsobject *obja, struct fsobject *objb)
 	ret = 0;
 	for (enta = obja->obj_dir.entries; enta != NULL; enta = enta->next) {
 		found = 0;
-		for (entb = objb->obj_dir.entries; entb != NULL;
-		     entb = entb->next) {
+		for (entb = objb->obj_dir.entries; entb != NULL; entb = entb->next) {
 			if (enta->name == entb->name) {
 				ret += compare_objects(enta->obj, entb->obj);
 				found = 1;
@@ -2115,11 +1919,9 @@ compare_objects(struct fsobject *obja, struct fsobject *objb)
 		}
 	}
 
-
 	for (entb = objb->obj_dir.entries; entb != NULL; entb = entb->next) {
 		found = 0;
-		for (enta = obja->obj_dir.entries; enta != NULL;
-		     enta = enta->next) {
+		for (enta = obja->obj_dir.entries; enta != NULL; enta = enta->next) {
 			if (enta->name == entb->name) {
 				found = 1;
 				break;
@@ -2141,13 +1943,10 @@ compare_objects(struct fsobject *obja, struct fsobject *objb)
 /*
  * Print an indentation.
  */
-static
-void
-doindent(unsigned depth)
-{
+static void doindent(unsigned depth) {
 	unsigned i;
 
-	for (i=0; i<depth; i++) {
+	for (i = 0; i < depth; i++) {
 		printf("   ");
 	}
 }
@@ -2158,10 +1957,8 @@ doindent(unsigned depth)
  *
  * OBJA is "expected" (the model); OBJB is "found" (what we saw on disk).
  */
-static
-void
-printdiffs(unsigned indent, struct fsobject *obja, struct fsobject *objb)
-{
+static void printdiffs(unsigned indent, struct fsobject *obja,
+					   struct fsobject *objb) {
 	struct fsdirent *enta, *entb;
 	unsigned found;
 
@@ -2170,44 +1967,33 @@ printdiffs(unsigned indent, struct fsobject *obja, struct fsobject *objb)
 
 	for (enta = obja->obj_dir.entries; enta != NULL; enta = enta->next) {
 		found = 0;
-		for (entb = objb->obj_dir.entries; entb != NULL;
-		     entb = entb->next) {
+		for (entb = objb->obj_dir.entries; entb != NULL; entb = entb->next) {
 			if (enta->name == entb->name) {
 				doindent(indent);
 				printf("%s", name_get(enta->name));
-				if (enta->obj->isdir &&
-				    !entb->obj->isdir) {
+				if (enta->obj->isdir && !entb->obj->isdir) {
 					printf(": expected dir, found file;");
 					printf(" %u names missing.\n",
-					       count_subtree(enta->obj) - 1);
-				}
-				else if (!enta->obj->isdir &&
-					 entb->obj->isdir) {
+						   count_subtree(enta->obj) - 1);
+				} else if (!enta->obj->isdir && entb->obj->isdir) {
 					printf(": expected file, found dir;");
-					printf(" %u extra names.\n",
-					       count_subtree(entb->obj) - 1);
-				}
-				else if (!enta->obj->isdir &&
-					 !entb->obj->isdir) {
+					printf(" %u extra names.\n", count_subtree(entb->obj) - 1);
+				} else if (!enta->obj->isdir && !entb->obj->isdir) {
 					off_t alen, blen;
 
 					alen = enta->obj->obj_file.len;
 					blen = entb->obj->obj_file.len;
 					if (alen == blen) {
-						printf("\t\t%lld bytes (ok)\n",
-						       alen);
-					}
-					else {
+						printf("\t\t%lld bytes (ok)\n", alen);
+					} else {
 						printf(": found %lld bytes, "
-						       "expected %lld "
-						       "bytes.\n",
-						       blen, alen);
+							   "expected %lld "
+							   "bytes.\n",
+							   blen, alen);
 					}
-				}
-				else {
+				} else {
 					printf("/\n");
-					printdiffs(indent + 1,
-						   enta->obj, entb->obj);
+					printdiffs(indent + 1, enta->obj, entb->obj);
 				}
 				found = 1;
 				break;
@@ -2218,19 +2004,16 @@ printdiffs(unsigned indent, struct fsobject *obja, struct fsobject *objb)
 			printf("%s: missing ", name_get(enta->name));
 			if (enta->obj->isdir) {
 				printf("subtree with %u names.\n",
-				       count_subtree(enta->obj) - 1);
-			}
-			else {
+					   count_subtree(enta->obj) - 1);
+			} else {
 				printf("file\n");
 			}
 		}
 	}
 
-
 	for (entb = objb->obj_dir.entries; entb != NULL; entb = entb->next) {
 		found = 0;
-		for (enta = obja->obj_dir.entries; enta != NULL;
-		     enta = enta->next) {
+		for (enta = obja->obj_dir.entries; enta != NULL; enta = enta->next) {
 			if (enta->name == entb->name) {
 				found = 1;
 				break;
@@ -2241,9 +2024,8 @@ printdiffs(unsigned indent, struct fsobject *obja, struct fsobject *objb)
 			printf("%s: extra ", name_get(entb->name));
 			if (entb->obj->isdir) {
 				printf("subtree with %u names.\n",
-				       count_subtree(entb->obj) - 1);
-			}
-			else {
+					   count_subtree(entb->obj) - 1);
+			} else {
 				printf("file\n");
 			}
 		}
@@ -2258,16 +2040,13 @@ printdiffs(unsigned indent, struct fsobject *obja, struct fsobject *objb)
  * structure as CHANGE. This skips past truncate and write operations
  * that only change file sizes.
  */
-static
-unsigned
-findokversion(struct fschange *change)
-{
+static unsigned findokversion(struct fschange *change) {
 	while (change != NULL) {
 		switch (change->type) {
-		    case FC_TRUNCATE:
-		    case FC_WRITE:
+		case FC_TRUNCATE:
+		case FC_WRITE:
 			break;
-		    default:
+		default:
 			return change->version;
 		}
 		change = change->prev;
@@ -2283,28 +2062,26 @@ findokversion(struct fschange *change)
  *
  * Returns the current (passed-in) change if that matches.
  */
-static
-struct fschange *
-backup_for_file(struct fschange *change, unsigned filenum)
-{
+static struct fschange *backup_for_file(struct fschange *change,
+										unsigned filenum) {
 	while (change != NULL) {
 		switch (change->type) {
-		    case FC_TRUNCATE:
+		case FC_TRUNCATE:
 			if (change->fc_truncate.file == filenum) {
 				return change;
 			}
 			break;
-		    case FC_WRITE:
+		case FC_WRITE:
 			if (change->fc_write.file == filenum) {
 				return change;
 			}
 			break;
-		    case FC_CREAT:
+		case FC_CREAT:
 			if (change->fc_creat.newfile == filenum) {
 				return change;
 			}
 			break;
-		    default:
+		default:
 			break;
 		}
 		change = change->prev;
@@ -2316,10 +2093,8 @@ backup_for_file(struct fschange *change, unsigned filenum)
  * Expect zeros in a file from START to END. The file is given by FD
  * and named NAMESTR. Report if we find stuff other than zeros.
  */
-static
-void
-checkfilezeros(int fd, const char *namestr, off_t start, off_t end)
-{
+static void checkfilezeros(int fd, const char *namestr, off_t start,
+						   off_t end) {
 	char buf[1024];
 	size_t len, i;
 	ssize_t ret;
@@ -2342,14 +2117,12 @@ checkfilezeros(int fd, const char *namestr, off_t start, off_t end)
 			err(1, "%s: read %u at %lld", namestr, len, start);
 		}
 		if (ret == 0) {
-			errx(1, "%s: read %u at %lld: Unexpected EOF",
-			     namestr, len, start);
+			errx(1, "%s: read %u at %lld: Unexpected EOF", namestr, len, start);
 		}
-		for (i=0; i<(size_t)ret; i++) {
+		for (i = 0; i < (size_t)ret; i++) {
 			if ((unsigned char)buf[i] == POISON_VAL) {
 				poison++;
-			}
-			else if (buf[i] != 0) {
+			} else if (buf[i] != 0) {
 				trash++;
 			}
 		}
@@ -2357,8 +2130,8 @@ checkfilezeros(int fd, const char *namestr, off_t start, off_t end)
 	}
 	if (poison > 0 || trash > 0) {
 		printf("ERROR: File %s: expected zeros from %lld to %lld; "
-		       "found",
-		       namestr, origstart, end);
+			   "found",
+			   namestr, origstart, end);
 		if (poison > 0) {
 			printf(" %u poison bytes", poison);
 			if (trash > 0) {
@@ -2380,12 +2153,8 @@ checkfilezeros(int fd, const char *namestr, off_t start, off_t end)
  * range CHECKSTART..CHECKEND, which may be only part of the data.c
  * region.
  */
-static
-void
-readfiledata(int fd, const char *namestr,
-	      off_t regionstart, off_t checkstart,
-	      off_t checkend, off_t regionend)
-{
+static void readfiledata(int fd, const char *namestr, off_t regionstart,
+						 off_t checkstart, off_t checkend, off_t regionend) {
 	char *readbuf;
 	size_t bufpos, len;
 	ssize_t ret;
@@ -2405,12 +2174,11 @@ readfiledata(int fd, const char *namestr,
 	while (len > 0) {
 		ret = read(fd, readbuf + bufpos, len);
 		if (ret == -1) {
-			err(1, "%s: read %u at %lld",
-			    namestr, len, regionstart + bufpos);
+			err(1, "%s: read %u at %lld", namestr, len, regionstart + bufpos);
 		}
 		if (ret == 0) {
-			errx(1, "%s: read %u at %lld: Unexpected EOF",
-			     namestr, len, regionstart + bufpos);
+			errx(1, "%s: read %u at %lld: Unexpected EOF", namestr, len,
+				 regionstart + bufpos);
 		}
 		bufpos += ret;
 		assert(len >= (size_t)ret);
@@ -2426,13 +2194,9 @@ readfiledata(int fd, const char *namestr,
  * (the portion of a write that extended a file) and the data is
  * generated from CODE and SEQ.
  */
-static
-void
-checkfiledata(int fd, const char *namestr, unsigned code, unsigned seq,
-	      off_t zerostart,
-	      off_t regionstart, off_t checkstart,
-	      off_t checkend, off_t regionend)
-{
+static void checkfiledata(int fd, const char *namestr, unsigned code,
+						  unsigned seq, off_t zerostart, off_t regionstart,
+						  off_t checkstart, off_t checkend, off_t regionend) {
 	if (checkstart < regionstart) {
 		checkstart = regionstart;
 	}
@@ -2442,23 +2206,19 @@ checkfiledata(int fd, const char *namestr, unsigned code, unsigned seq,
 
 	printf("   %lld - %lld\n", checkstart, checkend);
 
-	readfiledata(fd, namestr,
-		     regionstart, checkstart, checkend, regionend);
+	readfiledata(fd, namestr, regionstart, checkstart, checkend, regionend);
 
-	data_check(namestr, regionstart,
-		   code, seq, zerostart - regionstart, regionend - regionstart,
-		   checkstart - regionstart, checkend - checkstart);
+	data_check(namestr, regionstart, code, seq, zerostart - regionstart,
+			   regionend - regionstart, checkstart - regionstart,
+			   checkend - checkstart);
 }
 
 /*
  * Check a range of the file FD named NAMESTR, from START to END,
  * against the model state expected as of CHANGE.
  */
-static
-void
-checkfilerange(int fd, const char *namestr, struct fschange *change,
-	       off_t start, off_t end)
-{
+static void checkfilerange(int fd, const char *namestr, struct fschange *change,
+						   off_t start, off_t end) {
 	assert(start < end);
 	if (change->type == FC_TRUNCATE) {
 		off_t tlen;
@@ -2481,16 +2241,13 @@ checkfilerange(int fd, const char *namestr, struct fschange *change,
 
 		if (tlen < start) {
 			checkfilezeros(fd, namestr, start, end);
-		}
-		else if (tlen < end) {
+		} else if (tlen < end) {
 			checkfilerange(fd, namestr, prev, start, tlen);
 			checkfilezeros(fd, namestr, tlen, end);
-		}
-		else {
+		} else {
 			checkfilerange(fd, namestr, prev, start, end);
 		}
-	}
-	else if (change->type == FC_WRITE) {
+	} else if (change->type == FC_WRITE) {
 		off_t wstart, wend;
 		struct fschange *prev;
 		unsigned code, seq;
@@ -2514,11 +2271,9 @@ checkfilerange(int fd, const char *namestr, struct fschange *change,
 		 */
 		if (oldfilesize < wstart) {
 			zerostart = wstart;
-		}
-		else if (oldfilesize < wend) {
+		} else if (oldfilesize < wend) {
 			zerostart = oldfilesize;
-		}
-		else {
+		} else {
 			zerostart = wend;
 		}
 
@@ -2539,23 +2294,20 @@ checkfilerange(int fd, const char *namestr, struct fschange *change,
 		if (end <= wstart || start >= wend) {
 			/* cases 1 and 6 */
 			checkfilerange(fd, namestr, prev, start, end);
-		}
-		else {
+		} else {
 			/* cases 2-5 */
 			if (start < wstart) {
 				/* case 2 or 3 */
-				checkfilerange(fd, namestr, prev,
-					       start, wstart);
+				checkfilerange(fd, namestr, prev, start, wstart);
 			}
-			checkfiledata(fd, namestr, code, seq, zerostart,
-				      wstart, start, end, wend);
+			checkfiledata(fd, namestr, code, seq, zerostart, wstart, start, end,
+						  wend);
 			if (end > wend) {
 				/* cases 3 or 5 */
 				checkfilerange(fd, namestr, prev, wend, end);
 			}
 		}
-	}
-	else if (change->type == FC_RENAMEFILE) {
+	} else if (change->type == FC_RENAMEFILE) {
 		struct fschange *prev;
 
 		/*
@@ -2566,8 +2318,7 @@ checkfilerange(int fd, const char *namestr, struct fschange *change,
 
 		prev = change->fc_renamefile.prev_movedfile;
 		checkfilerange(fd, namestr, prev, start, end);
-	}
-	else {
+	} else {
 		assert(change->type == FC_CREAT);
 
 		/*
@@ -2589,18 +2340,15 @@ checkfilerange(int fd, const char *namestr, struct fschange *change,
  * all it can check is the size, so it can readily be fooled by
  * sequences of truncates or multiple truncates to the same length.
  */
-static
-int
-change_is_present(int fd, const char *namestr, off_t filesize,
-		  struct fschange *change)
-{
+static int change_is_present(int fd, const char *namestr, off_t filesize,
+							 struct fschange *change) {
 	off_t pos, len, oldfilesize, zerostart;
 	unsigned code, seq;
 
 	switch (change->type) {
-	    case FC_TRUNCATE:
+	case FC_TRUNCATE:
 		return filesize == change->fc_truncate.len;
-	    case FC_WRITE:
+	case FC_WRITE:
 		pos = change->fc_write.pos;
 		len = change->fc_write.len;
 		code = change->fc_write.code;
@@ -2608,19 +2356,16 @@ change_is_present(int fd, const char *namestr, off_t filesize,
 		oldfilesize = change->fc_write.oldfilesize;
 		if (oldfilesize < pos) {
 			zerostart = 0;
-		}
-		else if (oldfilesize < pos + len) {
+		} else if (oldfilesize < pos + len) {
 			zerostart = oldfilesize - pos;
-		}
-		else {
+		} else {
 			zerostart = len;
 		}
-		readfiledata(fd, namestr, pos, pos, pos+len, pos+len);
-		return data_matches(namestr, pos,
-				    code, seq, zerostart, len, 0, len);
-	    case FC_CREAT:
+		readfiledata(fd, namestr, pos, pos, pos + len, pos + len);
+		return data_matches(namestr, pos, code, seq, zerostart, len, 0, len);
+	case FC_CREAT:
 		return 1;
-	    default:
+	default:
 		break;
 	}
 	assert(0);
@@ -2631,11 +2376,8 @@ change_is_present(int fd, const char *namestr, off_t filesize,
  * Check the contents of the file called NAMESTR, which is the model
  * file FILE, as of change CHANGE.
  */
-static
-void
-checkonefilecontents(const char *namestr, struct fsobject *file,
-		     struct fschange *change)
-{
+static void checkonefilecontents(const char *namestr, struct fsobject *file,
+								 struct fschange *change) {
 	unsigned okversion;
 	int fd;
 
@@ -2696,8 +2438,8 @@ checkonefilecontents(const char *namestr, struct fsobject *file,
 		}
 		assert(change->type == FC_WRITE);
 		printf("ERROR: File %s is zero length but was expected to "
-		       "contain at least %lld bytes at offset %lld!\n",
-		       namestr, change->fc_write.pos, change->fc_write.len);
+			   "contain at least %lld bytes at offset %lld!\n",
+			   namestr, change->fc_write.pos, change->fc_write.len);
 		close(fd);
 		return;
 	}
@@ -2705,8 +2447,8 @@ checkonefilecontents(const char *namestr, struct fsobject *file,
 	/* XXX: this check is wrong too. */
 	if (change->type == FC_CREAT) {
 		printf("ERROR: File %s was never written to but has "
-		       "length %lld\n",
-		       namestr, file->obj_file.len);
+			   "length %lld\n",
+			   namestr, file->obj_file.len);
 		close(fd);
 		return;
 	}
@@ -2741,13 +2483,12 @@ checkonefilecontents(const char *namestr, struct fsobject *file,
 	 */
 	while (!change_is_present(fd, namestr, file->obj_file.len, change)) {
 		if (change->version < okversion) {
-			printf("File %s: change for version %u is missing\n",
-			       namestr, change->version);
+			printf("File %s: change for version %u is missing\n", namestr,
+				   change->version);
 		}
-		change = backup_for_file(change->prev,file->obj_file.identity);
+		change = backup_for_file(change->prev, file->obj_file.identity);
 		if (change == NULL) {
-			printf("File %s: no matching version found\n",
-			       namestr);
+			printf("File %s: no matching version found\n", namestr);
 			close(fd);
 			return;
 		}
@@ -2770,10 +2511,8 @@ checkonefilecontents(const char *namestr, struct fsobject *file,
  * Check the contents of all files under DIR with respect to the
  * change CHANGE. Recurses on subdirectories.
  */
-static
-void
-checkallfilecontents(struct fsobject *dir, struct fschange *change)
-{
+static void checkallfilecontents(struct fsobject *dir,
+								 struct fschange *change) {
 	struct fsdirent *de;
 	const char *namestr;
 
@@ -2790,8 +2529,7 @@ checkallfilecontents(struct fsobject *dir, struct fschange *change)
 			if (chdir("..")) {
 				err(1, "..: chdir");
 			}
-		}
-		else {
+		} else {
 			printf("%s...\n", namestr);
 			checkonefilecontents(namestr, de->obj, change);
 		}
@@ -2804,9 +2542,7 @@ checkallfilecontents(struct fsobject *dir, struct fschange *change)
 /*
  * Compare the on-disk state we see to the model we've built.
  */
-void
-checkfs(void)
-{
+void checkfs(void) {
 	struct fschange *change, *best;
 	unsigned score, bestscore;
 
@@ -2814,15 +2550,15 @@ checkfs(void)
 	 * We just built the model; talk about it.
 	 */
 	printf("Established %u versions across %u directories and %u files\n",
-	       changes->version + 1, nextdirnum, nextfilenum);
+		   changes->version + 1, nextdirnum, nextfilenum);
 
 	/*
 	 * Inspect the volume state we've got. Initializes the global
 	 * FOUND holding the found volume state.
 	 */
 	inspectfs();
-	printf("Found %u subdirs and %u files on the volume\n",
-	       found_subdirs, found_files);
+	printf("Found %u subdirs and %u files on the volume\n", found_subdirs,
+		   found_files);
 
 	/*
 	 * Rewind the model state to the beginning.
@@ -2875,9 +2611,8 @@ checkfs(void)
 		 * data...
 		 */
 		printf("FAILURE: Directory tree does not match on any "
-		       "version.\n");
-		printf("Best version is %u; describing differences:\n",
-		       best->version);
+			   "version.\n");
+		printf("Best version is %u; describing differences:\n", best->version);
 		printdiffs(1, state, found);
 		return;
 	}
@@ -2889,7 +2624,7 @@ checkfs(void)
 	printf("Directory tree matched in version %u.\n", best->version);
 	if (best->partial) {
 		printf("WARNING: this is a version from a partially committed "
-		       "operation.\n");
+			   "operation.\n");
 	}
 
 	/*

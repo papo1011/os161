@@ -52,7 +52,6 @@
 static void srandom_unlocked(unsigned long);
 static long random_unlocked(void);
 
-
 /*
  * random.c:
  *
@@ -119,39 +118,39 @@ static long random_unlocked(void);
  * for the polynomial (actually a trinomial) that the R.N.G. is based on, and
  * the separation between the two lower order coefficients of the trinomial.
  */
-#define	TYPE_0		0		/* linear congruential */
-#define	BREAK_0		8
-#define	DEG_0		0
-#define	SEP_0		0
+#define TYPE_0 0 /* linear congruential */
+#define BREAK_0 8
+#define DEG_0 0
+#define SEP_0 0
 
-#define	TYPE_1		1		/* x**7 + x**3 + 1 */
-#define	BREAK_1		32
-#define	DEG_1		7
-#define	SEP_1		3
+#define TYPE_1 1 /* x**7 + x**3 + 1 */
+#define BREAK_1 32
+#define DEG_1 7
+#define SEP_1 3
 
-#define	TYPE_2		2		/* x**15 + x + 1 */
-#define	BREAK_2		64
-#define	DEG_2		15
-#define	SEP_2		1
+#define TYPE_2 2 /* x**15 + x + 1 */
+#define BREAK_2 64
+#define DEG_2 15
+#define SEP_2 1
 
-#define	TYPE_3		3		/* x**31 + x**3 + 1 */
-#define	BREAK_3		128
-#define	DEG_3		31
-#define	SEP_3		3
+#define TYPE_3 3 /* x**31 + x**3 + 1 */
+#define BREAK_3 128
+#define DEG_3 31
+#define SEP_3 3
 
-#define	TYPE_4		4		/* x**63 + x + 1 */
-#define	BREAK_4		256
-#define	DEG_4		63
-#define	SEP_4		1
+#define TYPE_4 4 /* x**63 + x + 1 */
+#define BREAK_4 256
+#define DEG_4 63
+#define SEP_4 1
 
 /*
  * Array versions of the above information to make code run faster --
  * relies on fact that TYPE_i == i.
  */
-#define	MAX_TYPES	5		/* max number of types above */
+#define MAX_TYPES 5 /* max number of types above */
 
-static const int degrees[MAX_TYPES] =	{ DEG_0, DEG_1, DEG_2, DEG_3, DEG_4 };
-static const int seps[MAX_TYPES] =	{ SEP_0, SEP_1, SEP_2, SEP_3, SEP_4 };
+static const int degrees[MAX_TYPES] = {DEG_0, DEG_1, DEG_2, DEG_3, DEG_4};
+static const int seps[MAX_TYPES] = {SEP_0, SEP_1, SEP_2, SEP_3, SEP_4};
 
 /*
  * Initially, everything is set up as if from:
@@ -169,16 +168,36 @@ static const int seps[MAX_TYPES] =	{ SEP_0, SEP_1, SEP_2, SEP_3, SEP_4 };
 
 static long randtbl[DEG_3 + 1] = {
 	TYPE_3,
-	(long)0x9a319039L, (long)0x32d9c024L, (long)0x9b663182L,
-	(long)0x5da1f342L, (long)0xde3b81e0L, (long)0xdf0a6fb5L,
-	(long)0xf103bc02L, (long)0x48f340fbL, (long)0x7449e56bL,
-	(long)0xbeb1dbb0L, (long)0xab5c5918L, (long)0x946554fdL,
-	(long)0x8c2e680fL, (long)0xeb3d799fL, (long)0xb11ee0b7L,
-	(long)0x2d436b86L, (long)0xda672e2aL, (long)0x1588ca88L,
-	(long)0xe369735dL, (long)0x904f35f7L, (long)0xd7158fd6L,
-	(long)0x6fa6f051L, (long)0x616e6b96L, (long)0xac94efdcL,
-	(long)0x36413f93L, (long)0xc622c298L, (long)0xf5a42ab8L,
-	(long)0x8a88d77bL, (long)0xf5ad9d0eL, (long)0x8999220bL,
+	(long)0x9a319039L,
+	(long)0x32d9c024L,
+	(long)0x9b663182L,
+	(long)0x5da1f342L,
+	(long)0xde3b81e0L,
+	(long)0xdf0a6fb5L,
+	(long)0xf103bc02L,
+	(long)0x48f340fbL,
+	(long)0x7449e56bL,
+	(long)0xbeb1dbb0L,
+	(long)0xab5c5918L,
+	(long)0x946554fdL,
+	(long)0x8c2e680fL,
+	(long)0xeb3d799fL,
+	(long)0xb11ee0b7L,
+	(long)0x2d436b86L,
+	(long)0xda672e2aL,
+	(long)0x1588ca88L,
+	(long)0xe369735dL,
+	(long)0x904f35f7L,
+	(long)0xd7158fd6L,
+	(long)0x6fa6f051L,
+	(long)0x616e6b96L,
+	(long)0xac94efdcL,
+	(long)0x36413f93L,
+	(long)0xc622c298L,
+	(long)0xf5a42ab8L,
+	(long)0x8a88d77bL,
+	(long)0xf5ad9d0eL,
+	(long)0x8999220bL,
 	(long)0x27fb47b9L,
 };
 
@@ -227,10 +246,7 @@ static long *end_ptr = &randtbl[DEG_3 + 1];
  * introduced by the L.C.R.N.G.  Note that the initialization of randtbl[]
  * for default usage relies on values produced by this routine.
  */
-static
-void
-srandom_unlocked(unsigned long x)
-{
+static void srandom_unlocked(unsigned long x) {
 	int i;
 
 	if (rand_type == TYPE_0)
@@ -246,9 +262,7 @@ srandom_unlocked(unsigned long x)
 	}
 }
 
-void
-srandom(unsigned long x)
-{
+void srandom(unsigned long x) {
 
 	LOCKME();
 	srandom_unlocked(x);
@@ -278,11 +292,9 @@ srandom(unsigned long x)
  * word boundary; otherwise a bus error will occur. Even so, lint will
  * complain about mis-alignment, but you should disregard these messages.
  */
-char *
-initstate(
-	unsigned long seed,		/* seed for R.N.G. */
-	char *arg_state,		/* pointer to state array */
-	size_t n)			/* # bytes of state info */
+char *initstate(unsigned long seed, /* seed for R.N.G. */
+				char *arg_state,	/* pointer to state array */
+				size_t n)			/* # bytes of state info */
 {
 	void *ostate = (void *)(&state[-1]);
 	long *long_arg_state;
@@ -320,15 +332,15 @@ initstate(
 		rand_deg = DEG_4;
 		rand_sep = SEP_4;
 	}
-	state = (long *) (long_arg_state + 1); /* first location */
-	end_ptr = &state[rand_deg];	/* must set end_ptr before srandom */
+	state = (long *)(long_arg_state + 1); /* first location */
+	end_ptr = &state[rand_deg];			  /* must set end_ptr before srandom */
 	srandom_unlocked(seed);
 	if (rand_type == TYPE_0)
 		long_arg_state[0] = rand_type;
 	else
 		long_arg_state[0] = MAX_TYPES * (rptr - state) + rand_type;
 	UNLOCKME();
-	return((char *)ostate);
+	return ((char *)ostate);
 }
 
 /*
@@ -350,8 +362,7 @@ initstate(
  * word boundary; otherwise a bus error will occur. Even so, lint will
  * complain about mis-alignment, but you should disregard these messages.
  */
-char *
-setstate(char *arg_state)		/* pointer to state array */
+char *setstate(char *arg_state) /* pointer to state array */
 {
 	long *new_state;
 	int type;
@@ -369,7 +380,7 @@ setstate(char *arg_state)		/* pointer to state array */
 		state[-1] = rand_type;
 	else
 		state[-1] = MAX_TYPES * (rptr - state) + rand_type;
-	switch(type) {
+	switch (type) {
 	case TYPE_0:
 	case TYPE_1:
 	case TYPE_2:
@@ -383,14 +394,14 @@ setstate(char *arg_state)		/* pointer to state array */
 		UNLOCKME();
 		return (NULL);
 	}
-	state = (long *) (new_state + 1);
+	state = (long *)(new_state + 1);
 	if (rand_type != TYPE_0) {
 		rptr = &state[rear];
 		fptr = &state[(rear + rand_sep) % rand_deg];
 	}
-	end_ptr = &state[rand_deg];		/* set end_ptr too */
+	end_ptr = &state[rand_deg]; /* set end_ptr too */
 	UNLOCKME();
-	return((char *)ostate);
+	return ((char *)ostate);
 }
 
 /*
@@ -410,10 +421,7 @@ setstate(char *arg_state)		/* pointer to state array */
  *
  * Returns a 31-bit random number.
  */
-static
-long
-random_unlocked(void)
-{
+static long random_unlocked(void) {
 	long i;
 	long *f, *r;
 
@@ -424,26 +432,25 @@ random_unlocked(void)
 		/*
 		 * Use local variables rather than static variables for speed.
 		 */
-		f = fptr; r = rptr;
+		f = fptr;
+		r = rptr;
 		*f += *r;
 		/* chucking least random bit */
 		i = ((unsigned long)*f >> 1) & 0x7fffffff;
 		if (++f >= end_ptr) {
 			f = state;
 			++r;
-		}
-		else if (++r >= end_ptr) {
+		} else if (++r >= end_ptr) {
 			r = state;
 		}
 
-		fptr = f; rptr = r;
+		fptr = f;
+		rptr = r;
 	}
-	return(i);
+	return (i);
 }
 
-long
-random(void)
-{
+long random(void) {
 	long r;
 
 	LOCKME();

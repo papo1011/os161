@@ -40,20 +40,17 @@
 /*
  * Shift an (unsigned) long long value right (logical shift right).
  */
-long long
-__lshrdi3(long long a, unsigned int shift)
-{
+long long __lshrdi3(long long a, unsigned int shift) {
 	union uu aa;
 
 	if (shift == 0)
-		return(a);
+		return (a);
 	aa.ll = a;
 	if (shift >= INT_BITS) {
 		aa.ui[L] = aa.ui[H] >> (shift - INT_BITS);
 		aa.ui[H] = 0;
 	} else {
-		aa.ui[L] = (aa.ui[L] >> shift) |
-		    (aa.ui[H] << (INT_BITS - shift));
+		aa.ui[L] = (aa.ui[L] >> shift) | (aa.ui[H] << (INT_BITS - shift));
 		aa.ui[H] >>= shift;
 	}
 	return (aa.ll);

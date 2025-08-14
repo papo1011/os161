@@ -41,9 +41,7 @@
  * Return ~a.  For some reason gcc calls this `one's complement' rather
  * than `not'.
  */
-long long
-__one_cmpldi2(long long a)
-{
+long long __one_cmpldi2(long long a) {
 	union uu aa;
 
 	aa.ll = a;

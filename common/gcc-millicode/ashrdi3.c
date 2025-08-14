@@ -40,13 +40,11 @@
 /*
  * Shift a (signed) long long value right (arithmetic shift right).
  */
-long long
-__ashrdi3(long long a, unsigned int shift)
-{
+long long __ashrdi3(long long a, unsigned int shift) {
 	union uu aa;
 
 	if (shift == 0)
-		return(a);
+		return (a);
 	aa.ll = a;
 	if (shift >= INT_BITS) {
 		int s;
@@ -64,8 +62,7 @@ __ashrdi3(long long a, unsigned int shift)
 		aa.ui[L] = aa.si[H] >> (shift - INT_BITS);
 		aa.ui[H] = s;
 	} else {
-		aa.ui[L] = (aa.ui[L] >> shift) |
-		    (aa.ui[H] << (INT_BITS - shift));
+		aa.ui[L] = (aa.ui[L] >> shift) | (aa.ui[H] << (INT_BITS - shift));
 		/* LINTED inherits machine dependency */
 		aa.si[H] >>= shift;
 	}

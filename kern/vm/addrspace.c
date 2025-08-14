@@ -40,9 +40,7 @@
  * used. The cheesy hack versions in dumbvm.c are used instead.
  */
 
-struct addrspace *
-as_create(void)
-{
+struct addrspace *as_create(void) {
 	struct addrspace *as;
 
 	as = kmalloc(sizeof(struct addrspace));
@@ -57,13 +55,11 @@ as_create(void)
 	return as;
 }
 
-int
-as_copy(struct addrspace *old, struct addrspace **ret)
-{
+int as_copy(struct addrspace *old, struct addrspace **ret) {
 	struct addrspace *newas;
 
 	newas = as_create();
-	if (newas==NULL) {
+	if (newas == NULL) {
 		return ENOMEM;
 	}
 
@@ -77,9 +73,7 @@ as_copy(struct addrspace *old, struct addrspace **ret)
 	return 0;
 }
 
-void
-as_destroy(struct addrspace *as)
-{
+void as_destroy(struct addrspace *as) {
 	/*
 	 * Clean up as needed.
 	 */
@@ -87,9 +81,7 @@ as_destroy(struct addrspace *as)
 	kfree(as);
 }
 
-void
-as_activate(void)
-{
+void as_activate(void) {
 	struct addrspace *as;
 
 	as = proc_getas();
@@ -106,9 +98,7 @@ as_activate(void)
 	 */
 }
 
-void
-as_deactivate(void)
-{
+void as_deactivate(void) {
 	/*
 	 * Write this. For many designs it won't need to actually do
 	 * anything. See proc.c for an explanation of why it (might)
@@ -126,10 +116,8 @@ as_deactivate(void)
  * moment, these are ignored. When you write the VM system, you may
  * want to implement them.
  */
-int
-as_define_region(struct addrspace *as, vaddr_t vaddr, size_t memsize,
-		 int readable, int writeable, int executable)
-{
+int as_define_region(struct addrspace *as, vaddr_t vaddr, size_t memsize,
+					 int readable, int writeable, int executable) {
 	/*
 	 * Write this.
 	 */
@@ -143,9 +131,7 @@ as_define_region(struct addrspace *as, vaddr_t vaddr, size_t memsize,
 	return ENOSYS;
 }
 
-int
-as_prepare_load(struct addrspace *as)
-{
+int as_prepare_load(struct addrspace *as) {
 	/*
 	 * Write this.
 	 */
@@ -154,9 +140,7 @@ as_prepare_load(struct addrspace *as)
 	return 0;
 }
 
-int
-as_complete_load(struct addrspace *as)
-{
+int as_complete_load(struct addrspace *as) {
 	/*
 	 * Write this.
 	 */
@@ -165,9 +149,7 @@ as_complete_load(struct addrspace *as)
 	return 0;
 }
 
-int
-as_define_stack(struct addrspace *as, vaddr_t *stackptr)
-{
+int as_define_stack(struct addrspace *as, vaddr_t *stackptr) {
 	/*
 	 * Write this.
 	 */
@@ -179,4 +161,3 @@ as_define_stack(struct addrspace *as, vaddr_t *stackptr)
 
 	return 0;
 }
-

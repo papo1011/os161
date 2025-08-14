@@ -43,9 +43,7 @@
  * C standard string function: find leftmost instance of a character
  * in a string.
  */
-char *
-strchr(const char *s, int ch_arg)
-{
+char *strchr(const char *s, int ch_arg) {
 	/* avoid sign-extension problems */
 	const char ch = ch_arg;
 

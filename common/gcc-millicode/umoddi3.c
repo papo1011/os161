@@ -40,9 +40,7 @@
 /*
  * Return remainder after dividing two unsigned long longs.
  */
-unsigned long long
-__umoddi3(unsigned long long a, unsigned long long b)
-{
+unsigned long long __umoddi3(unsigned long long a, unsigned long long b) {
 	unsigned long long r;
 
 	(void)__qdivrem(a, b, &r);

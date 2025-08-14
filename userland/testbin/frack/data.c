@@ -43,10 +43,7 @@
 static char databuf[DATA_MAXSIZE];
 static char readbuf[DATA_MAXSIZE];
 
-static
-void
-prepdata(unsigned code, unsigned seq, char *buf, off_t len)
-{
+static void prepdata(unsigned code, unsigned seq, char *buf, off_t len) {
 	char smallbuf[32];
 	char letter;
 	size_t slen;
@@ -69,23 +66,17 @@ prepdata(unsigned code, unsigned seq, char *buf, off_t len)
 	}
 }
 
-static
-int
-matches_at(size_t start, size_t len)
-{
+static int matches_at(size_t start, size_t len) {
 	if (!memcmp(databuf + start, readbuf + start, len)) {
 		return 1;
 	}
 	return 0;
 }
 
-static
-int
-byte_at(size_t start, size_t len, unsigned char val)
-{
+static int byte_at(size_t start, size_t len, unsigned char val) {
 	size_t i;
 
-	for (i=0; i<len; i++) {
+	for (i = 0; i < len; i++) {
 		if ((unsigned char)readbuf[start + i] != val) {
 			return 0;
 		}
@@ -93,17 +84,9 @@ byte_at(size_t start, size_t len, unsigned char val)
 	return 1;
 }
 
-static
-int
-zero_at(size_t start, size_t len)
-{
-	return byte_at(start, len, 0);
-}
+static int zero_at(size_t start, size_t len) { return byte_at(start, len, 0); }
 
-static
-int
-poison_at(size_t start, size_t len)
-{
+static int poison_at(size_t start, size_t len) {
 	return byte_at(start, len, POISON_VAL);
 }
 
@@ -119,11 +102,9 @@ poison_at(size_t start, size_t len)
  *    CHECKSTART is the offset into the write region where we begin checking.
  *    CHECKLEN is the length of the region we check.
  */
-int
-data_matches(const char *namestr, off_t regionoffset,
-	     unsigned code, unsigned seq, off_t zerostart, off_t len,
-	     off_t checkstart, off_t checklen)
-{
+int data_matches(const char *namestr, off_t regionoffset, unsigned code,
+				 unsigned seq, off_t zerostart, off_t len, off_t checkstart,
+				 off_t checklen) {
 	int ret;
 	off_t where;
 	size_t howmuch;
@@ -162,30 +143,25 @@ data_matches(const char *namestr, off_t regionoffset,
 
 		if (matches_at(where, howmuch)) {
 			/* nothing */
-		}
-		else if (zero_at(where, howmuch)) {
+		} else if (zero_at(where, howmuch)) {
 			if (where >= zerostart) {
 				printf("WARNING: file %s range %lld-%lld is "
-				       "zeroed\n",
-				       namestr, regionoffset + where,
-				       regionoffset + where + howmuch);
-			}
-			else {
+					   "zeroed\n",
+					   namestr, regionoffset + where,
+					   regionoffset + where + howmuch);
+			} else {
 				ret = 0;
 			}
-		}
-		else if (poison_at(where, howmuch)) {
+		} else if (poison_at(where, howmuch)) {
 			if (where >= zerostart) {
 				printf("ERROR: file %s range %lld-%lld is "
-				       "poisoned\n",
-				       namestr, regionoffset + where,
-				       regionoffset + where + howmuch);
-			}
-			else {
+					   "poisoned\n",
+					   namestr, regionoffset + where,
+					   regionoffset + where + howmuch);
+			} else {
 				ret = 0;
 			}
-		}
-		else {
+		} else {
 			ret = 0;
 		}
 
@@ -195,33 +171,26 @@ data_matches(const char *namestr, off_t regionoffset,
 	return ret;
 }
 
-void
-data_check(const char *namestr, off_t regionoffset,
-	   unsigned code, unsigned seq, off_t zerostart, off_t len,
-	   off_t checkstart, off_t checklen)
-{
+void data_check(const char *namestr, off_t regionoffset, unsigned code,
+				unsigned seq, off_t zerostart, off_t len, off_t checkstart,
+				off_t checklen) {
 	assert(zerostart >= 0);
 	assert(zerostart <= len);
 
-	if (!data_matches(namestr, regionoffset,
-			  code, seq, zerostart, len, checkstart, checklen)) {
-		printf("ERROR: file %s range %lld-%lld contains garbage\n",
-		       namestr, regionoffset + checkstart,
-		       regionoffset + checkstart + checklen);
+	if (!data_matches(namestr, regionoffset, code, seq, zerostart, len,
+					  checkstart, checklen)) {
+		printf("ERROR: file %s range %lld-%lld contains garbage\n", namestr,
+			   regionoffset + checkstart, regionoffset + checkstart + checklen);
 	}
 }
 
-void *
-data_map(unsigned code, unsigned seq, off_t len)
-{
+void *data_map(unsigned code, unsigned seq, off_t len) {
 	assert(len <= DATA_MAXSIZE);
 	prepdata(code, seq, databuf, len);
 	return databuf;
 }
 
-void *
-data_mapreadbuf(off_t len)
-{
+void *data_mapreadbuf(off_t len) {
 	assert(len <= DATA_MAXSIZE);
 	return readbuf;
 }

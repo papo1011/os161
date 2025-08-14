@@ -42,13 +42,14 @@
  * Both a and b are considered signed---which means only the high word is
  * signed.
  */
-int
-__cmpdi2(long long a, long long b)
-{
+int __cmpdi2(long long a, long long b) {
 	union uu aa, bb;
 
 	aa.ll = a;
 	bb.ll = b;
-	return (aa.si[H] < bb.si[H] ? 0 : aa.si[H] > bb.si[H] ? 2 :
-	    aa.ui[L] < bb.ui[L] ? 0 : aa.ui[L] > bb.ui[L] ? 2 : 1);
+	return (aa.si[H] < bb.si[H]
+				? 0
+				: aa.si[H] > bb.si[H]
+					  ? 2
+					  : aa.ui[L] < bb.ui[L] ? 0 : aa.ui[L] > bb.ui[L] ? 2 : 1);
 }

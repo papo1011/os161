@@ -43,9 +43,7 @@
  * is less than either x or y (the choice to compare with x or y is
  * arbitrary).
  */
-long long
-__adddi3(long long a, long long b)
-{
+long long __adddi3(long long a, long long b) {
 	union uu aa, bb, sum;
 
 	aa.ll = a;

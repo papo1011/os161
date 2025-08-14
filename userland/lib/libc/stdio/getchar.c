@@ -35,14 +35,12 @@
  * and return it or the symbolic constant EOF (-1).
  */
 
-int
-getchar(void)
-{
+int getchar(void) {
 	char ch;
 	int len;
 
 	len = read(STDIN_FILENO, &ch, 1);
-	if (len<=0) {
+	if (len <= 0) {
 		/* end of file or error */
 		return EOF;
 	}

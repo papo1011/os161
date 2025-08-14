@@ -42,9 +42,7 @@
  *
  * XXX	we assume a % b < 0 iff a < 0, but this is actually machine-dependent.
  */
-long long
-__moddi3(long long a, long long b)
-{
+long long __moddi3(long long a, long long b) {
 	unsigned long long ua, ub, ur;
 	int neg = 0;
 

@@ -37,11 +37,10 @@
 #include "support.h"
 #include "kern/sfs.h"
 
-
 #ifdef HOST
 
 #include <netinet/in.h> // for arpa/inet.h
-#include <arpa/inet.h>  // for ntohl
+#include <arpa/inet.h>	// for ntohl
 #include "hostcompat.h"
 #define SWAP64(x) ntohll(x)
 #define SWAP32(x) ntohl(x)
@@ -66,24 +65,18 @@ static char freemapbuf[MAXFREEMAPBLOCKS * SFS_BLOCKSIZE];
 /*
  * Assert that the on-disk data structures are correctly sized.
  */
-static
-void
-check(void)
-{
-	assert(sizeof(struct sfs_superblock)==SFS_BLOCKSIZE);
-	assert(sizeof(struct sfs_dinode)==SFS_BLOCKSIZE);
+static void check(void) {
+	assert(sizeof(struct sfs_superblock) == SFS_BLOCKSIZE);
+	assert(sizeof(struct sfs_dinode) == SFS_BLOCKSIZE);
 	assert(SFS_BLOCKSIZE % sizeof(struct sfs_direntry) == 0);
 }
 
 /*
  * Mark a block allocated.
  */
-static
-void
-allocblock(uint32_t block)
-{
-	uint32_t mapbyte = block/CHAR_BIT;
-	unsigned char mask = (1<<(block % CHAR_BIT));
+static void allocblock(uint32_t block) {
+	uint32_t mapbyte = block / CHAR_BIT;
+	unsigned char mask = (1 << (block % CHAR_BIT));
 
 	assert((freemapbuf[mapbyte] & mask) == 0);
 	freemapbuf[mapbyte] |= mask;
@@ -92,17 +85,14 @@ allocblock(uint32_t block)
 /*
  * Initialize the free block bitmap.
  */
-static
-void
-initfreemap(uint32_t fsblocks)
-{
+static void initfreemap(uint32_t fsblocks) {
 	uint32_t freemapbits = SFS_FREEMAPBITS(fsblocks);
 	uint32_t freemapblocks = SFS_FREEMAPBLOCKS(fsblocks);
 	uint32_t i;
 
 	if (freemapblocks > MAXFREEMAPBLOCKS) {
 		errx(1, "Filesystem too large -- "
-		     "increase MAXFREEMAPBLOCKS and recompile");
+				"increase MAXFREEMAPBLOCKS and recompile");
 	}
 
 	/* mark the superblock and root inode in use */
@@ -110,12 +100,12 @@ initfreemap(uint32_t fsblocks)
 	allocblock(SFS_ROOTDIR_INO);
 
 	/* the freemap blocks must be in use */
-	for (i=0; i<freemapblocks; i++) {
+	for (i = 0; i < freemapblocks; i++) {
 		allocblock(SFS_FREEMAP_START + i);
 	}
 
 	/* all blocks in the freemap but past the volume end are "in use" */
-	for (i=fsblocks; i<freemapbits; i++) {
+	for (i = fsblocks; i < freemapbits; i++) {
 		allocblock(i);
 	}
 }
@@ -123,10 +113,7 @@ initfreemap(uint32_t fsblocks)
 /*
  * Initialize and write out the superblock.
  */
-static
-void
-writesuper(const char *volname, uint32_t nblocks)
-{
+static void writesuper(const char *volname, uint32_t nblocks) {
 	struct sfs_superblock sb;
 
 	/* The cast is required on some outdated host systems. */
@@ -148,29 +135,23 @@ writesuper(const char *volname, uint32_t nblocks)
 /*
  * Write out the free block bitmap.
  */
-static
-void
-writefreemap(uint32_t fsblocks)
-{
+static void writefreemap(uint32_t fsblocks) {
 	uint32_t freemapblocks;
 	char *ptr;
 	uint32_t i;
 
 	/* Write out each of the blocks in the free block bitmap. */
 	freemapblocks = SFS_FREEMAPBLOCKS(fsblocks);
-	for (i=0; i<freemapblocks; i++) {
-		ptr = freemapbuf + i*SFS_BLOCKSIZE;
-		diskwrite(ptr, SFS_FREEMAP_START+i);
+	for (i = 0; i < freemapblocks; i++) {
+		ptr = freemapbuf + i * SFS_BLOCKSIZE;
+		diskwrite(ptr, SFS_FREEMAP_START + i);
 	}
 }
 
 /*
  * Write out the root directory inode.
  */
-static
-void
-writerootdir(void)
-{
+static void writerootdir(void) {
 	struct sfs_dinode sfi;
 
 	/* Initialize the dinode */
@@ -186,9 +167,7 @@ writerootdir(void)
 /*
  * Main.
  */
-int
-main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
 	uint32_t size, blocksize;
 	char *volname, *s;
 
@@ -196,7 +175,7 @@ main(int argc, char **argv)
 	hostcompat_init(argc, argv);
 #endif
 
-	if (argc!=3) {
+	if (argc != 3) {
 		errx(1, "Usage: mksfs device/diskfile volume-name");
 	}
 
@@ -207,7 +186,7 @@ main(int argc, char **argv)
 	/* Remove one trailing colon from volname, if present */
 	s = strchr(volname, ':');
 	if (s != NULL) {
-		if (strlen(s)!=1) {
+		if (strlen(s) != 1) {
 			errx(1, "Illegal volume name %s", volname);
 		}
 		*s = 0;
@@ -222,9 +201,9 @@ main(int argc, char **argv)
 	opendisk(argv[1]);
 	blocksize = diskblocksize();
 
-	if (blocksize!=SFS_BLOCKSIZE) {
-		errx(1, "Device has wrong blocksize %u (should be %u)\n",
-		     blocksize, SFS_BLOCKSIZE);
+	if (blocksize != SFS_BLOCKSIZE) {
+		errx(1, "Device has wrong blocksize %u (should be %u)\n", blocksize,
+			 SFS_BLOCKSIZE);
 	}
 	size = diskblocks();
 

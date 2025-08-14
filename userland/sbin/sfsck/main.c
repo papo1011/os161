@@ -42,7 +42,7 @@
 #include "passes.h"
 #include "main.h"
 
-static int badness=0;
+static int badness = 0;
 
 /*
  * Update the badness state. (codes are in main.h)
@@ -50,9 +50,7 @@ static int badness=0;
  * The badness state only gets worse, and is ultimately the process
  * exit code.
  */
-void
-setbadness(int code)
-{
+void setbadness(int code) {
 	if (badness < code) {
 		badness = code;
 	}
@@ -61,15 +59,13 @@ setbadness(int code)
 /*
  * Main.
  */
-int
-main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
 #ifdef HOST
 	hostcompat_init(argc, argv);
 #endif
 
 	/* FUTURE: add -n option */
-	if (argc!=2) {
+	if (argc != 2) {
 		errx(EXIT_USAGE, "Usage: sfsck device/diskfile");
 	}
 
@@ -94,23 +90,23 @@ main(int argc, char **argv)
 	closedisk();
 
 	warnx("%lu blocks used (of %lu); %lu directories; %lu files",
-	      freemap_blocksused(), (unsigned long)sb_totalblocks(),
-	      pass1_founddirs(), pass1_foundfiles());
+		  freemap_blocksused(), (unsigned long)sb_totalblocks(),
+		  pass1_founddirs(), pass1_foundfiles());
 
 	switch (badness) {
-	    case EXIT_USAGE:
-	    case EXIT_FATAL:
-	    default:
+	case EXIT_USAGE:
+	case EXIT_FATAL:
+	default:
 		/* not supposed to happen here */
 		assert(0);
 		break;
-	    case EXIT_UNRECOV:
+	case EXIT_UNRECOV:
 		warnx("WARNING - unrecoverable errors. Maybe try again?");
 		break;
-	    case EXIT_RECOV:
+	case EXIT_RECOV:
 		warnx("Caution - filesystem modified. Run again for luck.");
 		break;
-	    case EXIT_CLEAN:
+	case EXIT_CLEAN:
 		break;
 	}
 

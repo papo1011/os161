@@ -64,13 +64,9 @@
 
 static const char *slogans[] = {
 	"QUO USQUE TANDEM ABUTERE CATILINA PATENTIA NOSTRA",
-	"QUEM IN FINEM SESE EFFRENATA IACTABIT AUDACIA"
-};
+	"QUEM IN FINEM SESE EFFRENATA IACTABIT AUDACIA"};
 
-static
-void
-write_slogan(int fd, unsigned which, bool failok)
-{
+static void write_slogan(int fd, unsigned which, bool failok) {
 	size_t len;
 	ssize_t r;
 
@@ -90,10 +86,7 @@ write_slogan(int fd, unsigned which, bool failok)
 	}
 }
 
-static
-void
-check_slogan(int fd, unsigned which)
-{
+static void check_slogan(int fd, unsigned which) {
 	char buf[256];
 	size_t len;
 	ssize_t r;
@@ -110,8 +103,8 @@ check_slogan(int fd, unsigned which)
 	/* we should get either a full buffer or the length of the slogan */
 	len = strlen(slogans[which]);
 	if ((size_t)r != sizeof(buf) && (size_t)r != len) {
-		errx(1, "read: result %zd bytes, expected %zu or %zu",
-		     r, sizeof(buf), len);
+		errx(1, "read: result %zd bytes, expected %zu or %zu", r, sizeof(buf),
+			 len);
 	}
 
 	/* slogan should match */
@@ -124,10 +117,10 @@ check_slogan(int fd, unsigned which)
 
 	/* bytes past the slogan (if any) should be 0 */
 	wrongcount = 0;
-	for (i=len; i<(size_t)r; i++) {
+	for (i = len; i < (size_t)r; i++) {
 		if (buf[i] != 0) {
 			warnx("read: buf[%zu] was 0x%x, expected 0", i,
-			      (unsigned char)buf[i]);
+				  (unsigned char)buf[i]);
 			wrongcount++;
 		}
 	}
@@ -136,10 +129,7 @@ check_slogan(int fd, unsigned which)
 	}
 }
 
-static
-void
-try_reading(int fd)
-{
+static void try_reading(int fd) {
 	char buf[16];
 	ssize_t r;
 
@@ -154,17 +144,10 @@ try_reading(int fd)
 	errx(1, "read: Expected EOF but got %zd bytes", r);
 }
 
-static
-void
-try_writing(int fd)
-{
-	write_slogan(fd, 1, true);
-}
+static void try_writing(int fd) { write_slogan(fd, 1, true); }
 
-static
-void
-dolseek(int fd, off_t pos, int whence, const char *whencestr, off_t expected)
-{
+static void dolseek(int fd, off_t pos, int whence, const char *whencestr,
+					off_t expected) {
 	off_t result;
 
 	result = lseek(fd, pos, whence);
@@ -172,16 +155,14 @@ dolseek(int fd, off_t pos, int whence, const char *whencestr, off_t expected)
 		err(1, "lseek(fd, 0x%llx, %s)", pos, whencestr);
 	}
 	if (result != expected) {
-		errx(1, "lseek(fd, 0x%llx, %s): Wrong return value"
-		     " (got 0x%llx, expected 0x%llx)", pos, whencestr,
-		     result, expected);
+		errx(1,
+			 "lseek(fd, 0x%llx, %s): Wrong return value"
+			 " (got 0x%llx, expected 0x%llx)",
+			 pos, whencestr, result, expected);
 	}
 }
 
-static
-void
-try_seeking(int fd, off_t pos, off_t cursize)
-{
+static void try_seeking(int fd, off_t pos, off_t cursize) {
 	printf("Seeking to (and near) 0x%llx\n", pos);
 
 	/* Go to the place. */
@@ -196,8 +177,7 @@ try_seeking(int fd, off_t pos, off_t cursize)
 
 		/* Forward a little. */
 		dolseek(fd, 20, SEEK_CUR, "SEEK_CUR", pos + 10);
-	}
-	else {
+	} else {
 		/* Just forward a little. */
 		dolseek(fd, 10, SEEK_CUR, "SEEK_CUR", pos + 10);
 	}
@@ -209,14 +189,12 @@ try_seeking(int fd, off_t pos, off_t cursize)
 	dolseek(fd, pos, SEEK_SET, "SEEK_SET", pos);
 }
 
-int
-main(void)
-{
+int main(void) {
 	off_t cursize;
 	int fd;
 
 	printf("Creating file...\n");
-	fd = open(TESTFILE, O_RDWR|O_CREAT|O_TRUNC, 0664);
+	fd = open(TESTFILE, O_RDWR | O_CREAT | O_TRUNC, 0664);
 	if (fd < 0) {
 		err(1, "%s", TESTFILE);
 	}

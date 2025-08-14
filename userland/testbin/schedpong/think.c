@@ -35,9 +35,7 @@
  *
  * All we do is loop.
  */
-void
-think(unsigned groupid, unsigned id)
-{
+void think(unsigned groupid, unsigned id) {
 	volatile unsigned long k, m;
 	volatile unsigned i;
 
@@ -49,7 +47,7 @@ think(unsigned groupid, unsigned id)
 	k = 15;
 	m = 7;
 #define LOOPCOUNT 35000000
-	for (i=0; i<LOOPCOUNT; i++) {
-		k += k*m;
+	for (i = 0; i < LOOPCOUNT; i++) {
+		k += k * m;
 	}
 }

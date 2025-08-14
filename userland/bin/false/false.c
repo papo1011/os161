@@ -37,9 +37,7 @@
  * sure does - it fails all the time."
  */
 
-int
-main(void)
-{
+int main(void) {
 	/* Just exit with a failure code. */
 	exit(1);
 }

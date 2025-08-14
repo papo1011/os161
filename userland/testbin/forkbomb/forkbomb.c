@@ -52,9 +52,7 @@
 
 static volatile int pid;
 
-int
-main(void)
-{
+int main(void) {
 	int i;
 
 	while (1) {
@@ -63,13 +61,14 @@ main(void)
 		pid = getpid();
 
 		/* Make sure each fork has its own address space. */
-		for (i=0; i<300; i++) {
+		for (i = 0; i < 300; i++) {
 			volatile int seenpid;
 			seenpid = pid;
 			if (seenpid != getpid()) {
-				errx(1, "pid mismatch (%d, should be %d) "
-				     "- your vm is broken!",
-				     seenpid, getpid());
+				errx(1,
+					 "pid mismatch (%d, should be %d) "
+					 "- your vm is broken!",
+					 seenpid, getpid());
 			}
 		}
 	}

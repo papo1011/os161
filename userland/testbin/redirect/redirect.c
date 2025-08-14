@@ -50,10 +50,7 @@
 
 static const char slogan[] = "CECIDI, ET NON SURGERE POSSUM!\n";
 
-static
-int
-doopen(const char *path, int openflags)
-{
+static int doopen(const char *path, int openflags) {
 	int fd;
 
 	fd = open(path, openflags, 0664);
@@ -63,10 +60,7 @@ doopen(const char *path, int openflags)
 	return fd;
 }
 
-static
-void
-dodup2(int ofd, int nfd, const char *file)
-{
+static void dodup2(int ofd, int nfd, const char *file) {
 	int r;
 
 	r = dup2(ofd, nfd);
@@ -78,40 +72,31 @@ dodup2(int ofd, int nfd, const char *file)
 	}
 }
 
-static
-void
-doclose(int fd, const char *file)
-{
+static void doclose(int fd, const char *file) {
 	if (close(fd)) {
 		warnx("%s: close", file);
 	}
 }
 
-static
-void
-mkfile(void)
-{
+static void mkfile(void) {
 	int fd;
 	ssize_t r;
 
-	fd = doopen(INFILE, O_WRONLY|O_CREAT|O_TRUNC);
+	fd = doopen(INFILE, O_WRONLY | O_CREAT | O_TRUNC);
 
 	r = write(fd, slogan, strlen(slogan));
 	if (r < 0) {
 		err(1, "%s: write", INFILE);
 	}
 	if ((size_t)r != strlen(slogan)) {
-		errx(1, "%s: write: Short count (got %zd, expected %zu)",
-		     INFILE, r, strlen(slogan));
+		errx(1, "%s: write: Short count (got %zd, expected %zu)", INFILE, r,
+			 strlen(slogan));
 	}
 
 	doclose(fd, INFILE);
 }
 
-static
-void
-chkfile(void)
-{
+static void chkfile(void) {
 	char buf[256];
 	ssize_t r;
 	int fd;
@@ -126,23 +111,20 @@ chkfile(void)
 		errx(1, "%s: read: Unexpected EOF", OUTFILE);
 	}
 	if ((size_t)r != strlen(slogan)) {
-		errx(1, "%s: read: Short count (got %zd, expected %zu)",
-		     OUTFILE, r, strlen(slogan));
+		errx(1, "%s: read: Short count (got %zd, expected %zu)", OUTFILE, r,
+			 strlen(slogan));
 	}
 
 	doclose(fd, OUTFILE);
 }
 
-static
-void
-cat(void)
-{
+static void cat(void) {
 	pid_t pid;
 	int rfd, wfd, result, status;
 	const char *args[2];
 
 	rfd = doopen(INFILE, O_RDONLY);
-	wfd = doopen(OUTFILE, O_WRONLY|O_CREAT|O_TRUNC);
+	wfd = doopen(OUTFILE, O_WRONLY | O_CREAT | O_TRUNC);
 
 	pid = fork();
 	if (pid < 0) {
@@ -178,9 +160,7 @@ cat(void)
 	}
 }
 
-int
-main(void)
-{
+int main(void) {
 	printf("Creating %s...\n", INFILE);
 	mkfile();
 

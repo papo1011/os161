@@ -47,11 +47,8 @@ extern char **__argv;
 /*
  * Routine to print error message text to stderr.
  */
-static
-void
-__senderr(void *junk, const char *data, size_t len)
-{
-	(void)junk;  /* not needed or used */
+static void __senderr(void *junk, const char *data, size_t len) {
+	(void)junk; /* not needed or used */
 
 	write(STDERR_FILENO, data, len);
 }
@@ -60,20 +57,12 @@ __senderr(void *junk, const char *data, size_t len)
  * Shortcut to call __senderr on a null-terminated string.
  * (__senderr is set up to be called by __vprintf.)
  */
-static
-void
-__senderrstr(const char *str)
-{
-	__senderr(NULL, str, strlen(str));
-}
+static void __senderrstr(const char *str) { __senderr(NULL, str, strlen(str)); }
 
 /*
  * Common routine for all the *err* and *warn* functions.
  */
-static
-void
-__printerr(int use_errno, const char *fmt, va_list ap)
-{
+static void __printerr(int use_errno, const char *fmt, va_list ap) {
 	const char *errmsg;
 	const char *prog;
 
@@ -91,10 +80,9 @@ __printerr(int use_errno, const char *fmt, va_list ap)
 	 * name (this is how BSD err* prints) but it doesn't make
 	 * much difference.
 	 */
-	if (__argv!=NULL && __argv[0]!=NULL) {
+	if (__argv != NULL && __argv[0] != NULL) {
 		prog = __argv[0];
-	}
-	else {
+	} else {
 		prog = "(program name unknown)";
 	}
 
@@ -120,31 +108,19 @@ __printerr(int use_errno, const char *fmt, va_list ap)
  */
 
 /* warn/vwarn: use errno, don't exit */
-void
-vwarn(const char *fmt, va_list ap)
-{
-	__printerr(1, fmt, ap);
-}
+void vwarn(const char *fmt, va_list ap) { __printerr(1, fmt, ap); }
 
 /* warnx/vwarnx: don't use errno, don't exit */
-void
-vwarnx(const char *fmt, va_list ap)
-{
-	__printerr(0, fmt, ap);
-}
+void vwarnx(const char *fmt, va_list ap) { __printerr(0, fmt, ap); }
 
 /* err/verr: use errno, then exit */
-void
-verr(int exitcode, const char *fmt, va_list ap)
-{
+void verr(int exitcode, const char *fmt, va_list ap) {
 	__printerr(1, fmt, ap);
 	exit(exitcode);
 }
 
 /* errx/verrx: don't use errno, but do then exit */
-void
-verrx(int exitcode, const char *fmt, va_list ap)
-{
+void verrx(int exitcode, const char *fmt, va_list ap) {
 	__printerr(0, fmt, ap);
 	exit(exitcode);
 }
@@ -154,36 +130,28 @@ verrx(int exitcode, const char *fmt, va_list ap)
  * Just hand off to the va_list versions.
  */
 
-void
-warn(const char *fmt, ...)
-{
+void warn(const char *fmt, ...) {
 	va_list ap;
 	va_start(ap, fmt);
 	vwarn(fmt, ap);
 	va_end(ap);
 }
 
-void
-warnx(const char *fmt, ...)
-{
+void warnx(const char *fmt, ...) {
 	va_list ap;
 	va_start(ap, fmt);
 	vwarnx(fmt, ap);
 	va_end(ap);
 }
 
-void
-err(int exitcode, const char *fmt, ...)
-{
+void err(int exitcode, const char *fmt, ...) {
 	va_list ap;
 	va_start(ap, fmt);
 	verr(exitcode, fmt, ap);
 	va_end(ap);
 }
 
-void
-errx(int exitcode, const char *fmt, ...)
-{
+void errx(int exitcode, const char *fmt, ...) {
 	va_list ap;
 	va_start(ap, fmt);
 	verrx(exitcode, fmt, ap);

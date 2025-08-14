@@ -44,9 +44,7 @@
  * sort order.
  */
 
-int
-strcmp(const char *a, const char *b)
-{
+int strcmp(const char *a, const char *b) {
 	size_t i;
 
 	/*
@@ -63,7 +61,7 @@ strcmp(const char *a, const char *b)
 	 * B.
 	 */
 
-	for (i=0; a[i]!=0 && a[i]==b[i]; i++) {
+	for (i = 0; a[i] != 0 && a[i] == b[i]; i++) {
 		/* nothing */
 	}
 
@@ -82,8 +80,7 @@ strcmp(const char *a, const char *b)
 	 */
 	if ((unsigned char)a[i] > (unsigned char)b[i]) {
 		return 1;
-	}
-	else if (a[i] == b[i]) {
+	} else if (a[i] == b[i]) {
 		return 0;
 	}
 	return -1;

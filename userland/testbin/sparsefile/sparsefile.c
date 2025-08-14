@@ -42,9 +42,7 @@
 #include <fcntl.h>
 #include <err.h>
 
-int
-main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
 	const char *filename;
 	int size;
 	int fd;
@@ -65,19 +63,18 @@ main(int argc, char *argv[])
 
 	printf("Creating a sparse file of size %d\n", size);
 
-	fd = open(filename, O_WRONLY|O_CREAT|O_TRUNC);
+	fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC);
 	if (fd < 0) {
 		err(1, "%s: create", filename);
 	}
 
-	if (lseek(fd, size-1, SEEK_SET) == -1) {
+	if (lseek(fd, size - 1, SEEK_SET) == -1) {
 		err(1, "%s: lseek", filename);
 	}
 	r = write(fd, &byte, 1);
 	if (r < 0) {
 		err(1, "%s: write", filename);
-	}
-	else if (r != 1) {
+	} else if (r != 1) {
 		errx(1, "%s: write: Unexpected result count %d", filename, r);
 	}
 

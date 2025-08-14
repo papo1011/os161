@@ -37,18 +37,16 @@
 #include <unistd.h>
 #include <err.h>
 
-int
-main(void)
-{
-	char ch=0;
+int main(void) {
+	char ch = 0;
 	int len;
 
-	while (ch!='q') {
+	while (ch != 'q') {
 		len = read(STDIN_FILENO, &ch, 1);
 		if (len < 0) {
 			err(1, "stdin: read");
 		}
-		if (len==0) {
+		if (len == 0) {
 			/* EOF */
 			break;
 		}

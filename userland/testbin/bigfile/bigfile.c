@@ -44,9 +44,7 @@
 
 static char buffer[8192 + 1];
 
-int
-main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
 	const char *filename;
 	char *s;
 	size_t i, size, chunksize, offset;
@@ -69,8 +67,7 @@ main(int argc, char *argv[])
 		if (chunksize == 0) {
 			errx(1, "Really?");
 		}
-	}
-	else {
+	} else {
 		chunksize = 10;
 	}
 	size = atoi(argv[2]);
@@ -78,24 +75,23 @@ main(int argc, char *argv[])
 	/* round size up */
 	size = ((size + chunksize - 1) / chunksize) * chunksize;
 
-	printf("Creating a file of size %d in %d-byte chunks\n",
-	       size, chunksize);
+	printf("Creating a file of size %d in %d-byte chunks\n", size, chunksize);
 
-	fd = open(filename, O_WRONLY|O_CREAT|O_TRUNC);
+	fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC);
 	if (fd < 0) {
 		err(1, "%s: create", filename);
 	}
 
-	i=0;
-	while (i<size) {
+	i = 0;
+	while (i < size) {
 		snprintf(buffer, sizeof(buffer), "%d\n", i);
 		if (strlen(buffer) < chunksize) {
 			offset = chunksize - strlen(buffer);
-			memmove(buffer + offset, buffer, strlen(buffer)+1);
+			memmove(buffer + offset, buffer, strlen(buffer) + 1);
 			memset(buffer, ' ', offset);
 		}
 		len = write(fd, buffer, strlen(buffer));
-		if (len<0) {
+		if (len < 0) {
 			err(1, "%s: write", filename);
 		}
 		i += len;

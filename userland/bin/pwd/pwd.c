@@ -41,10 +41,8 @@
  * system call.)
  */
 
-int
-main(void)
-{
-	char buf[PATH_MAX+1], *p;
+int main(void) {
+	char buf[PATH_MAX + 1], *p;
 
 	p = getcwd(buf, sizeof(buf));
 	if (p == NULL) {

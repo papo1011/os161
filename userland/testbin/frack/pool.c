@@ -34,29 +34,25 @@
 
 #include "pool.h"
 
-unsigned
-poolalloc(struct poolctl *pool)
-{
+unsigned poolalloc(struct poolctl *pool) {
 	uint32_t mask;
 	unsigned j, i;
 
 	assert(pool->max % 32 == 0);
-	for (j=0; j<pool->max/32; j++) {
-		for (mask=1, i=0; i<32; mask<<=1, i++) {
+	for (j = 0; j < pool->max / 32; j++) {
+		for (mask = 1, i = 0; i < 32; mask <<= 1, i++) {
 			if ((pool->inuse[j] & mask) == 0) {
 				pool->inuse[j] |= mask;
-				return j*32 + i;
+				return j * 32 + i;
 			}
 		}
 	}
-	errx(1, "Too many %s -- increase %s in %s",
-	     pool->itemtype, pool->maxname, pool->file);
+	errx(1, "Too many %s -- increase %s in %s", pool->itemtype, pool->maxname,
+		 pool->file);
 	return 0;
 }
 
-void
-poolfree(struct poolctl *pool, unsigned num)
-{
+void poolfree(struct poolctl *pool, unsigned num) {
 	uint32_t mask;
 	unsigned pos;
 

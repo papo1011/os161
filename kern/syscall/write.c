@@ -35,23 +35,20 @@
  *   - EIO:    A hardware I/O error occurred while writing.
  *
  */
-int sys_write(int fd, userptr_t buf_ptr, size_t size)
-{
-    int i;
-    char *p = (char *)buf_ptr;
+int sys_write(int fd, userptr_t buf_ptr, size_t size) {
+	int i;
+	char *p = (char *)buf_ptr;
 
-    if (fd != STDOUT_FILENO && fd != STDERR_FILENO)
-    {
-        // TODO: Implement sys_write for other file descriptors
-        kprintf("sys_write supported only to stdout\n");
+	if (fd != STDOUT_FILENO && fd != STDERR_FILENO) {
+		// TODO: Implement sys_write for other file descriptors
+		kprintf("sys_write supported only to stdout\n");
 
-        return -1;
-    }
+		return -1;
+	}
 
-    for (i = 0; i < (int)size; i++)
-    {
-        putch(p[i]);
-    }
+	for (i = 0; i < (int)size; i++) {
+		putch(p[i]);
+	}
 
-    return (int)size;
+	return (int)size;
 }

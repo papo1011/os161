@@ -37,53 +37,24 @@
 #define MAXNAMES 32
 
 static const char *const names[MAXNAMES] = {
-	"allspice",
-	"anise",
-	"basil",
-	"cardamom",
-	"cayenne",
-	"cilantro",
-	"cinnamon",
-	"cloves",
-	"coriander",
-	"cumin",
-	"dill",
-	"fennel",
-	"fenugreek",
-	"galangal",
-	"ginger",
-	"horseradish",
-	"lemongrass",
-	"licorice",
-	"mace",
-	"marjoram",
-	"mustard",
-	"nutmeg",
-	"oregano",
-	"parsley",
-	"paprika",
-	"pepper",
-	"saffron",
-	"sage",
-	"rosemary",
-	"thyme",
-	"turmeric",
-	"wasabi",
+	"allspice",	   "anise",		 "basil",	  "cardamom",  "cayenne",
+	"cilantro",	   "cinnamon",	 "cloves",	  "coriander", "cumin",
+	"dill",		   "fennel",	 "fenugreek", "galangal",  "ginger",
+	"horseradish", "lemongrass", "licorice",  "mace",	   "marjoram",
+	"mustard",	   "nutmeg",	 "oregano",	  "parsley",   "paprika",
+	"pepper",	   "saffron",	 "sage",	  "rosemary",  "thyme",
+	"turmeric",	   "wasabi",
 };
 
-const char *
-name_get(unsigned name)
-{
+const char *name_get(unsigned name) {
 	assert(name < MAXNAMES);
 	return names[name];
 }
 
-unsigned
-name_find(const char *namestr)
-{
+unsigned name_find(const char *namestr) {
 	unsigned i;
 
-	for (i=0; i<MAXNAMES; i++) {
+	for (i = 0; i < MAXNAMES; i++) {
 		if (!strcmp(namestr, names[i])) {
 			return i;
 		}

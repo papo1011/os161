@@ -38,11 +38,9 @@
 
 #include <stdio.h>
 
-#define REALLY_BIG_ADDRESS	0x40000000
+#define REALLY_BIG_ADDRESS 0x40000000
 
-int
-main(void)
-{
+int main(void) {
 	volatile int i;
 
 	printf("\nEntering the faulter program - I should die immediately\n");

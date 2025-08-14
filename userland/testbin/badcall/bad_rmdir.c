@@ -43,14 +43,11 @@
 #include "config.h"
 #include "test.h"
 
-static
-void
-rmdir_file(void)
-{
+static void rmdir_file(void) {
 	int rv;
 
 	report_begin("rmdir a file");
-	if (create_testfile()<0) {
+	if (create_testfile() < 0) {
 		report_aborted();
 		return;
 	}
@@ -59,10 +56,7 @@ rmdir_file(void)
 	remove(TESTFILE);
 }
 
-static
-void
-rmdir_dot(void)
-{
+static void rmdir_dot(void) {
 	int rv;
 
 	report_begin("rmdir .");
@@ -70,10 +64,7 @@ rmdir_dot(void)
 	report_check(rv, errno, EINVAL);
 }
 
-static
-void
-rmdir_dotdot(void)
-{
+static void rmdir_dotdot(void) {
 	int rv;
 
 	report_begin("rmdir ..");
@@ -81,10 +72,7 @@ rmdir_dotdot(void)
 	report_check2(rv, errno, EINVAL, ENOTEMPTY);
 }
 
-static
-void
-rmdir_empty(void)
-{
+static void rmdir_empty(void) {
 	int rv;
 
 	report_begin("rmdir empty string");
@@ -92,9 +80,7 @@ rmdir_empty(void)
 	report_check(rv, errno, EINVAL);
 }
 
-void
-test_rmdir(void)
-{
+void test_rmdir(void) {
 	test_rmdir_path();
 
 	rmdir_file();

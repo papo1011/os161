@@ -41,10 +41,7 @@
 /*
  * Zero out a disk block.
  */
-static
-int
-sfs_clearblock(struct sfs_fs *sfs, daddr_t block)
-{
+static int sfs_clearblock(struct sfs_fs *sfs, daddr_t block) {
 	/* static -> automatically initialized to zero */
 	static char zeros[SFS_BLOCKSIZE];
 
@@ -54,9 +51,7 @@ sfs_clearblock(struct sfs_fs *sfs, daddr_t block)
 /*
  * Allocate a block.
  */
-int
-sfs_balloc(struct sfs_fs *sfs, daddr_t *diskblock)
-{
+int sfs_balloc(struct sfs_fs *sfs, daddr_t *diskblock) {
 	int result;
 
 	result = bitmap_alloc(sfs->sfs_freemap, diskblock);
@@ -66,8 +61,8 @@ sfs_balloc(struct sfs_fs *sfs, daddr_t *diskblock)
 	sfs->sfs_freemapdirty = true;
 
 	if (*diskblock >= sfs->sfs_sb.sb_nblocks) {
-		panic("sfs: %s: balloc: invalid block %u\n",
-		      sfs->sfs_sb.sb_volname, *diskblock);
+		panic("sfs: %s: balloc: invalid block %u\n", sfs->sfs_sb.sb_volname,
+			  *diskblock);
 	}
 
 	/* Clear block before returning it */
@@ -81,9 +76,7 @@ sfs_balloc(struct sfs_fs *sfs, daddr_t *diskblock)
 /*
  * Free a block.
  */
-void
-sfs_bfree(struct sfs_fs *sfs, daddr_t diskblock)
-{
+void sfs_bfree(struct sfs_fs *sfs, daddr_t diskblock) {
 	bitmap_unmark(sfs->sfs_freemap, diskblock);
 	sfs->sfs_freemapdirty = true;
 }
@@ -91,13 +84,10 @@ sfs_bfree(struct sfs_fs *sfs, daddr_t diskblock)
 /*
  * Check if a block is in use.
  */
-int
-sfs_bused(struct sfs_fs *sfs, daddr_t diskblock)
-{
+int sfs_bused(struct sfs_fs *sfs, daddr_t diskblock) {
 	if (diskblock >= sfs->sfs_sb.sb_nblocks) {
 		panic("sfs: %s: sfs_bused called on out of range block %u\n",
-		      sfs->sfs_sb.sb_volname, diskblock);
+			  sfs->sfs_sb.sb_volname, diskblock);
 	}
 	return bitmap_isset(sfs->sfs_freemap, diskblock);
 }
-

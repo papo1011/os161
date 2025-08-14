@@ -45,23 +45,20 @@
 #include <fcntl.h>
 #include <err.h>
 
-#define ONCELOOPS   3
-#define TWICELOOPS  2
+#define ONCELOOPS 3
+#define TWICELOOPS 2
 #define THRICELOOPS 1
-#define LOOPS (ONCELOOPS + 2*TWICELOOPS + 3*THRICELOOPS)
+#define LOOPS (ONCELOOPS + 2 * TWICELOOPS + 3 * THRICELOOPS)
 #define NUMJOBS 4
 
 /*
  * Print to the console, one character at a time to encourage
  * interleaving if the semaphores aren't working.
  */
-static
-void
-say(const char *str)
-{
+static void say(const char *str) {
 	size_t i;
 
-	for (i=0; str[i]; i++) {
+	for (i = 0; str[i]; i++) {
 		putchar(str[i]);
 	}
 }
@@ -85,10 +82,7 @@ sayf(const char *str, ...)
 /*
  * This should probably be in libtest.
  */
-static
-void
-dowait(pid_t pid, unsigned num)
-{
+static void dowait(pid_t pid, unsigned num) {
 	pid_t r;
 	int status;
 
@@ -98,12 +92,11 @@ dowait(pid_t pid, unsigned num)
 		return;
 	}
 	if (WIFSIGNALED(status)) {
-		warnx("pid %d (subprocess %u): Signal %d", (int)pid,
-		      num, WTERMSIG(status));
-	}
-	else if (WIFEXITED(status) && WEXITSTATUS(status) != 0) {
-		warnx("pid %d (subprocess %u): Exit %d", (int)pid,
-		     num, WEXITSTATUS(status));
+		warnx("pid %d (subprocess %u): Signal %d", (int)pid, num,
+			  WTERMSIG(status));
+	} else if (WIFEXITED(status) && WEXITSTATUS(status) != 0) {
+		warnx("pid %d (subprocess %u): Exit %d", (int)pid, num,
+			  WEXITSTATUS(status));
 	}
 }
 
@@ -118,12 +111,9 @@ struct usem {
 	int fd;
 };
 
-static
-void
-usem_init(struct usem *sem, const char *tag, unsigned num)
-{
+static void usem_init(struct usem *sem, const char *tag, unsigned num) {
 	snprintf(sem->name, sizeof(sem->name), "sem:usemtest.%s%u", tag, num);
-	sem->fd = open(sem->name, O_RDWR|O_CREAT|O_TRUNC, 0664);
+	sem->fd = open(sem->name, O_RDWR | O_CREAT | O_TRUNC, 0664);
 	if (sem->fd < 0) {
 		err(1, "%s: create", sem->name);
 	}
@@ -131,36 +121,22 @@ usem_init(struct usem *sem, const char *tag, unsigned num)
 	sem->fd = -1;
 }
 
-static
-void
-usem_open(struct usem *sem)
-{
+static void usem_open(struct usem *sem) {
 	sem->fd = open(sem->name, O_RDWR);
 	if (sem->fd < 0) {
 		err(1, "%s: open", sem->name);
 	}
 }
 
-static
-void
-usem_close(struct usem *sem)
-{
+static void usem_close(struct usem *sem) {
 	if (close(sem->fd) == -1) {
 		warn("%s: close", sem->name);
 	}
 }
 
-static
-void
-usem_cleanup(struct usem *sem)
-{
-	(void)remove(sem->name);
-}
+static void usem_cleanup(struct usem *sem) { (void)remove(sem->name); }
 
-static
-void
-P(struct usem *sem)
-{
+static void P(struct usem *sem) {
 	ssize_t r;
 	char c;
 
@@ -173,10 +149,7 @@ P(struct usem *sem)
 	}
 }
 
-static
-void
-V(struct usem *sem)
-{
+static void V(struct usem *sem) {
 	ssize_t r;
 	char c;
 
@@ -192,10 +165,8 @@ V(struct usem *sem)
 ////////////////////////////////////////////////////////////
 // test components
 
-static
-void
-child_plain(struct usem *gosem, struct usem *waitsem, unsigned num)
-{
+static void child_plain(struct usem *gosem, struct usem *waitsem,
+						unsigned num) {
 	static const char *const strings[NUMJOBS] = {
 		"Nitwit!",
 		"Blubber!",
@@ -207,17 +178,15 @@ child_plain(struct usem *gosem, struct usem *waitsem, unsigned num)
 	unsigned i;
 
 	string = strings[num];
-	for (i=0; i<LOOPS; i++) {
+	for (i = 0; i < LOOPS; i++) {
 		P(gosem);
 		say(string);
 		V(waitsem);
 	}
 }
 
-static
-void
-child_with_own_fd(struct usem *gosem, struct usem *waitsem, unsigned num)
-{
+static void child_with_own_fd(struct usem *gosem, struct usem *waitsem,
+							  unsigned num) {
 	usem_open(gosem);
 	usem_open(waitsem);
 	child_plain(gosem, waitsem, num);
@@ -225,20 +194,17 @@ child_with_own_fd(struct usem *gosem, struct usem *waitsem, unsigned num)
 	usem_close(waitsem);
 }
 
-static
-void
-baseparent(struct usem *gosems, struct usem *waitsems)
-{
+static void baseparent(struct usem *gosems, struct usem *waitsems) {
 	unsigned i, j;
 
-	for (i=0; i<NUMJOBS; i++) {
+	for (i = 0; i < NUMJOBS; i++) {
 		usem_open(&gosems[i]);
 		usem_open(&waitsems[i]);
 	}
 
 	say("Once...\n");
-	for (j=0; j<ONCELOOPS; j++) {
-		for (i=0; i<NUMJOBS; i++) {
+	for (j = 0; j < ONCELOOPS; j++) {
+		for (i = 0; i < NUMJOBS; i++) {
 			V(&gosems[i]);
 			P(&waitsems[i]);
 			putchar(' ');
@@ -247,8 +213,8 @@ baseparent(struct usem *gosems, struct usem *waitsems)
 	}
 
 	say("Twice...\n");
-	for (j=0; j<TWICELOOPS; j++) {
-		for (i=0; i<NUMJOBS; i++) {
+	for (j = 0; j < TWICELOOPS; j++) {
+		for (i = 0; i < NUMJOBS; i++) {
 			V(&gosems[i]);
 			P(&waitsems[i]);
 			putchar(' ');
@@ -260,8 +226,8 @@ baseparent(struct usem *gosems, struct usem *waitsems)
 	}
 
 	say("Three times...\n");
-	for (j=0; j<THRICELOOPS; j++) {
-		for (i=0; i<NUMJOBS; i++) {
+	for (j = 0; j < THRICELOOPS; j++) {
+		for (i = 0; i < NUMJOBS; i++) {
 			V(&gosems[i]);
 			P(&waitsems[i]);
 			putchar(' ');
@@ -274,26 +240,23 @@ baseparent(struct usem *gosems, struct usem *waitsems)
 		}
 	}
 
-	for (i=0; i<NUMJOBS; i++) {
+	for (i = 0; i < NUMJOBS; i++) {
 		usem_close(&gosems[i]);
 		usem_close(&waitsems[i]);
 	}
 }
 
-static
-void
-basetest(void)
-{
+static void basetest(void) {
 	unsigned i;
 	struct usem gosems[NUMJOBS], waitsems[NUMJOBS];
 	pid_t pids[NUMJOBS];
 
-	for (i=0; i<NUMJOBS; i++) {
+	for (i = 0; i < NUMJOBS; i++) {
 		usem_init(&gosems[i], "g", i);
 		usem_init(&waitsems[i], "w", i);
 	}
 
-	for (i=0; i<NUMJOBS; i++) {
+	for (i = 0; i < NUMJOBS; i++) {
 		pids[i] = fork();
 		if (pids[i] < 0) {
 			err(1, "fork");
@@ -305,28 +268,25 @@ basetest(void)
 	}
 	baseparent(gosems, waitsems);
 
-	for (i=0; i<NUMJOBS; i++) {
+	for (i = 0; i < NUMJOBS; i++) {
 		dowait(pids[i], i);
 	}
 
-	for (i=0; i<NUMJOBS; i++) {
+	for (i = 0; i < NUMJOBS; i++) {
 		usem_cleanup(&gosems[i]);
 		usem_cleanup(&waitsems[i]);
 	}
 }
 
-static
-void
-concparent(struct usem *gosems, struct usem *waitsems)
-{
+static void concparent(struct usem *gosems, struct usem *waitsems) {
 	unsigned i, j;
 
 	/*
 	 * Print this *before* forking as we frequently hang *in* fork.
 	 *say("Shoot...\n");
 	 */
-	for (j=0; j<LOOPS; j++) {
-		for (i=0; i<NUMJOBS; i++) {
+	for (j = 0; j < LOOPS; j++) {
+		for (i = 0; i < NUMJOBS; i++) {
 			V(&gosems[i]);
 			P(&waitsems[i]);
 			putchar(' ');
@@ -335,24 +295,21 @@ concparent(struct usem *gosems, struct usem *waitsems)
 	}
 }
 
-static
-void
-conctest(void)
-{
+static void conctest(void) {
 	unsigned i;
 	struct usem gosems[NUMJOBS], waitsems[NUMJOBS];
 	pid_t pids[NUMJOBS];
 
 	say("Shoot...\n");
 
-	for (i=0; i<NUMJOBS; i++) {
+	for (i = 0; i < NUMJOBS; i++) {
 		usem_init(&gosems[i], "g", i);
 		usem_init(&waitsems[i], "w", i);
 		usem_open(&gosems[i]);
 		usem_open(&waitsems[i]);
 	}
 
-	for (i=0; i<NUMJOBS; i++) {
+	for (i = 0; i < NUMJOBS; i++) {
 		pids[i] = fork();
 		if (pids[i] < 0) {
 			err(1, "fork");
@@ -364,11 +321,11 @@ conctest(void)
 	}
 	concparent(gosems, waitsems);
 
-	for (i=0; i<NUMJOBS; i++) {
+	for (i = 0; i < NUMJOBS; i++) {
 		dowait(pids[i], i);
 	}
 
-	for (i=0; i<NUMJOBS; i++) {
+	for (i = 0; i < NUMJOBS; i++) {
 		usem_close(&gosems[i]);
 		usem_close(&waitsems[i]);
 		usem_cleanup(&gosems[i]);
@@ -379,9 +336,7 @@ conctest(void)
 ////////////////////////////////////////////////////////////
 // concurrent use test
 
-int
-main(void)
-{
+int main(void) {
 	basetest();
 	conctest();
 	say("Passed.\n");

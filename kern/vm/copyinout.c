@@ -95,12 +95,7 @@
  * We use the C standard function longjmp() to teleport up the call
  * stack to where setjmp() was called. At that point we return EFAULT.
  */
-static
-void
-copyfail(void)
-{
-	longjmp(curthread->t_machdep.tm_copyjmp, 1);
-}
+static void copyfail(void) { longjmp(curthread->t_machdep.tm_copyjmp, 1); }
 
 /*
  * Memory region check function. This checks to make sure the block of
@@ -113,16 +108,13 @@ copyfail(void)
  *
  * Assumes userspace runs from 0 through USERSPACETOP-1.
  */
-static
-int
-copycheck(const_userptr_t userptr, size_t len, size_t *stoplen)
-{
+static int copycheck(const_userptr_t userptr, size_t len, size_t *stoplen) {
 	vaddr_t bot, top;
 
 	*stoplen = len;
 
-	bot = (vaddr_t) userptr;
-	top = bot+len-1;
+	bot = (vaddr_t)userptr;
+	top = bot + len - 1;
 
 	if (top < bot) {
 		/* addresses wrapped around */
@@ -149,9 +141,7 @@ copycheck(const_userptr_t userptr, size_t len, size_t *stoplen)
  * to kernel address DEST. We can use memcpy because it's protected by
  * the tm_badfaultfunc/copyfail logic.
  */
-int
-copyin(const_userptr_t usersrc, void *dest, size_t len)
-{
+int copyin(const_userptr_t usersrc, void *dest, size_t len) {
 	int result;
 	size_t stoplen;
 
@@ -185,9 +175,7 @@ copyin(const_userptr_t usersrc, void *dest, size_t len)
  * user-level address USERDEST. We can use memcpy because it's
  * protected by the tm_badfaultfunc/copyfail logic.
  */
-int
-copyout(const void *src, userptr_t userdest, size_t len)
-{
+int copyout(const void *src, userptr_t userdest, size_t len) {
 	int result;
 	size_t stoplen;
 
@@ -230,18 +218,15 @@ copyout(const void *src, userptr_t userdest, size_t len)
  * userspace. Thus in the latter case we return EFAULT, not
  * ENAMETOOLONG.
  */
-static
-int
-copystr(char *dest, const char *src, size_t maxlen, size_t stoplen,
-	size_t *gotlen)
-{
+static int copystr(char *dest, const char *src, size_t maxlen, size_t stoplen,
+				   size_t *gotlen) {
 	size_t i;
 
-	for (i=0; i<maxlen && i<stoplen; i++) {
+	for (i = 0; i < maxlen && i < stoplen; i++) {
 		dest[i] = src[i];
 		if (src[i] == 0) {
 			if (gotlen != NULL) {
-				*gotlen = i+1;
+				*gotlen = i + 1;
 			}
 			return 0;
 		}
@@ -262,9 +247,7 @@ copystr(char *dest, const char *src, size_t maxlen, size_t stoplen,
  * logic to protect against invalid addresses supplied by a user
  * process.
  */
-int
-copyinstr(const_userptr_t usersrc, char *dest, size_t len, size_t *actual)
-{
+int copyinstr(const_userptr_t usersrc, char *dest, size_t len, size_t *actual) {
 	int result;
 	size_t stoplen;
 
@@ -295,9 +278,8 @@ copyinstr(const_userptr_t usersrc, char *dest, size_t len, size_t *actual)
  * logic to protect against invalid addresses supplied by a user
  * process.
  */
-int
-copyoutstr(const char *src, userptr_t userdest, size_t len, size_t *actual)
-{
+int copyoutstr(const char *src, userptr_t userdest, size_t len,
+			   size_t *actual) {
 	int result;
 	size_t stoplen;
 

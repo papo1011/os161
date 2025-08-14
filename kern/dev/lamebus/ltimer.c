@@ -39,24 +39,22 @@
 #include "autoconf.h"
 
 /* Registers (offsets within slot) */
-#define LT_REG_SEC    0     /* time of day: seconds */
-#define LT_REG_NSEC   4     /* time of day: nanoseconds */
-#define LT_REG_ROE    8     /* Restart On countdown-timer Expiry flag */
-#define LT_REG_IRQ    12    /* Interrupt status register */
-#define LT_REG_COUNT  16    /* Time for countdown timer (usec) */
-#define LT_REG_SPKR   20    /* Beep control */
+#define LT_REG_SEC 0	/* time of day: seconds */
+#define LT_REG_NSEC 4	/* time of day: nanoseconds */
+#define LT_REG_ROE 8	/* Restart On countdown-timer Expiry flag */
+#define LT_REG_IRQ 12	/* Interrupt status register */
+#define LT_REG_COUNT 16 /* Time for countdown timer (usec) */
+#define LT_REG_SPKR 20	/* Beep control */
 
 /* Granularity of countdown timer (usec) */
-#define LT_GRANULARITY   1000000
+#define LT_GRANULARITY 1000000
 
 static bool havetimerclock;
 
 /*
  * Setup routine called by autoconf stuff when an ltimer is found.
  */
-int
-config_ltimer(struct ltimer_softc *lt, int ltimerno)
-{
+int config_ltimer(struct ltimer_softc *lt, int ltimerno) {
 	/*
 	 * Running on System/161 2.x, we always use the processor
 	 * on-chip timer for hardclock and we don't need ltimer as
@@ -94,7 +92,7 @@ config_ltimer(struct ltimer_softc *lt, int ltimerno)
 		/* Wire it to go off once every second. */
 		bus_write_register(lt->lt_bus, lt->lt_buspos, LT_REG_ROE, 1);
 		bus_write_register(lt->lt_bus, lt->lt_buspos, LT_REG_COUNT,
-				   LT_GRANULARITY);
+						   LT_GRANULARITY);
 	}
 
 	return 0;
@@ -103,9 +101,7 @@ config_ltimer(struct ltimer_softc *lt, int ltimerno)
 /*
  * Interrupt handler.
  */
-void
-ltimer_irq(void *vlt)
-{
+void ltimer_irq(void *vlt) {
 	struct ltimer_softc *lt = vlt;
 	uint32_t val;
 
@@ -132,9 +128,7 @@ ltimer_irq(void *vlt)
  * doesn't matter what value you write. This function is called if
  * the beep device is attached to this timer.
  */
-void
-ltimer_beep(void *vlt)
-{
+void ltimer_beep(void *vlt) {
 	struct ltimer_softc *lt = vlt;
 
 	bus_write_register(lt->lt_bus, lt->lt_buspos, LT_REG_SPKR, 440);
@@ -145,9 +139,7 @@ ltimer_beep(void *vlt)
  * This function gets called if the rtclock device is attached
  * to this timer.
  */
-void
-ltimer_gettime(void *vlt, struct timespec *ts)
-{
+void ltimer_gettime(void *vlt, struct timespec *ts) {
 	struct ltimer_softc *lt = vlt;
 	uint32_t secs1, secs2;
 	int spl;
@@ -169,19 +161,15 @@ ltimer_gettime(void *vlt, struct timespec *ts)
 
 	spl = splhigh();
 
-	secs1 = bus_read_register(lt->lt_bus, lt->lt_buspos,
-				  LT_REG_SEC);
-	ts->tv_nsec = bus_read_register(lt->lt_bus, lt->lt_buspos,
-				   LT_REG_NSEC);
-	secs2 = bus_read_register(lt->lt_bus, lt->lt_buspos,
-				  LT_REG_SEC);
+	secs1 = bus_read_register(lt->lt_bus, lt->lt_buspos, LT_REG_SEC);
+	ts->tv_nsec = bus_read_register(lt->lt_bus, lt->lt_buspos, LT_REG_NSEC);
+	secs2 = bus_read_register(lt->lt_bus, lt->lt_buspos, LT_REG_SEC);
 
 	splx(spl);
 
 	if (ts->tv_nsec < 5000000) {
 		ts->tv_sec = secs2;
-	}
-	else {
+	} else {
 		ts->tv_sec = secs1;
 	}
 }

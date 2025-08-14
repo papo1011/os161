@@ -41,10 +41,7 @@
 #include "config.h"
 #include "test.h"
 
-static
-void
-wait_badpid(pid_t pid, const char *desc)
-{
+static void wait_badpid(pid_t pid, const char *desc) {
 	pid_t rv;
 	int x;
 	int err;
@@ -55,29 +52,25 @@ wait_badpid(pid_t pid, const char *desc)
 	/* Allow ENOSYS for 0 or negative values of pid only */
 	if (pid <= 0 && rv == -1 && err == ENOSYS) {
 		err = ESRCH;
-	}
-	else if (err == ENOSYS) {
+	} else if (err == ENOSYS) {
 		report_saw_enosys();
 	}
 	report_check2(rv, err, ESRCH, ECHILD);
 }
 
-static
-void
-wait_nullstatus(void)
-{
+static void wait_nullstatus(void) {
 	pid_t pid, rv;
 	int x;
 
 	report_begin("wait with NULL status");
 
 	pid = fork();
-	if (pid<0) {
+	if (pid < 0) {
 		report_warn("fork failed");
 		report_aborted();
 		return;
 	}
-	if (pid==0) {
+	if (pid == 0) {
 		exit(0);
 	}
 
@@ -87,22 +80,19 @@ wait_nullstatus(void)
 	waitpid(pid, &x, 0);
 }
 
-static
-void
-wait_badstatus(void *ptr, const char *desc)
-{
+static void wait_badstatus(void *ptr, const char *desc) {
 	pid_t pid, rv;
 	int x;
 
 	report_begin(desc);
 
 	pid = fork();
-	if (pid<0) {
+	if (pid < 0) {
 		report_warn("fork failed");
 		report_aborted();
 		return;
 	}
-	if (pid==0) {
+	if (pid == 0) {
 		exit(0);
 	}
 
@@ -111,24 +101,21 @@ wait_badstatus(void *ptr, const char *desc)
 	waitpid(pid, &x, 0);
 }
 
-static
-void
-wait_unaligned(void)
-{
+static void wait_unaligned(void) {
 	pid_t pid, rv;
 	int x;
-	int status[2];	/* will have integer alignment */
+	int status[2]; /* will have integer alignment */
 	char *ptr;
 
 	report_begin("wait with unaligned status");
 
 	pid = fork();
-	if (pid<0) {
+	if (pid < 0) {
 		report_warn("fork failed");
 		report_aborted();
 		return;
 	}
-	if (pid==0) {
+	if (pid == 0) {
 		exit(0);
 	}
 
@@ -140,27 +127,24 @@ wait_unaligned(void)
 
 	rv = waitpid(pid, (int *)ptr, 0);
 	report_survival(rv, errno);
-	if (rv<0) {
+	if (rv < 0) {
 		waitpid(pid, &x, 0);
 	}
 }
 
-static
-void
-wait_badflags(void)
-{
+static void wait_badflags(void) {
 	pid_t pid, rv;
 	int x;
 
 	report_begin("wait with bad flags");
 
 	pid = fork();
-	if (pid<0) {
+	if (pid < 0) {
 		report_warn("fork failed");
 		report_aborted();
 		return;
 	}
-	if (pid==0) {
+	if (pid == 0) {
 		exit(0);
 	}
 
@@ -169,10 +153,7 @@ wait_badflags(void)
 	waitpid(pid, &x, 0);
 }
 
-static
-void
-wait_self(void)
-{
+static void wait_self(void) {
 	pid_t rv;
 	int x;
 
@@ -182,10 +163,7 @@ wait_self(void)
 	report_survival(rv, errno);
 }
 
-static
-void
-wait_parent(void)
-{
+static void wait_parent(void) {
 	pid_t mypid, childpid, rv;
 	int x;
 
@@ -194,12 +172,12 @@ wait_parent(void)
 
 	mypid = getpid();
 	childpid = fork();
-	if (childpid<0) {
+	if (childpid < 0) {
 		report_warn("can't fork");
 		report_aborted();
 		return;
 	}
-	if (childpid==0) {
+	if (childpid == 0) {
 		/* Child. Wait for parent. */
 		rv = waitpid(mypid, &x, 0);
 		report_beginsub("from child:");
@@ -213,10 +191,7 @@ wait_parent(void)
 
 ////////////////////////////////////////////////////////////
 
-static
-void
-wait_siblings_child(const char *semname)
-{
+static void wait_siblings_child(const char *semname) {
 	pid_t pids[2], mypid, otherpid;
 	int rv, fd, semfd, x;
 	char c;
@@ -230,10 +205,8 @@ wait_siblings_child(const char *semname)
 	 */
 	semfd = open(semname, O_RDONLY);
 	if (semfd < 0) {
-		report_warn("child process (pid %d) can't open %s",
-			 mypid, semname);
-	}
-	else {
+		report_warn("child process (pid %d) can't open %s", mypid, semname);
+	} else {
 		if (read(semfd, &c, 1) < 0) {
 			report_warn("in pid %d: %s: read", mypid, semname);
 		}
@@ -241,9 +214,8 @@ wait_siblings_child(const char *semname)
 	}
 
 	fd = open(TESTFILE, O_RDONLY);
-	if (fd<0) {
-		report_warn("child process (pid %d) can't open %s",
-			    mypid, TESTFILE);
+	if (fd < 0) {
+		report_warn("child process (pid %d) can't open %s", mypid, TESTFILE);
 		return;
 	}
 
@@ -254,28 +226,23 @@ wait_siblings_child(const char *semname)
 	 */
 	do {
 		rv = lseek(fd, 0, SEEK_SET);
-		if (rv<0) {
-			report_warn("child process (pid %d) lseek error",
-				    mypid);
+		if (rv < 0) {
+			report_warn("child process (pid %d) lseek error", mypid);
 			return;
 		}
 		rv = read(fd, pids, sizeof(pids));
-		if (rv<0) {
-			report_warn("child process (pid %d) read error",
-				    mypid);
+		if (rv < 0) {
+			report_warn("child process (pid %d) read error", mypid);
 			return;
 		}
 	} while (rv < (int)sizeof(pids));
 
-	if (mypid==pids[0]) {
+	if (mypid == pids[0]) {
 		otherpid = pids[1];
-	}
-	else if (mypid==pids[1]) {
+	} else if (mypid == pids[1]) {
 		otherpid = pids[0];
-	}
-	else {
-		report_warn("child process (pid %d) got garbage in comm file",
-			    mypid);
+	} else {
+		report_warn("child process (pid %d) got garbage in comm file", mypid);
 		return;
 	}
 	close(fd);
@@ -285,10 +252,7 @@ wait_siblings_child(const char *semname)
 	report_survival(rv, errno);
 }
 
-static
-void
-wait_siblings(void)
-{
+static void wait_siblings(void) {
 	pid_t pids[2];
 	int rv, fd, semfd, x;
 	int bad = 0;
@@ -300,7 +264,7 @@ wait_siblings(void)
 	report_hassubs();
 
 	snprintf(semname, sizeof(semname), "sem:badcall.%d", (int)getpid());
-	semfd = open(semname, O_WRONLY|O_CREAT|O_TRUNC, 0664);
+	semfd = open(semname, O_WRONLY | O_CREAT | O_TRUNC, 0664);
 	if (semfd < 0) {
 		report_warn("can't make semaphore");
 		report_aborted();
@@ -308,7 +272,7 @@ wait_siblings(void)
 	}
 
 	fd = open_testfile(NULL);
-	if (fd<0) {
+	if (fd < 0) {
 		report_aborted();
 		close(semfd);
 		remove(semname);
@@ -316,7 +280,7 @@ wait_siblings(void)
 	}
 
 	pids[0] = fork();
-	if (pids[0]<0) {
+	if (pids[0] < 0) {
 		report_warn("can't fork");
 		report_aborted();
 		close(fd);
@@ -324,7 +288,7 @@ wait_siblings(void)
 		remove(semname);
 		return;
 	}
-	if (pids[0]==0) {
+	if (pids[0] == 0) {
 		close(fd);
 		close(semfd);
 		wait_siblings_child(semname);
@@ -332,7 +296,7 @@ wait_siblings(void)
 	}
 
 	pids[1] = fork();
-	if (pids[1]<0) {
+	if (pids[1] < 0) {
 		report_warn("can't fork");
 		report_aborted();
 		/* abandon the other child process :( */
@@ -341,7 +305,7 @@ wait_siblings(void)
 		remove(semname);
 		return;
 	}
-	if (pids[1]==0) {
+	if (pids[1] == 0) {
 		close(fd);
 		close(semfd);
 		wait_siblings_child(semname);
@@ -377,20 +341,19 @@ wait_siblings(void)
 
 	report_beginsub("overall");
 	rv = waitpid(pids[0], &x, 0);
-	if (rv<0) {
+	if (rv < 0) {
 		report_warn("error waiting for child 0 (pid %d)", pids[0]);
 		bad = 1;
 	}
 	rv = waitpid(pids[1], &x, 0);
-	if (rv<0) {
+	if (rv < 0) {
 		report_warn("error waiting for child 1 (pid %d)", pids[1]);
 		bad = 1;
 	}
 	if (bad) {
 		/* XXX: aborted, or failure, or what? */
 		report_aborted();
-	}
-	else {
+	} else {
 		report_passed();
 	}
 	close(fd);
@@ -401,9 +364,7 @@ wait_siblings(void)
 
 ////////////////////////////////////////////////////////////
 
-void
-test_waitpid(void)
-{
+void test_waitpid(void) {
 	wait_badpid(-8, "wait for pid -8");
 	wait_badpid(-1, "wait for pid -1");
 	wait_badpid(0, "pid zero");

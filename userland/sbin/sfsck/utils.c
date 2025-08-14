@@ -39,12 +39,10 @@
 /*
  * Wrapper around malloc.
  */
-void *
-domalloc(size_t len)
-{
+void *domalloc(size_t len) {
 	void *x;
 	x = malloc(len);
-	if (x==NULL) {
+	if (x == NULL) {
 		errx(EXIT_FATAL, "Out of memory");
 	}
 	return x;
@@ -54,9 +52,7 @@ domalloc(size_t len)
  * Wrapper around realloc. OSZ is the old block size, which we need if
  * we're going to emulate realloc with malloc.
  */
-void *
-dorealloc(void *op, size_t osz, size_t nsz)
-{
+void *dorealloc(void *op, size_t osz, size_t nsz) {
 	void *np;
 #ifdef NO_REALLOC
 	size_t copysz;
@@ -80,9 +76,7 @@ dorealloc(void *op, size_t osz, size_t nsz)
 /*
  * Get a unique id number. (unique as in for this run of sfsck...)
  */
-uint32_t
-uniqueid(void)
-{
+uint32_t uniqueid(void) {
 	static uint32_t uniquecounter;
 
 	return uniquecounter++;
@@ -92,16 +86,14 @@ uniqueid(void)
  * Check if BUF, a string field of length MAXLEN, contains a null
  * terminator. If not, slam one in and return 1.
  */
-int
-checknullstring(char *buf, size_t maxlen)
-{
+int checknullstring(char *buf, size_t maxlen) {
 	size_t i;
-	for (i=0; i<maxlen; i++) {
-		if (buf[i]==0) {
+	for (i = 0; i < maxlen; i++) {
+		if (buf[i] == 0) {
 			return 0;
 		}
 	}
-	buf[maxlen-1] = 0;
+	buf[maxlen - 1] = 0;
 	return 1;
 }
 
@@ -109,14 +101,12 @@ checknullstring(char *buf, size_t maxlen)
  * Check if BUF contains characters not allowed in file and volume
  * names. If so, stomp them and return 1.
  */
-int
-checkbadstring(char *buf)
-{
+int checkbadstring(char *buf) {
 	size_t i;
 	int rv = 0;
 
-	for (i=0; buf[i]; i++) {
-		if (buf[i]==':' || buf[i]=='/') {
+	for (i = 0; buf[i]; i++) {
+		if (buf[i] == ':' || buf[i] == '/') {
 			buf[i] = '_';
 			rv = 1;
 		}
@@ -127,14 +117,12 @@ checkbadstring(char *buf)
 /*
  * Check if BUF, of size LEN, is zeroed. If not, zero it and return 1.
  */
-int
-checkzeroed(void *vbuf, size_t len)
-{
+int checkzeroed(void *vbuf, size_t len) {
 	char *buf = vbuf;
 	size_t i;
 	int rv = 0;
 
-	for (i=0; i < len; i++) {
+	for (i = 0; i < len; i++) {
 		if (buf[i] != 0) {
 			buf[i] = 0;
 			rv = 1;

@@ -37,10 +37,7 @@
 
 #include "test.h"
 
-static
-void
-chdir_empty(void)
-{
+static void chdir_empty(void) {
 	int rv;
 
 	/*
@@ -52,10 +49,7 @@ chdir_empty(void)
 	report_check2(rv, errno, EINVAL, 0);
 }
 
-void
-test_chdir(void)
-{
+void test_chdir(void) {
 	test_chdir_path();
 	chdir_empty();
 }
-

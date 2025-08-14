@@ -85,50 +85,31 @@ struct usem {
 	int fd;
 };
 
-static
-void
-semcreate(const char *tag, struct usem *sem)
-{
+static void semcreate(const char *tag, struct usem *sem) {
 	int fd;
 
-	snprintf(sem->name, sizeof(sem->name), "sem:multiexec.%s.%d",
-		 tag, (int)getpid());
+	snprintf(sem->name, sizeof(sem->name), "sem:multiexec.%s.%d", tag,
+			 (int)getpid());
 
-	fd = open(sem->name, O_WRONLY|O_CREAT|O_TRUNC, 0664);
+	fd = open(sem->name, O_WRONLY | O_CREAT | O_TRUNC, 0664);
 	if (fd < 0) {
 		err(1, "%s: create", sem->name);
 	}
 	close(fd);
 }
 
-static
-void
-semopen(struct usem *sem)
-{
+static void semopen(struct usem *sem) {
 	sem->fd = open(sem->name, O_RDWR, 0664);
 	if (sem->fd < 0) {
 		err(1, "%s: open", sem->name);
 	}
 }
 
-static
-void
-semclose(struct usem *sem)
-{
-	close(sem->fd);
-}
+static void semclose(struct usem *sem) { close(sem->fd); }
 
-static
-void
-semdestroy(struct usem *sem)
-{
-	remove(sem->name);
-}
+static void semdestroy(struct usem *sem) { remove(sem->name); }
 
-static
-void
-semP(struct usem *sem, size_t num)
-{
+static void semP(struct usem *sem, size_t num) {
 	char c[num];
 
 	if (read(sem->fd, c, num) < 0) {
@@ -137,10 +118,7 @@ semP(struct usem *sem, size_t num)
 	(void)c;
 }
 
-static
-void
-semV(struct usem *sem, size_t num)
-{
+static void semV(struct usem *sem, size_t num) {
 	char c[num];
 
 	/* semfs does not use these values, but be conservative */
@@ -158,10 +136,7 @@ semV(struct usem *sem, size_t num)
 static char *subargv[SUBARGC_MAX];
 static int subargc = 0;
 
-static
-void
-spawn(int njobs)
-{
+static void spawn(int njobs) {
 	struct usem s1, s2;
 	pid_t pids[njobs];
 	int failed, status;
@@ -172,7 +147,7 @@ spawn(int njobs)
 
 	printf("Forking %d child processes...\n", njobs);
 
-	for (i=0; i<njobs; i++) {
+	for (i = 0; i < njobs; i++) {
 		pids[i] = fork();
 		if (pids[i] == -1) {
 			/* continue with the procs we have; cannot kill them */
@@ -203,26 +178,23 @@ spawn(int njobs)
 	semV(&s2, njobs);
 
 	failed = 0;
-	for (i=0; i<njobs; i++) {
+	for (i = 0; i < njobs; i++) {
 		if (waitpid(pids[i], &status, 0) < 0) {
 			warn("waitpid");
 			failed++;
-		}
-		else if (WIFSIGNALED(status)) {
-			warnx("pid %d (child %d): Signal %d",
-			      (int)pids[i], i, WTERMSIG(status));
+		} else if (WIFSIGNALED(status)) {
+			warnx("pid %d (child %d): Signal %d", (int)pids[i], i,
+				  WTERMSIG(status));
 			failed++;
-		}
-		else if (WIFEXITED(status) && WEXITSTATUS(status) != 0) {
-			warnx("pid %d (child %d): Exit %d",
-			      (int)pids[i], i, WEXITSTATUS(status));
+		} else if (WIFEXITED(status) && WEXITSTATUS(status) != 0) {
+			warnx("pid %d (child %d): Exit %d", (int)pids[i], i,
+				  WEXITSTATUS(status));
 			failed++;
 		}
 	}
 	if (failed > 0) {
 		warnx("%d children failed", failed);
-	}
-	else {
+	} else {
 		printf("Succeeded\n");
 	}
 
@@ -232,15 +204,13 @@ spawn(int njobs)
 	semdestroy(&s2);
 }
 
-int
-main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
 	static char default_prog[] = "/bin/pwd";
 
 	int njobs = 12;
 	int i;
 
-	for (i=1; i<argc; i++) {
+	for (i = 1; i < argc; i++) {
 		if (!strcmp(argv[i], "-j")) {
 			i++;
 			if (argv[i] == NULL) {

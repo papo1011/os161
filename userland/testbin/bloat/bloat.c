@@ -32,17 +32,13 @@ static unsigned touchpages;
 /* when touching pages, the extent to which we favor the middle of the range */
 static unsigned bias;
 
-
-static
-void
-moremem(void)
-{
+static void moremem(void) {
 	static unsigned totalpages;
 
 	void *ptr;
 	unsigned i;
 
-	for (i=0; i<allocs; i++) {
+	for (i = 0; i < allocs; i++) {
 		ptr = sbrk(PAGE_SIZE);
 		if (ptr == (void *)-1) {
 			err(1, "After %u pages: sbrk", totalpages);
@@ -55,20 +51,14 @@ moremem(void)
 	}
 }
 
-static
-void
-touchpage(unsigned pagenum)
-{
+static void touchpage(unsigned pagenum) {
 	int *ptr;
 
 	ptr = (void *)((uintptr_t)firstpage + PAGE_SIZE * pagenum);
 	*ptr = pagenum;
 }
 
-static
-unsigned
-pickpage(unsigned numpages)
-{
+static unsigned pickpage(unsigned numpages) {
 	unsigned mnum, moffset;
 	unsigned span, val, i;
 
@@ -93,17 +83,14 @@ pickpage(unsigned numpages)
 
 	do {
 		val = 0;
-		for (i=0; i<bias; i++) {
+		for (i = 0; i < bias; i++) {
 			val += random() % span;
 		}
 	} while (val >= mnum);
 	return moffset + val;
 }
 
-static
-void
-touchmem(void)
-{
+static void touchmem(void) {
 	unsigned i, num;
 
 	num = (((uintptr_t)lastpage - (uintptr_t)firstpage) / PAGE_SIZE) + 1;
@@ -112,36 +99,27 @@ touchmem(void)
 		warnx("%u pages", num);
 	}
 
-	for (i=0; i<touchpages; i++) {
+	for (i = 0; i < touchpages; i++) {
 		touchpage(pickpage(num));
 	}
 }
 
-static
-void
-run(void)
-{
+static void run(void) {
 	while (1) {
 		moremem();
 		touchmem();
 	}
 }
 
-static
-void
-printsettings(void)
-{
+static void printsettings(void) {
 	printf("Page size: %u\n", PAGE_SIZE);
-	printf("Allocating %u pages and touching %u pages on each cycle.\n",
-	       allocs, touchpages);
+	printf("Allocating %u pages and touching %u pages on each cycle.\n", allocs,
+		   touchpages);
 	printf("Page selection bias: %u\n", bias);
 	printf("\n");
 }
 
-static
-void
-usage(void)
-{
+static void usage(void) {
 	warnx("bloat [-a allocs] [-b bias] [-p pages]");
 	warnx("   allocs: number of pages allocated per cycle (default 4)");
 	warnx("   bias: number of dice rolled to touch pages (default 8)");
@@ -149,9 +127,7 @@ usage(void)
 	exit(1);
 }
 
-int
-main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
 	int i;
 
 	/* default mode */
@@ -161,7 +137,7 @@ main(int argc, char *argv[])
 
 	srandom(1234);
 
-	for (i=1; i<argc; i++) {
+	for (i = 1; i < argc; i++) {
 		if (!strcmp(argv[i], "-a")) {
 			i++;
 			if (i == argc) {
@@ -171,8 +147,7 @@ main(int argc, char *argv[])
 			if (allocs == 0) {
 				errx(1, "-a: must not be zero");
 			}
-		}
-		else if (!strcmp(argv[i], "-b")) {
+		} else if (!strcmp(argv[i], "-b")) {
 			i++;
 			if (i == argc) {
 				errx(1, "-b: option requires argument");
@@ -181,18 +156,15 @@ main(int argc, char *argv[])
 			if (bias == 0) {
 				errx(1, "-b: must not be zero");
 			}
-		}
-		else if (!strcmp(argv[i], "-h")) {
+		} else if (!strcmp(argv[i], "-h")) {
 			usage();
-		}
-		else if (!strcmp(argv[i], "-p")) {
+		} else if (!strcmp(argv[i], "-p")) {
 			i++;
 			if (i == argc) {
 				errx(1, "-p: option requires argument");
 			}
 			touchpages = atoi(argv[i]);
-		}
-		else {
+		} else {
 			errx(1, "Argument %s not recognized", argv[i]);
 			usage();
 		}

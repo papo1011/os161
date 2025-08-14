@@ -41,13 +41,14 @@
  * Return 0, 1, or 2 as a <, =, > b respectively.
  * Neither a nor b are considered signed.
  */
-int
-__ucmpdi2(unsigned long long a, unsigned long long b)
-{
+int __ucmpdi2(unsigned long long a, unsigned long long b) {
 	union uu aa, bb;
 
 	aa.ull = a;
 	bb.ull = b;
-	return (aa.ui[H] < bb.ui[H] ? 0 : aa.ui[H] > bb.ui[H] ? 2 :
-	    aa.ui[L] < bb.ui[L] ? 0 : aa.ui[L] > bb.ui[L] ? 2 : 1);
+	return (aa.ui[H] < bb.ui[H]
+				? 0
+				: aa.ui[H] > bb.ui[H]
+					  ? 2
+					  : aa.ui[L] < bb.ui[L] ? 0 : aa.ui[L] > bb.ui[L] ? 2 : 1);
 }

@@ -39,10 +39,7 @@
 #include <device.h>
 
 /* For open() */
-static
-int
-nullopen(struct device *dev, int openflags)
-{
+static int nullopen(struct device *dev, int openflags) {
 	(void)dev;
 	(void)openflags;
 
@@ -50,10 +47,7 @@ nullopen(struct device *dev, int openflags)
 }
 
 /* For d_io() */
-static
-int
-nullio(struct device *dev, struct uio *uio)
-{
+static int nullio(struct device *dev, struct uio *uio) {
 	/*
 	 * On write, discard everything without looking at it.
 	 * (Notice that you can write to the null device from invalid
@@ -73,10 +67,7 @@ nullio(struct device *dev, struct uio *uio)
 }
 
 /* For ioctl() */
-static
-int
-nullioctl(struct device *dev, int op, userptr_t data)
-{
+static int nullioctl(struct device *dev, int op, userptr_t data) {
 	/*
 	 * No ioctls.
 	 */
@@ -97,14 +88,12 @@ static const struct device_ops null_devops = {
 /*
  * Function to create and attach null:
  */
-void
-devnull_create(void)
-{
+void devnull_create(void) {
 	int result;
 	struct device *dev;
 
 	dev = kmalloc(sizeof(*dev));
-	if (dev==NULL) {
+	if (dev == NULL) {
 		panic("Could not add null device: out of memory\n");
 	}
 

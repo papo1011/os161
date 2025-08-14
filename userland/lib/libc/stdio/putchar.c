@@ -37,13 +37,11 @@
  * writing that code is not really worthwhile.
  */
 
-int
-putchar(int ch)
-{
+int putchar(int ch) {
 	char c = ch;
 	int len;
 	len = write(STDOUT_FILENO, &c, 1);
-	if (len<=0) {
+	if (len <= 0) {
 		return EOF;
 	}
 	return ch;
