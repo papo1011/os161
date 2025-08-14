@@ -36,6 +36,12 @@
 
 #include <spinlock.h>
 
+/* 1: implement lock as a binary semaphore (+ pointer to thread) 
+ * 0: lock implemented by wait channel
+ */
+#define USE_SEMAPHORE_FOR_LOCK 1
+/* ------------------------------------------------------------- */
+
 /*
  * Dijkstra-style semaphore.
  *
@@ -72,9 +78,15 @@ void V(struct semaphore *);
  */
 struct lock {
 	char *lk_name;
-	HANGMAN_LOCKABLE(lk_hangman); /* Deadlock detector hook. */
-								  // add what you need here
+	// add what you need here
 	// (don't forget to mark things volatile as needed)
+#if USE_SEMAPHORE_FOR_LOCK
+	struct semaphore *lk_sem;
+#else
+	struct wchan *lk_wchan;
+#endif
+	struct spinlock lk_lock;
+	volatile struct thread *lk_owner;
 };
 
 struct lock *lock_create(const char *name);
