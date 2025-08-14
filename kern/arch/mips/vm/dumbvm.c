@@ -101,6 +101,16 @@ static unsigned char *freeRamFrames = NULL;
  * address and segment lengths.
  */
 static unsigned long *allocSize = NULL;
+
+/*
+ * Integer storing the total number of physical frames in RAM,
+ * which also defines the size of freeRamFrames[] and allocSize[].
+ *
+ * A common strategy is to steal all available RAM at startup
+ * (during bootstrap) so that these arrays and nRamFrames can be
+ * initialized to their maximum size immediately, avoiding the
+ * need to call ram_stealmem() again later.
+ */
 static int nRamFrames = 0;
 
 static int allocTableActive = 0;
