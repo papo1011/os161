@@ -86,6 +86,20 @@ static struct spinlock freemem_lock = SPINLOCK_INITIALIZER;
  */
 static unsigned char *freeRamFrames = NULL;
 
+/*
+ * Array tracking the size of each allocated memory block:
+ * each index represents a physical page, and the stored value
+ * indicates how many pages were allocated starting at that page
+ * (inclusive).
+ *
+ * This is required in the kernel because free_kpages() only
+ * receives the starting virtual address of the block to free,
+ * so its size must be retrieved from this array.
+ *
+ * On the user side, this is unnecessary since as_destroy()
+ * gets the addrspace, which already contains both the base
+ * address and segment lengths.
+ */
 static unsigned long *allocSize = NULL;
 static int nRamFrames = 0;
 
