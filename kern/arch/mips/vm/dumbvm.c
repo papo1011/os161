@@ -430,6 +430,17 @@ struct addrspace *as_create(void) {
 	return as;
 }
 
+/*
+ * as_destroy() is a user-level memory release function that takes the
+ * process's address space as input.
+ *
+ * It first disables the dumbvm memory manager, then calls freeppages()
+ * for each of the three segments in the address space (code, data, stack).
+ * For code and data, the address space already stores the base address
+ * and size; for the stack, the size is fixed by DUMBVM_STACKPAGES.
+ *
+ * Finally, the address space structure itself is deallocated.
+ */
 void as_destroy(struct addrspace *as) {
 	dumbvm_can_sleep();
 	freeppages(as->as_pbase1, as->as_npages1);
