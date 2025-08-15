@@ -133,31 +133,38 @@ void V(struct semaphore *sem) {
 struct lock *lock_create(const char *name) {
 	struct lock *lock;
 
+	/* Allocate the lock object */
 	lock = kmalloc(sizeof(*lock));
 	if (lock == NULL) {
 		return NULL;
 	}
 
+	/* Duplicate and store the human-readable name (for debugging) */
 	lock->lk_name = kstrdup(name);
 	if (lock->lk_name == NULL) {
 		kfree(lock);
 		return NULL;
 	}
 
-	// add stuff here as needed
-
 #if USE_SEMAPHORE_FOR_LOCK
+	/* Semaphore-backed: create a binary semaphore (1 means "unlocked") */
 	lock->lk_sem = sem_create(lock->lk_name, 1);
 	if (lock->lk_sem == NULL) {
 #else
+	/* Wait-channel-backed: create a wait channel to sleep waiters */
 	lock->lk_wchan = wchan_create(lock->lk_name);
 	if (lock->lk_wchan == NULL) {
 #endif
+		/* Clean up on failure of the backend primitive */
 		kfree(lock->lk_name);
 		kfree(lock);
 		return NULL;
 	}
+
+	/* No owner initially */
 	lock->lk_owner = NULL;
+
+	/* Initialize the internal spinlock that protects lock state */
 	spinlock_init(&lock->lk_lock);
 
 	return lock;
@@ -165,8 +172,6 @@ struct lock *lock_create(const char *name) {
 
 void lock_destroy(struct lock *lock) {
 	KASSERT(lock != NULL);
-
-	// add stuff here as needed
 
 	spinlock_cleanup(&lock->lk_lock);
 #if USE_SEMAPHORE_FOR_LOCK
@@ -202,11 +207,16 @@ void lock_acquire(struct lock *lock) {
 	/*
      * Wait-channel backed lock:
      * - Take the spinlock to access shared state.
-     * - If occupied, sleep on the wait channel.
-     *   wchan_sleep atomically releases lk_lock, parks the thread,
-     *   and re-acquires lk_lock upon wakeup before returning.
      */
 	spinlock_acquire(&lock->lk_lock);
+
+	/*
+ 	 * Sleep while another thread owns the lock.
+ 	 * Use a while-loop to handle spurious wakeups and races:
+ 	 * - wchan_sleep atomically releases lk_lock, parks the thread, and
+ 	 *   re-acquires lk_lock before returning.
+ 	 * - After waking, re-check lk_owner; if still owned, sleep again.
+ 	 */
 	while (lock->lk_owner != NULL) {
 		wchan_sleep(lock->lk_wchan, &lock->lk_lock);
 	}

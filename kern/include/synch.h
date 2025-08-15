@@ -89,7 +89,23 @@ struct lock {
 	volatile struct thread *lk_owner;
 };
 
+/*
+ * Create and initialize a new lock.
+ * - Allocate the lock structure and duplicate the name for debugging.
+ * - Depending on configuration:
+ *     * semaphore-backed: create a binary semaphore initialized to 1 (unlocked)
+ *     * wait-channel-backed: create a wait channel to park waiting threads
+ * - Initialize the internal spinlock that protects lock state
+ * - Set lk_owner to NULL to indicate no current owner
+ * Returns the new lock on success, or NULL if any allocation/creation fails.
+ */
 struct lock *lock_create(const char *name);
+
+/*
+ * Call this only when you are certain that no thread is using the lock
+ * (no owner) and no thread is waiting on it. Destroying a held/contended
+ * lock is undefined and may trigger assertions.
+ */
 void lock_destroy(struct lock *);
 
 /*
@@ -103,6 +119,7 @@ void lock_destroy(struct lock *);
  *
  * These operations must be atomic. You get to write them.
  */
+
 void lock_acquire(struct lock *);
 void lock_release(struct lock *);
 bool lock_do_i_hold(struct lock *);
