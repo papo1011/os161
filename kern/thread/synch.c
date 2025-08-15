@@ -168,6 +168,12 @@ void lock_destroy(struct lock *lock) {
 
 	// add stuff here as needed
 
+	spinlock_cleanup(&lock->lk_lock);
+#if USE_SEMAPHORE_FOR_LOCK
+	sem_destroy(lock->lk_sem);
+#else
+	wchan_destroy(lock->lk_wchan);
+#endif
 	kfree(lock->lk_name);
 	kfree(lock);
 }
