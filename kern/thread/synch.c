@@ -179,15 +179,45 @@ void lock_destroy(struct lock *lock) {
 }
 
 void lock_acquire(struct lock *lock) {
-	/* Call this (atomically) before waiting for a lock */
-	//HANGMAN_WAIT(&curthread->t_hangman, &lock->lk_hangman);
+	/* Preconditions: lock must exist, no recursive acquire, not in interrupt context */
+	KASSERT(lock != NULL);		/* Lock must exist */
+	if (lock_do_i_hold(lock)) { /* Optional debug print on recursive attempt */
+		kprintf("AAACKK!\n");
+	}
+	KASSERT(!lock_do_i_hold(lock)); /* Do not acquire the same lock twice */
+	KASSERT(curthread->t_in_interrupt ==
+			false); /* Cannot block in interrupt context */
 
-	// Write this
+#if USE_SEMAPHORE_FOR_LOCK
+	/*
+     * Semaphore-backed lock:
+     * - P() may block, so call it before taking the spinlock.
+     * - Sleeping while holding a spinlock is forbidden in OS/161.
+     */
+	P(lock->lk_sem);
 
-	(void)lock; // suppress warning until code gets written
+	/* Serialize updates to the lock state (owner field) */
+	spinlock_acquire(&lock->lk_lock);
+#else
+	/*
+     * Wait-channel backed lock:
+     * - Take the spinlock to access shared state.
+     * - If occupied, sleep on the wait channel.
+     *   wchan_sleep atomically releases lk_lock, parks the thread,
+     *   and re-acquires lk_lock upon wakeup before returning.
+     */
+	spinlock_acquire(&lock->lk_lock);
+	while (lock->lk_owner != NULL) {
+		wchan_sleep(lock->lk_wchan, &lock->lk_lock);
+	}
+#endif
 
-	/* Call this (atomically) once the lock is acquired */
-	//HANGMAN_ACQUIRE(&curthread->t_hangman, &lock->lk_hangman);
+	/* Become the owner atomically; the lock is free at this point */
+	KASSERT(lock->lk_owner == NULL);
+	lock->lk_owner = curthread;
+
+	/* Release the spinlock; the lock state is now consistent */
+	spinlock_release(&lock->lk_lock);
 }
 
 void lock_release(struct lock *lock) {
