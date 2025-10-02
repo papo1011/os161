@@ -35,9 +35,10 @@ Once inside the container, the OS161 file structure is as follows:
 If you want to have this repository inside the container, you will need to install git. Then, once inside the src folder, you should perform the following steps:
    ```sh
    git init
-   git remote add origin git@github.com:papo1011/os161.git
+   git remote add origin <repo-url>
    git fetch origin
    git reset --hard origin/main
+   git branch --set-upstream-to=origin/main master
    ```
 
 ### DOCS
