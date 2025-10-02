@@ -1,19 +1,19 @@
 # OS161: An Educational Operating System
 
-OS161 is a lightweight educational operating system developed at Harvard University to help students dive into the inner workings of operating systems. It runs on a MIPS-based simulator called System161, which provides a simplified yet realistic environment for OS development and experimentation.
+OS161 is a lightweight educational operating system developed at Harvard University to help students dive into the inner workings of operating systems. It runs on a MIPS based simulator called System161, which provides a simplified yet realistic environment for OS development and experimentation.
 
 ## Why OS161?
 
-OS161 is designed to hit that sweet spot between simplicity and realism, making it a great playground for learning OS fundamentals. It comes with the basics—threading, interrupts, traps, and a minimal file system—but the real challenge (and fun) comes from implementing missing features like system calls, virtual memory, and process management yourself. It’s hands-on learning at its best, pushing you to tackle real-world OS development problems.
+OS161 is designed to hit that sweet spot between simplicity and realism, making it a great playground for learning OS fundamentals. It comes with the basics threading, interrupts, traps, and a minimal file system but the real challenge (and fun) comes from implementing missing features like system calls, virtual memory, and process management yourself. It’s hands on learning at its best, pushing you to tackle real world OS development problems.
 
 **Fun fact**: Mark Zuckerberg worked on OS161 assignments during his last semester at Harvard, while also busy launching Facebook.
 
 ## System161: The Simulator
 
-System161 is the virtual machine built specifically for OS161. It simulates a 32-bit MIPS-based system and supports up to 32 processors, making it a solid testing ground for OS development. Some key features include:
+System161 is the virtual machine built specifically for OS161. It simulates a 32 bit MIPS based system and supports up to 32 processors, making it a solid testing ground for OS development. Some key features include:
 
 - Remote debugging with GDB
-- Built-in kernel profiling and statistical monitoring
+- Built in kernel profiling and statistical monitoring
 - Event tracing down to individual machine instructions
 - The ability to network multiple instances using a hub program
 
@@ -30,7 +30,18 @@ Once inside the container, the OS161 file structure is as follows:
 - `$HOME/os161/src/kern` → Contains kernel configuration files.
 - `$HOME/os161/root` → This is the directory from which OS161 should be executed.
 
+## Start Coding
+
+If you want to have this repository inside the container, you will need to install git. Then, once inside the src folder, you should perform the following steps:
+   ```sh
+   git init
+   git remote add origin git@github.com:papo1011/os161.git
+   git fetch origin
+   git reset --hard origin/main
+   ```
+
 ### DOCS
+
 Install the extension Live Server in Visual Studio Code and open the file `src/man/index.html` to view the documentation.
 
 ## Compiling and Running OS161
@@ -41,12 +52,12 @@ Install the extension Live Server in Visual Studio Code and open the file `src/m
    ```sh
    cd kern/conf/conf.kern
    ```
-2 Add the following line to the configuration file:
+2. Add the following line to the configuration file:
    ```
    defoption myoption
    optfile myoption main/new_file.c
    ```
-3 Add the following line to the include/new_file.h:
+3. Add the following line to the include/new_file.h:
    ```
    #if OPT_MYOPTION
 
@@ -54,7 +65,7 @@ Install the extension Live Server in Visual Studio Code and open the file `src/m
 
    #endif
    ```
-4 Add the following line to the main/example.c:
+4. Add the following line to the main/example.c:
    ```
    #if OPT_MYOPTION
 
