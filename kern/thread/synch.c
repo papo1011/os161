@@ -38,7 +38,8 @@
 #include <wchan.h>
 #include <thread.h>
 #include <current.h>
-#include <synch.h>
+#include "autoconf.h"
+#include "synch.h"
 
 ////////////////////////////////////////////////////////////
 //
@@ -102,10 +103,7 @@ void P(struct semaphore *sem) {
 		 * might "get" it on the first try even if other
 		 * threads are waiting. Apparently according to some
 		 * textbooks semaphores must for some reason have
-		 * strict ordering. Too bad. :-)
-		 *
-		 * Exercise: how would you implement strict FIFO
-		 * ordering?
+		 * strict ordering.
 		 */
 		wchan_sleep(sem->sem_wchan, &sem->sem_lock);
 	}
@@ -184,14 +182,13 @@ void lock_destroy(struct lock *lock) {
 }
 
 void lock_acquire(struct lock *lock) {
-	/* Preconditions: lock must exist, no recursive acquire, not in interrupt context */
-	KASSERT(lock != NULL);		/* Lock must exist */
-	if (lock_do_i_hold(lock)) { /* Optional debug print on recursive attempt */
+	KASSERT(lock != NULL);
+	if (lock_do_i_hold(lock)) {
 		kprintf("AAACKK!\n");
 	}
-	KASSERT(!lock_do_i_hold(lock)); /* Do not acquire the same lock twice */
-	KASSERT(curthread->t_in_interrupt ==
-			false); /* Cannot block in interrupt context */
+	KASSERT(!(lock_do_i_hold(lock)));
+
+	KASSERT(curthread->t_in_interrupt == false);
 
 #if USE_SEMAPHORE_FOR_LOCK
 	/*
@@ -228,19 +225,32 @@ void lock_acquire(struct lock *lock) {
 
 	/* Release the spinlock; the lock state is now consistent */
 	spinlock_release(&lock->lk_lock);
+	(void)lock; // suppress warning until code gets written
 }
 
 void lock_release(struct lock *lock) {
-	/* Call this (atomically) when the lock is released */
-	//HANGMAN_RELEASE(&curthread->t_hangman, &lock->lk_hangman);
-
-	// Write this
+	KASSERT(lock != NULL);
+	KASSERT(lock_do_i_hold(lock));
+	spinlock_acquire(&lock->lk_lock);
+	lock->lk_owner = NULL;
+#if USE_SEMAPHORE_FOR_LOCK
+	V(lock->lk_sem);
+#else
+	wchan_wakeone(lock->lk_wchan, &lock->lk_lock);
+#endif
+	spinlock_release(&lock->lk_lock);
 
 	(void)lock; // suppress warning until code gets written
 }
 
 bool lock_do_i_hold(struct lock *lock) {
-	// Write this
+#if OPT_SYNCH
+	bool res;
+	spinlock_acquire(&lock->lk_lock);
+	res = lock->lk_owner == curthread;
+	spinlock_release(&lock->lk_lock);
+	return res;
+#endif
 
 	(void)lock; // suppress warning until code gets written
 
@@ -265,34 +275,68 @@ struct cv *cv_create(const char *name) {
 		return NULL;
 	}
 
-	// add stuff here as needed
-
+#if OPT_SYNCH
+	cv->cv_wchan = wchan_create(cv->cv_name);
+	if (cv->cv_wchan == NULL) {
+		kfree(cv->cv_name);
+		kfree(cv);
+		return NULL;
+	}
+	spinlock_init(&cv->cv_lock);
+#endif
 	return cv;
 }
 
 void cv_destroy(struct cv *cv) {
 	KASSERT(cv != NULL);
 
-	// add stuff here as needed
-
+#if OPT_SYNCH
+	spinlock_cleanup(&cv->cv_lock);
+	wchan_destroy(cv->cv_wchan);
+#endif
 	kfree(cv->cv_name);
 	kfree(cv);
 }
 
 void cv_wait(struct cv *cv, struct lock *lock) {
-	// Write this
+#if OPT_SYNCH
+	KASSERT(lock != NULL);
+	KASSERT(cv != NULL);
+	KASSERT(lock_do_i_hold(lock));
+
+	spinlock_acquire(&cv->cv_lock);
+	lock_release(lock);
+	wchan_sleep(cv->cv_wchan, &cv->cv_lock);
+	spinlock_release(&cv->cv_lock);
+	lock_acquire(lock);
+#endif
+
 	(void)cv;	// suppress warning until code gets written
 	(void)lock; // suppress warning until code gets written
 }
 
 void cv_signal(struct cv *cv, struct lock *lock) {
-	// Write this
+#if OPT_SYNCH
+	KASSERT(lock != NULL);
+	KASSERT(cv != NULL);
+	KASSERT(lock_do_i_hold(lock));
+	spinlock_acquire(&cv->cv_lock);
+	wchan_wakeone(cv->cv_wchan, &cv->cv_lock);
+	spinlock_release(&cv->cv_lock);
+#endif
 	(void)cv;	// suppress warning until code gets written
 	(void)lock; // suppress warning until code gets written
 }
 
 void cv_broadcast(struct cv *cv, struct lock *lock) {
-	// Write this
+#if OPT_SYNCH
+	KASSERT(lock != NULL);
+	KASSERT(cv != NULL);
+	KASSERT(lock_do_i_hold(lock));
+	spinlock_acquire(&cv->cv_lock);
+	wchan_wakeall(cv->cv_wchan, &cv->cv_lock);
+	spinlock_release(&cv->cv_lock);
+#endif
 	(void)cv;	// suppress warning until code gets written
 	(void)lock; // suppress warning until code gets written
 }
