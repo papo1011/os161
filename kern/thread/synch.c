@@ -144,6 +144,7 @@ struct lock *lock_create(const char *name) {
 		return NULL;
 	}
 
+#if OPT_SYNCH
 #if USE_SEMAPHORE_FOR_LOCK
 	/* Semaphore-backed: create a binary semaphore (1 means "unlocked") */
 	lock->lk_sem = sem_create(lock->lk_name, 1);
@@ -152,7 +153,7 @@ struct lock *lock_create(const char *name) {
 	/* Wait-channel-backed: create a wait channel to sleep waiters */
 	lock->lk_wchan = wchan_create(lock->lk_name);
 	if (lock->lk_wchan == NULL) {
-#endif
+#endif // USE_SEMAPHORE_FOR_LOCK
 		/* Clean up on failure of the backend primitive */
 		kfree(lock->lk_name);
 		kfree(lock);
@@ -165,23 +166,30 @@ struct lock *lock_create(const char *name) {
 	/* Initialize the internal spinlock that protects lock state */
 	spinlock_init(&lock->lk_lock);
 
+#else
+	HANGMAN_LOCKABLEINIT(&lock->lk_hangman, lock->lk_name);
+#endif // OPT_SYNCH
+
 	return lock;
 }
 
 void lock_destroy(struct lock *lock) {
 	KASSERT(lock != NULL);
 
+#if OPT_SYNCH
 	spinlock_cleanup(&lock->lk_lock);
 #if USE_SEMAPHORE_FOR_LOCK
 	sem_destroy(lock->lk_sem);
 #else
 	wchan_destroy(lock->lk_wchan);
-#endif
+#endif // USE_SEMAPHORE_FOR_LOCK
+#endif // OPT_SYNCH
 	kfree(lock->lk_name);
 	kfree(lock);
 }
 
 void lock_acquire(struct lock *lock) {
+#if OPT_SYNCH
 	KASSERT(lock != NULL);
 	if (lock_do_i_hold(lock)) {
 		kprintf("AAACKK!\n");
@@ -217,7 +225,7 @@ void lock_acquire(struct lock *lock) {
 	while (lock->lk_owner != NULL) {
 		wchan_sleep(lock->lk_wchan, &lock->lk_lock);
 	}
-#endif
+#endif // USE_SEMAPHORE_FOR_LOCK
 
 	/* Become the owner atomically; the lock is free at this point */
 	KASSERT(lock->lk_owner == NULL);
@@ -225,10 +233,13 @@ void lock_acquire(struct lock *lock) {
 
 	/* Release the spinlock; the lock state is now consistent */
 	spinlock_release(&lock->lk_lock);
+
+#endif			// OPT_SYNCH
 	(void)lock; // suppress warning until code gets written
 }
 
 void lock_release(struct lock *lock) {
+#if OPT_SYNCH
 	KASSERT(lock != NULL);
 	KASSERT(lock_do_i_hold(lock));
 	spinlock_acquire(&lock->lk_lock);
@@ -237,8 +248,10 @@ void lock_release(struct lock *lock) {
 	V(lock->lk_sem);
 #else
 	wchan_wakeone(lock->lk_wchan, &lock->lk_lock);
-#endif
+#endif // USE_SEMAPHORE_FOR_LOCK
 	spinlock_release(&lock->lk_lock);
+
+#endif // OPT_SYNCH
 
 	(void)lock; // suppress warning until code gets written
 }
